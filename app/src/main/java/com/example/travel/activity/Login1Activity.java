@@ -22,7 +22,7 @@ import com.google.gson.Gson;
 
 import java.util.HashMap;
 
-public class Login1Activity extends BaseActivity {
+public class Login1Activity extends BaseActivity implements View.OnClickListener{
 
     private EditText account;
     private EditText pwd;
@@ -46,13 +46,8 @@ public class Login1Activity extends BaseActivity {
 
     @Override
     protected void initData() {
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                login(account.getText().toString().trim(),
-                        pwd.getText().toString().trim());
-            }
-        });
+        loginBtn.setOnClickListener(this);
+        goRegister.setOnClickListener(this);
     }
 
     private void login(String account, String pwd) {
@@ -118,4 +113,22 @@ public class Login1Activity extends BaseActivity {
          */
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.login1_id_login:{
+                login(account.getText().toString().trim(),
+                        pwd.getText().toString().trim());
+                break;
+            }
+            case R.id.login1_id_goRegister: {
+                //Log.e("here???","goRegister");
+                navigateTo(RegisterActivity.class);
+                break;
+            }
+            default:{
+
+            }
+        }
+    }
 }
