@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Travel</string>
+    <string name="travel">游迹</string>
+    <string name="slogan">游你在 迹我行</string>
+    <string name="account_hint">请输入手机号/电子邮箱地址</string>
+    <string name="pwd_hint">请输入密码</string>
+    <string name="login">登录</string>
+    <string name="policy_hint">继续即视为您已阅读并同意《用户服务协议》和《必要隐私政策》</string>
+    <string name="switch_login">更换登录方式</string>
+    <string name="go_register">去注册</string>
+    <string name="defaultName">昵称</string>
+    <string name="defaultPhoneNum">手机号</string>
+    <string name="defaultEmail">邮箱</string>
+    <string name="defaultSignature">个性签名</string>
+    <string name="defaultBirthday">生日</string>
+    <string name="defaultRegion">城市</string>
+    <string name="defaultGender">性别</string>
+</resources>
