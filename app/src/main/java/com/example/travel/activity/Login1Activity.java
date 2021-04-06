@@ -79,16 +79,7 @@ public class Login1Activity extends BaseActivity {
             user.setBirthday("2020-04-06");
             user.setRegion("太平洋比奇堡海滩");
             loginUser.setUser(user);
-            saveStringToSp("id","1");
-            saveStringToSp("username","海绵宝宝");
-            saveStringToSp("phoneNum", "1234567890");
-            saveStringToSp("email","12334556@qq.com");
-            saveStringToSp("gender","男");
-            saveStringToSp("signature","你好，派大星");
-            saveStringToSp("headPortraitPath","");
-            saveStringToSp("backgroundPath","");
-            saveStringToSp("birthday","2020-04-06");
-            saveStringToSp("region","太平洋比奇堡海滩");
+            updateSp(user);
             navigateTo(UserInfoActivity.class);
         } else {
             showToast("用户名或密码错误");

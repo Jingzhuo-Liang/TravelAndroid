@@ -5,10 +5,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.travel.entity.User;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -46,6 +49,35 @@ public abstract class BaseActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences("sp_travel",MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(key,value);
+        //Log.e(key,value);
         editor.apply();
+    }
+
+    public String getStringFromSp(String key) {
+        SharedPreferences sp = getSharedPreferences("sp_travel",MODE_PRIVATE);
+        //Log.e(sp.getString(key,""),sp.getString(key,""));
+        return sp.getString(key,"");
+    }
+
+    public void updateSp(User user) {
+        clearSp();
+        saveStringToSp("id",String.valueOf(user.getId()));
+        saveStringToSp("username",user.getUsername());
+        saveStringToSp("phoneNum", user.getPhoneNum());
+        saveStringToSp("email",user.getEmail());
+        saveStringToSp("gender",user.getGender());
+        saveStringToSp("signature",user.getSignature());
+        saveStringToSp("headPortraitPath","");
+        saveStringToSp("backgroundPath","");
+        saveStringToSp("birthday",user.getBirthday());
+        saveStringToSp("region",user.getRegion());
+    }
+
+    public void clearSp() {
+        SharedPreferences sp = getSharedPreferences("sp_travel",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.clear();
+        editor.apply();
+        getStringFromSp("id");
     }
 }

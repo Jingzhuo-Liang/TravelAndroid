@@ -3,7 +3,7 @@ package com.example.travel.entity;
 public class User {
     private int id;
     private String phoneNum;
-    private String password;
+    //private String password;
     private String email;
     private String username;
     private String gender;
@@ -29,13 +29,13 @@ public class User {
         this.phoneNum = phoneNum;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+//    public String getPassword() {
+//        return password;
+//    }
+//
+//    public void setPassword(String password) {
+//        this.password = password;
+//    }
 
     public String getEmail() {
         return email;

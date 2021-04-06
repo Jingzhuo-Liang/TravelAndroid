@@ -15,4 +15,5 @@
     <string name="defaultBirthday">生日</string>
     <string name="defaultRegion">城市</string>
     <string name="defaultGender">性别</string>
+    <string name="exitLogin">退出登录</string>
 </resources>

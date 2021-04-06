@@ -19,6 +19,11 @@ import com.example.travel.widget.TitleLayout;
 import javax.security.auth.login.LoginException;
 
 public class EditName extends BaseActivity {
+    private static final int EDIT_NAME = 1;
+    private static final int EDIT_PHONENUM = 2;
+    private static final int EDIT_EMAIL = 3;
+    private static final int EDIT_SIGNATURE = 4;
+
     private LoginUser loginUser = LoginUser.getInstance();
     private TitleLayout tl_title;
     private EditText edit_name;
@@ -58,7 +63,26 @@ public class EditName extends BaseActivity {
         ActivityCollector.addActivity(this);
         tl_title = (TitleLayout) findViewById(R.id.tl_title);
         edit_name = (EditText) findViewById(R.id.et_edit_name);
-        //edit_name.setText(loginUser.getUsername());
+        switch (loginUser.getType()) {
+            case EDIT_NAME: {
+                edit_name.setText(loginUser.getUsername());
+                break;
+            }
+            case EDIT_PHONENUM: {
+                edit_name.setText(loginUser.getPhoneNum());;
+                break;
+            }
+            case EDIT_EMAIL:{
+                edit_name.setText(loginUser.getEmail());
+                break;
+            }
+            case EDIT_SIGNATURE:{
+                edit_name.setText(loginUser.getSignature());
+                break;
+            }
+            default:
+                break;
+        }
     }
 
     @Override
@@ -68,7 +92,7 @@ public class EditName extends BaseActivity {
         tl_title.getTextView_forward().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("type:",String.valueOf(loginUser.getType()));
+                //Log.e("type:",String.valueOf(loginUser.getType()));
                 switch (loginUser.getType()) {
 
                     case 1: {

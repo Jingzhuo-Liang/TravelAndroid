@@ -5,4 +5,6 @@ public class ApiConfig {
     public static final String BASE_URL = "http://123.56.137.91:8085";
     public static final String LOGIN = "/travel/login";
     public static final String REGISTER = "/travel/register";
+    public static final String UPDATE_USER = "/travel/updateUserInfo";
+    public static final String EXIT_LOGIN = "/travel/exitLogin";
 }

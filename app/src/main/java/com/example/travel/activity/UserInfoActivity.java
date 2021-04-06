@@ -13,8 +13,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,12 +24,14 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.icu.text.MessagePattern;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -40,11 +44,15 @@ import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.OptionsPickerView;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.example.travel.R;
+import com.example.travel.api.Api;
+import com.example.travel.api.ApiConfig;
+import com.example.travel.api.TtitCallback;
 import com.example.travel.util.ActivityCollector;
 import com.example.travel.util.CityBean;
 import com.example.travel.util.LoginUser;
 import com.example.travel.util.PhotoUtils;
 import com.example.travel.util.ProvinceBean;
+import com.example.travel.util.StringUtils;
 import com.example.travel.util.ToastUtils;
 import com.example.travel.widget.ItemGroup;
 import com.example.travel.widget.RoundImageView;
@@ -61,6 +69,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private ItemGroup ig_phoneNum;
     private ItemGroup ig_email;
     private ItemGroup ig_signature;
+    private Button ig_exitLoginBtn;
 
     private LoginUser loginUser = LoginUser.getInstance();
     private LinearLayout ll_portrait;
@@ -72,12 +81,12 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private OptionsPickerView pvOptions;
 
     private RoundImageView ri_portrati;
-    private static final int TAKE_PHOTO = 1;
-    private static final int FROM_ALBUMS = 2;
     private PopupWindow popupWindow;
     private String imagePath;  //从相册中选的地址
     private PhotoUtils photoUtils = new PhotoUtils();
 
+    private static final int TAKE_PHOTO = 1;
+    private static final int FROM_ALBUMS = 2;
     private static final int EDIT_NAME = 3;
     private static final int EDIT_PHONENUM = 4;
     private static final int EDIT_EMAIL = 5;
@@ -139,6 +148,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         ig_phoneNum = findViewById(R.id.ig_phoneNum);
         ig_email = findViewById(R.id.ig_email);
         ig_signature = findViewById(R.id.ig_signature);
+        ig_exitLoginBtn = findViewById(R.id.ig_exitLogin);
 
         ll_portrait = (LinearLayout)findViewById(R.id.ll_portrait);
         ri_portrati = (RoundImageView)findViewById(R.id.ri_portrait);
@@ -152,6 +162,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         ig_phoneNum.setOnClickListener(this);
         ig_signature.setOnClickListener(this);
         ll_portrait.setOnClickListener(this);
+        ig_exitLoginBtn.setOnClickListener(this);
 
     }
 
@@ -161,9 +172,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         titleLayout.getTextView_forward().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginUser.update();
-                showToast("保存成功");
-                // 发送用户更新方法
+                updateLogin();
                 finish();
             }
         });
@@ -173,11 +182,10 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        //如果是退出则loginUser的数据重新初始化（也就是不保存数据库）
-        //loginUser.reinit();
         ActivityCollector.removeActivity(this);
     }
 
+    @SuppressLint("NonConstantResourceId")
     public void onClick(View v){
         switch (v.getId()){
             //修改用户名
@@ -258,7 +266,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     @Override
                     public void onTimeSelect(Date date, View v) {
                         //选择了则显示并暂存LoginUser，退出时在保存至数据库
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                         ig_birthday.getContentEdt().setText(sdf.format(date));
                         loginUser.setBirthday(sdf.format(date));
                     }
@@ -272,11 +280,55 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 show_popup_windows();
                 break;
             }
+            // 退出登录
+            case R.id.ig_exitLogin: {
+                exitLogin();
+                break;
+            }
             default:
                 break;
         }
     }
-    //处理拍摄照片回调
+
+    //退出登录
+    private void exitLogin() {
+        loginUser.clear(); //清除本地变量
+        clearSp();
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId", loginUser.getUser().getId());
+        Api.config(ApiConfig.EXIT_LOGIN,params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                showToast("登出成功");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                showToast("登出失败");
+            }
+        });
+    }
+
+    //更新用户信息
+    private void updateLogin() {
+        loginUser.update();//更新本地变量
+        updateSp(loginUser.getUser());
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("user",loginUser.getUser());
+        Api.config(ApiConfig.UPDATE_USER,params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                showToast("保存成功");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                showToast("保存失败");
+            }
+        });
+    }
+
+    //处理回调
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode,data);
@@ -284,18 +336,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             //拍照得到图片
             case TAKE_PHOTO:
                 break;
-                /*
-                if(resultCode == RESULT_OK){
-                    try {
-                        //将拍摄的图片展示并更新数据库
-                        Bitmap bitmap = BitmapFactory.decodeStream((getContentResolver().openInputStream(imageUri)));
-                        ri_portrati.setImageBitmap(bitmap);
-                        loginUser.setHeadPortraitPath(photoUtils.bitmap2byte(bitmap));
-                    }catch (FileNotFoundException e){
-                        e.printStackTrace();
-                    }
-                }
-                 */
             //从相册中选择图片
             case FROM_ALBUMS:
                 if(resultCode == RESULT_OK){
@@ -321,6 +361,24 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     ig_name.getContentEdt().setText(loginUser.getUsername());
                 }
                 break;
+            case EDIT_PHONENUM:{
+                if (resultCode == RESULT_OK) {
+                    ig_phoneNum.getContentEdt().setText(loginUser.getPhoneNum());
+                }
+                break;
+            }
+            case EDIT_EMAIL: {
+                if (resultCode == RESULT_OK) {
+                    ig_email.getContentEdt().setText(loginUser.getEmail());
+                }
+                break;
+            }
+            case EDIT_SIGNATURE: {
+                if (resultCode == RESULT_OK) {
+                    ig_signature.getContentEdt().setText(loginUser.getSignature());
+                }
+                break;
+            }
             default:
                 break;
         }
@@ -337,12 +395,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         ig_gender.getContentEdt().setText(loginUser.getGender());
         ig_region.getContentEdt().setText(loginUser.getRegion());
         ig_birthday.getContentEdt().setText(loginUser.getBirthday());
-    }
-
-    private String getStringFromSp(String key) {
-        SharedPreferences sp = getSharedPreferences("sp_travel",MODE_PRIVATE);
-        Log.e(sp.getString(key,""),sp.getString(key,""));
-        return sp.getString(key,"");
     }
 
 
@@ -406,27 +458,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         }
         //显示popupwindows
         popupWindow.showAtLocation(layout_photo_selected, Gravity.CENTER, 0, 0);
-        //设置监听器
-        //TextView take_photo =  (TextView) layout_photo_selected.findViewById(R.id.take_photo);
         TextView from_albums = (TextView)  layout_photo_selected.findViewById(R.id.from_albums);
         LinearLayout cancel = (LinearLayout) layout_photo_selected.findViewById(R.id.cancel);
-        //拍照按钮监听
-        /*
-        take_photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(popupWindow != null && popupWindow.isShowing()) {
-                    imageUri = photoUtils.take_photo_util(PersonInfo.this, "com.foodsharetest.android.fileprovider", "output_image.jpg");
-                    //调用相机，拍摄结果会存到imageUri也就是outputImage中
-                    Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                    intent.putExtra(EXTRA_OUTPUT, imageUri);
-                    startActivityForResult(intent, TAKE_PHOTO);
-                    //去除选择框
-                    popupWindow.dismiss();
-                }
-            }
-        });
-        */
         //相册按钮监听
         from_albums.setOnClickListener(new View.OnClickListener() {
             @Override
