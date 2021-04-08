@@ -76,6 +76,7 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
             loginUser.setUser(user);
             updateSp(user);
             navigateTo(UserInfoActivity.class);
+            //navigateTo(MapActivity.class);
         } else {
             showToast("用户名或密码错误");
         }
