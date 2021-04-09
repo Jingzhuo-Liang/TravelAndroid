@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.baidu.mapapi.SDKInitializer;
@@ -40,6 +41,10 @@ public class MapActivity extends BaseActivity{
     protected void initData() {
         mBaiduMap = mMapView.getMap();
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
+        showData();
+    }
+
+    protected void showData(){
         //TODO:获取数据解析经纬度
         create_map_point(39.91923, 116.387428);
         create_map_point(49.91923, 110.387428);
@@ -56,13 +61,21 @@ public class MapActivity extends BaseActivity{
             public boolean onMarkerClick(Marker marker) {
                 //在显示新信息窗之前，先关闭已经在显示的信息窗
                 mBaiduMap.hideInfoWindow();
+                //获取maker此时的经纬度
+                Double latitude = marker.getPosition().latitude;
+                Double longitude = marker.getPosition().longitude;
+                //TODO:通过经纬度动态加载图片到xml
                 //显示信息窗
-                View infoWindow_view = getLayoutInflater().inflate(R.layout.item_info_window, null);
-                TextView textView_item_infoWindow = (TextView) infoWindow_view.findViewById(R.id.textView_item_infoWindow);
-                //如果显示窗是要用自定义的view，则最外层可直接用UI控件或者layout，如果外层用layout来布局，那么布局中一定要有UI控件，否则BitmapDescriptorFactory.fromView(view);会报空指针
-                //              Bundle bundle = marker.getExtraInfo();
-                //              textView_item_infoWindow.setText(bundle.getString("name"));
-                textView_item_infoWindow.setText("MAP");
+                View infoWindow_view = getLayoutInflater().inflate(R.layout.map_pop_window, null);
+                ImageView back_image_view = (ImageView) infoWindow_view.findViewById(R.id.back);
+                back_image_view.setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mBaiduMap.hideInfoWindow();
+                            }
+                        }
+                );
                 BitmapDescriptor infoWindow_bitmap = BitmapDescriptorFactory.fromView(infoWindow_view);
                 //信息窗点击处理事件
                 Log.d("tag", "infoWindow_view="+infoWindow_view);

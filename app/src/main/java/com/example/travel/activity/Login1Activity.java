@@ -75,8 +75,8 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
             user.setRegion("太平洋比奇堡海滩");
             loginUser.setUser(user);
             updateSp(user);
-            navigateTo(UserInfoActivity.class);
-            //navigateTo(MapActivity.class);
+            //navigateTo(UserInfoActivity.class);
+            navigateTo(MapActivity.class);
         } else {
             showToast("用户名或密码错误");
         }
