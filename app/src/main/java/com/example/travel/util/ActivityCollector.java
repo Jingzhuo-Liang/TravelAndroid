@@ -6,6 +6,12 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class ActivityCollector {
     private static List<Activity> activities = new ArrayList<>();
     public static void addActivity(Activity activity){

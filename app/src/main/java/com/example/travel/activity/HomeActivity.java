@@ -10,11 +10,18 @@ import com.example.travel.R;
 import com.example.travel.adapter.ImageAdapter;
 import com.example.travel.fragment.HomeFragment;
 import com.example.travel.fragment.UserInfoFragment;
+import com.example.travel.util.LoginUser;
 import com.next.easynavigation.view.EasyNavigationBar;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class HomeActivity extends BaseActivity {
 
     private EasyNavigationBar navigationBar;
@@ -79,6 +86,10 @@ public class HomeActivity extends BaseActivity {
 //                                }
                                 flag = !flag;
                                 //Log.e("on tabSelectEvent","click");
+                                if (LoginUser.getInstance().getUser() == null) {
+                                    showToast("请登录");
+                                    return;
+                                }
                                 navigateTo(SelectImageActivity.class);
                             }
                         });

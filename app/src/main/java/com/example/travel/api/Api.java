@@ -19,6 +19,12 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class Api {
 
     private static String requestUrl;

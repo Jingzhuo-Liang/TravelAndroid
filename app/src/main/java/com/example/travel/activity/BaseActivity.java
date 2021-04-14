@@ -11,17 +11,35 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bigkoo.pickerview.view.OptionsPickerView;
 import com.example.travel.entity.User;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public abstract class BaseActivity extends AppCompatActivity {
 
     public Context context;
+    //地址选择器数据
+    protected String province_data;
+    protected String city_data;
+    protected OptionsPickerView pvOptions;
 
     @Override
     protected void onCreate(@Nullable Bundle saveInstanceState) {
         super.onCreate(saveInstanceState);
         context = this;
         setContentView(initLayout());
+        province_data = readJsonFile("province.json");
+        city_data = readJsonFile("city.json");
         initView();
         initData();
     }
@@ -79,5 +97,30 @@ public abstract class BaseActivity extends AppCompatActivity {
         editor.clear();
         editor.apply();
         getStringFromSp("id");
+    }
+
+    //传入：asset文件夹中json文件名
+    //返回：读取的String
+    protected String readJsonFile(String file){
+        StringBuilder newstringBuilder = new StringBuilder();
+        try {
+            InputStream inputStream = getResources().getAssets().open(file);
+
+            InputStreamReader isr = new InputStreamReader(inputStream);
+
+            BufferedReader reader = new BufferedReader(isr);
+
+            String jsonLine;
+            while ((jsonLine = reader.readLine()) != null) {
+                newstringBuilder.append(jsonLine);
+            }
+            reader.close();
+            isr.close();
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String data =  newstringBuilder.toString();
+        return data;
     }
 }

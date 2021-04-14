@@ -40,6 +40,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class PhotoUtils {
     //方法1，take photo
     public Uri take_photo_util(Context context, String auth, String filename){

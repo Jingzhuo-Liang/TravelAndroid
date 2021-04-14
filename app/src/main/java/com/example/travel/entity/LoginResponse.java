@@ -1,5 +1,11 @@
 package com.example.travel.entity;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class LoginResponse {
     private String msg;
     private int code;
@@ -29,7 +35,7 @@ public class LoginResponse {
         this.data = data;
     }
 
-    public int getId() {
+    public String getId() {
         return data.getId();
     }
 

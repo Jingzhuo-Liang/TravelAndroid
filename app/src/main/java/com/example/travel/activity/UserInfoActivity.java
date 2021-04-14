@@ -60,6 +60,12 @@ import com.example.travel.widget.TitleLayout;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class UserInfoActivity extends BaseActivity implements View.OnClickListener {
     private ItemGroup ig_id;
     private ItemGroup ig_name;
@@ -405,10 +411,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         optionsItems_gender.add(new String("男"));
         optionsItems_gender.add(new String("女"));
 
-        //地址选择器数据
-        String province_data = readJsonFile("province.json");
-        String city_data = readJsonFile("city.json");
-
         Gson gson = new Gson();
 
         options1Items = gson.fromJson(province_data, new TypeToken<ArrayList<ProvinceBean>>(){}.getType());
@@ -425,30 +427,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
 
     }
 
-    //传入：asset文件夹中json文件名
-    //返回：读取的String
-    private String readJsonFile(String file){
-        StringBuilder newstringBuilder = new StringBuilder();
-        try {
-            InputStream inputStream = getResources().getAssets().open(file);
-
-            InputStreamReader isr = new InputStreamReader(inputStream);
-
-            BufferedReader reader = new BufferedReader(isr);
-
-            String jsonLine;
-            while ((jsonLine = reader.readLine()) != null) {
-                newstringBuilder.append(jsonLine);
-            }
-            reader.close();
-            isr.close();
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String data =  newstringBuilder.toString();
-        return data;
-    }
 
     //展示修改头像的选择框，并设置选择框的监听器
     private void show_popup_windows(){

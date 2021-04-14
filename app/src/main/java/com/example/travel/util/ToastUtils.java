@@ -4,6 +4,12 @@ import android.content.Context;
 import android.widget.Toast;
 
 // 没啥用
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class ToastUtils{
     private Toast mToast;
 

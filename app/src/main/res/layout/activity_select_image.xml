@@ -21,7 +21,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@drawable/arrow_back"
-
+            android:id="@+id/si_arrowBack_btn"
             android:layout_alignParentLeft="true"
             />
 
@@ -74,23 +74,54 @@
                         android:layout_centerVertical="true"
                         android:text="选择你的照片"
                         android:textSize="15sp"
-                        android:textColor="@color/gray"/>
+                        android:textColor="@color/gray5"/>
             </RelativeLayout>
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/layer2_2"
                 android:layout_below="@+id/layer2_1">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:id="@+id/si_region_layer"
+                    android:layout_marginTop="23dp"
+                    >
+                    <Button
+                        android:layout_width="35dp"
+                        android:layout_height="40dp"
+                        android:background="@mipmap/location_icon">
+                    </Button>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/si_recordRegion"
+                        android:textColorHint="#bcbcbc"
+                        android:textColor="@color/black"
+                        android:inputType="text"
+                        android:hint="@string/region_hint"
+                        >
+                    </TextView>
+                </LinearLayout>
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="#e8e7e7"
-                    android:layout_marginTop="23dp"
+                    android:layout_below="@+id/si_region_layer"
+
+                    android:id="@+id/layer2_2_0"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#e8e7e7"
+                    android:layout_below="@+id/layer2_2_0"
+                    android:layout_marginTop="10dp"
                     android:id="@+id/layer2_2_1"/>
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/si_noteName"
+                    android:id="@+id/si_recordName"
                     android:layout_below="@+id/layer2_2_1"
                     android:hint="@string/travelName_hint"
                     android:textColorHint="#bcbcbc"
@@ -104,7 +135,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:id="@+id/layer2_2_3"
-                    android:layout_below="@+id/si_noteName"
+                    android:layout_below="@+id/si_recordName"
                     android:background="#e8e7e7"
                     />
                 <View
@@ -118,7 +149,7 @@
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/si_noteMain"
+                    android:id="@+id/si_recordMain"
                     android:layout_below="@+id/layer2_2_4"
                     android:hint="@string/travel_main_hint"
                     android:textColorHint="#bcbcbc"

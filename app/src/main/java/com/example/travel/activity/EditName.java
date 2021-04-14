@@ -18,6 +18,12 @@ import com.example.travel.widget.TitleLayout;
 
 import javax.security.auth.login.LoginException;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class EditName extends BaseActivity {
     private static final int EDIT_NAME = 1;
     private static final int EDIT_PHONENUM = 2;

@@ -14,9 +14,15 @@ import com.example.travel.R;
 
 import java.util.ArrayList;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class ImageAdapter  extends RecyclerView.Adapter<ImageAdapter.ViewHolder>{
     private Context mContext;
-    private ArrayList<String> mImages;
+    private ArrayList<String> mImages = new ArrayList<>();
     private LayoutInflater mInflater;
     private boolean isAndroidQ = VersionUtils.isAndroidQ();
 

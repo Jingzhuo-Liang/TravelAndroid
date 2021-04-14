@@ -1,0 +1,41 @@
+package com.example.travel.adapter;
+
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+
+import java.util.ArrayList;
+
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
+public class HomeAdapter extends FragmentPagerAdapter {
+
+    private String[] mTitles;
+    private ArrayList<Fragment> mFragments;
+
+    public HomeAdapter(FragmentManager fm, String[] mTitles, ArrayList<Fragment> mFragments) {
+        super(fm);
+        this.mFragments = mFragments;
+        this.mTitles = mTitles;
+    }
+
+    @Override
+    public int getCount() {
+        return mFragments.size();
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return mTitles[position];
+    }
+
+    @Override
+    public Fragment getItem(int position) {
+        return mFragments.get(position);
+    }
+}

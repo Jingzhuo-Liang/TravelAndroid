@@ -27,9 +27,13 @@ import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.OptionsPickerView;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.example.travel.R;
+import com.example.travel.api.Api;
+import com.example.travel.api.ApiConfig;
+import com.example.travel.api.TtitCallback;
 import com.example.travel.util.CityBean;
 import com.example.travel.util.PhotoUtils;
 import com.example.travel.util.ProvinceBean;
+import com.example.travel.util.StringUtils;
 import com.example.travel.widget.RoundImageView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -43,13 +47,19 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class RegisterActivity extends BaseActivity implements View.OnClickListener{
     private ArrayList<String> optionsItems_gender = new ArrayList<>();
     private ArrayList<ProvinceBean> options1Items = new ArrayList<>();
     private ArrayList<ArrayList<String>> options2Items = new ArrayList<>();
     private PopupWindow popupWindow;
-    private OptionsPickerView pvOptions;
 
     private EditText registerAccount;
     private EditText registerPwd;
@@ -94,6 +104,53 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         initOptionData();
     }
 
+
+    private void register() {
+        String account = registerAccount.getText().toString().trim();
+        String pwd = registerPwd.getText().toString().trim();
+        String confirmPwd = registerConfirmPwd.getText().toString().trim();
+        String username = registerUsername.getText().toString();
+        String signature = registerSignature.getText().toString();
+        String region = registerRegion.toString();
+        String gender = registerGender.toString();
+        String birthday = registerBirthday.toString();
+        if (StringUtils.isEmpty(account)) {
+            showToast("请输入手机号或邮箱");
+            return;
+        } else if (StringUtils.isEmpty(pwd)) {
+            showToast("请输入密码");
+            return;
+        } else if (StringUtils.isEmpty(confirmPwd)) {
+            showToast("请确认密码");
+            return;
+        } else if (StringUtils.isEmpty(username)) {
+            showToast("请输入用户名");
+            return;
+        }
+        if (!pwd.equals(confirmPwd)) {
+            showToast("密码不一致，请重新输入");
+            return;
+        }
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("account",account);
+        params.put("pwd",pwd);
+        params.put("confirmPwd",confirmPwd);
+        params.put("signature",signature);
+        params.put("region",region);
+        params.put("gender",gender);
+        params.put("birthday",birthday);
+        Api.config(ApiConfig.REGISTER,params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+    }
 
     @Override
     public void onClick(View v) {
@@ -162,20 +219,12 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
-    private void register() {
-
-    }
-
     //初始化性别、地址和生日的数据
     private void initOptionData(){
         //性别选择器数据
         optionsItems_gender.add(new String("保密"));
         optionsItems_gender.add(new String("男"));
         optionsItems_gender.add(new String("女"));
-
-        //地址选择器数据
-        String province_data = readJsonFile("province.json");
-        String city_data = readJsonFile("city.json");
 
         Gson gson = new Gson();
 
@@ -193,6 +242,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
 
     }
 
+    /*
     //传入：asset文件夹中json文件名
     //返回：读取的String
     private String readJsonFile(String file){
@@ -217,6 +267,8 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         String data =  newstringBuilder.toString();
         return data;
     }
+
+     */
 
     /*
     //展示修改头像的选择框，并设置选择框的监听器

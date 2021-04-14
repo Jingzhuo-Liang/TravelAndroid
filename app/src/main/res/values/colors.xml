@@ -71,4 +71,6 @@
 
     <!--    图标的颜色-->
     <color name="menu_icon">#FF000000</color>
+
+    <color name="text_color">#424656</color>
 </resources>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:layout_marginTop="15dp"
+    android:layout_marginBottom="15dp"
+    android:layout_marginLeft="15dp"
+    android:layout_marginRight="15dp"
+    >
+
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="187dp"
+        android:id="@+id/travelNote_cover_image"
+        android:background="@mipmap/welcome"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
+        >
+
+    </ImageView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/travelNote_region"
+            android:text="长春"
+            android:textColor="@color/text_color"
+            android:textSize="15sp"
+            >
+        </TextView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="|"
+            android:textColor="@color/text_color"
+            android:textSize="15sp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            >
+        </TextView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/travelNote_name"
+            android:text="这是一个好地方"
+            android:textColor="@color/text_color"
+            android:textSize="15sp"
+            >
+
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+            android:id="@+id/travelNote_portrait"
+            android:background="@mipmap/default_portrait"
+            >
+        </ImageView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/travelNote_userName"
+            android:text="海绵宝宝"
+            android:textColor="@color/text_color"
+            android:textSize="15sp"
+            >
+        </TextView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:gravity="right"
+            >
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginRight="5dp"
+                android:scaleType="fitXY"
+                android:id="@+id/travelNote_like"
+                android:background="@mipmap/like"
+                >
+            </ImageView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/travelNote_likeNum"
+                android:text="1202"
+                android:textColor="@color/text_color"
+                android:textSize="15sp"
+                >
+            </TextView>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

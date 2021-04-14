@@ -6,12 +6,18 @@ import android.util.Log;
 import com.example.travel.entity.User;
 
 //使用饿汉模式实现单例的登录用户信息记录
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class LoginUser extends Application {
     private static LoginUser login_user = new LoginUser();
     private static User user;
     private int type; // 1-username 2-phoneNum 3-email  4-signature
 
-    private int id;
+    private String id;
     private String phoneNum;
     //private String password;
     private String email;
@@ -33,7 +39,7 @@ public class LoginUser extends Application {
     }
 
     public void update(){
-        if(user.getId()==this.id){
+        if(user.getId().equals(this.id)){
             user.setUsername(this.username);
             Log.e("update:", user.getUsername());
             user.setPhoneNum(this.phoneNum);
@@ -74,11 +80,11 @@ public class LoginUser extends Application {
         setRegion(user.getRegion());
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

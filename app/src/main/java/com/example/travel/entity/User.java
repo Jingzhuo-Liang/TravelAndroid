@@ -1,7 +1,13 @@
 package com.example.travel.entity;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class User {
-    private int id;
+    private String id;
     private String phoneNum;
     //private String password;
     private String email;
@@ -13,11 +19,11 @@ public class User {
     private String birthday;
     private String region;
 
-    public int getId() {
+    public String  getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

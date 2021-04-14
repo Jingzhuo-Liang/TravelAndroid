@@ -2,6 +2,12 @@ package com.example.travel.util;
 
 import com.contrarywind.interfaces.IPickerViewData;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class ProvinceBean implements IPickerViewData {
     private long id;
     private String name;

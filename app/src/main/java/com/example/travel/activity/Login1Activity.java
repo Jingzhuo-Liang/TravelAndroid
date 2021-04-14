@@ -22,6 +22,12 @@ import com.google.gson.Gson;
 
 import java.util.HashMap;
 
+/**
+ * @@author:ljz
+ * @@date:2021/4/14,10:46
+ * @@version:1.0
+ * @@annotation:
+ **/
 public class Login1Activity extends BaseActivity implements View.OnClickListener{
 
     private EditText account;
@@ -63,7 +69,7 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
             showToast("登录成功");
             LoginUser loginUser = LoginUser.getInstance();
             User user = new User();
-            user.setId(1);
+            user.setId("1");
             user.setUsername("海绵宝宝");
             user.setPhoneNum("1234567890");
             user.setEmail("12334556@qq.com");
