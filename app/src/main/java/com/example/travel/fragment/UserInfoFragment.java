@@ -1,5 +1,6 @@
 package com.example.travel.fragment;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,8 +8,17 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.travel.R;
+import com.example.travel.activity.UserInfoActivity;
+import com.example.travel.entity.User;
+import com.example.travel.util.LoginUser;
+import com.example.travel.util.PhotoUtils;
+import com.example.travel.widget.TitleLayout;
+
 /**
  * @@author:ljz
  * @@date:2021/4/14,10:46
@@ -17,6 +27,12 @@ import com.example.travel.R;
  **/
 public class UserInfoFragment extends BaseFragment {
 
+    private TitleLayout titleLayout;
+    private TextView my_username;
+    private TextView my_signature;
+    private ImageView my_portrait;
+    private TextView my_focusNum;
+    private TextView my_beFocusNum;
 
     @Override
     protected int initLayout() {
@@ -25,11 +41,51 @@ public class UserInfoFragment extends BaseFragment {
 
     @Override
     protected void initView() {
+        titleLayout = mRootView.findViewById(R.id.my_title);
+        titleLayout.setTitle("我的");
+        Drawable drawable = getResources().getDrawable(R.mipmap.user_info);
+        drawable.setBounds(40,0,110,70);
+        titleLayout.getTextView_forward().setCompoundDrawables(drawable,null,null,null);
+        titleLayout.getTextView_forward().setText("");
+        titleLayout.getTextView_backward().setImageBitmap(null);
+        my_username = mRootView.findViewById(R.id.my_username);
+        my_signature = mRootView.findViewById(R.id.my_signature);
+        my_portrait = mRootView.findViewById(R.id.my_portrait);
+        my_focusNum = mRootView.findViewById(R.id.my_focusNum);
+        my_beFocusNum = mRootView.findViewById(R.id.my_beFocusedNum);
 
+        titleLayout.getTextView_forward().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateTo(UserInfoActivity.class);
+            }
+        });
     }
 
     @Override
     protected void initData() {
+        getUserInfo();
+    }
 
+    private void getUserInfo() {
+        User user = LoginUser.getInstance().getUser();
+        if (user == null) {
+            my_username.setText("昵称");
+            my_signature.setText("个性签名");
+            my_portrait.setBackground(getResources().getDrawable(R.mipmap.default_portrait));
+            my_focusNum.setText("0");
+            my_beFocusNum.setText("0");
+        }
+        else {
+            my_username.setText(user.getUsername());
+            my_signature.setText(user.getSignature());
+            if (user.getHeadPortraitPath().equals("default") || user.getHeadPortraitPath().equals("")) {
+                my_portrait.setBackground(getResources().getDrawable(R.mipmap.default_portrait));
+            } else {
+                my_portrait.setImageBitmap(PhotoUtils.stringToBitmap(user.getHeadPortraitPath()));
+            }
+            my_focusNum.setText("123");
+            my_beFocusNum.setText("456");
+        }
     }
 }

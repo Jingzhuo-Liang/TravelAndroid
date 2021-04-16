@@ -37,16 +37,17 @@ public class TitleLayout extends LinearLayout {
 
          */
 
-        //设置监听器
-        //如果点击back则结束活动
-        iv_backward.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((Activity)getContext()).finish();
-            }
-        });
+
     }
     public TextView getTextView_forward(){
         return tv_forward;
+    }
+
+    public ImageView getTextView_backward() {
+        return iv_backward;
+    }
+
+    public void setTitle(String title) {
+        this.tv_title.setText(title);
     }
 }

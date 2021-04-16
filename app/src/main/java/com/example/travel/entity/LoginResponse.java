@@ -51,7 +51,7 @@ public class LoginResponse {
         return data.getUsername();
     }
 
-    public byte[] getHeadPortraitPath() {
+    public String getHeadPortraitPath() {
         return data.getHeadPortraitPath();
     }
 
@@ -59,9 +59,6 @@ public class LoginResponse {
         return data.getSignature();
     }
 
-    public byte[] getBackgroundPath() {
-        return data.getBackgroundPath();
-    }
 
     public String getBirthday() {
         return data.getBirthday();

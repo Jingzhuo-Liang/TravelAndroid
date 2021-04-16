@@ -13,9 +13,9 @@ public class User {
     private String email;
     private String username;
     private String gender;
-    private byte[] headPortraitPath;
+    private String headPortraitPath;
     private String signature;
-    private byte[] backgroundPath;
+    private String backgroundPath;
     private String birthday;
     private String region;
 
@@ -83,19 +83,19 @@ public class User {
         this.region = region;
     }
 
-    public byte[] getHeadPortraitPath() {
+    public String getHeadPortraitPath() {
         return headPortraitPath;
     }
 
-    public void setHeadPortraitPath(byte[] headPortraitPath) {
+    public void setHeadPortraitPath(String headPortraitPath) {
         this.headPortraitPath = headPortraitPath;
     }
 
-    public byte[] getBackgroundPath() {
+    public String getBackgroundPath() {
         return backgroundPath;
     }
 
-    public void setBackgroundPath(byte[] backgroundPath) {
+    public void setBackgroundPath(String backgroundPath) {
         this.backgroundPath = backgroundPath;
     }
 

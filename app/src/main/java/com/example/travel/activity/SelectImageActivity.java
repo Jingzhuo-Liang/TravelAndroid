@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -176,7 +177,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         Api.config(ApiConfig.RELEASE_TRAVEL_RECORD,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-
+                Log.e("release success",res);
             }
 
             @Override

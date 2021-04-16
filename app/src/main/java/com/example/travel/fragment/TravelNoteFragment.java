@@ -12,10 +12,19 @@ import android.view.View;
 
 import com.example.travel.R;
 import com.example.travel.adapter.TravelNoteAdapter;
+import com.example.travel.api.Api;
+import com.example.travel.api.ApiConfig;
+import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.TravelNoteEntity;
 import com.example.travel.listener.OnItemChildClickListener;
+import com.example.travel.util.LoginUser;
+import com.google.gson.Gson;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * @@author:ljz
@@ -30,6 +39,9 @@ public class TravelNoteFragment extends BaseFragment implements OnItemChildClick
     private ArrayList<TravelNoteEntity> datas = new ArrayList<>();
     private TravelNoteAdapter noteAdapter;
     private LinearLayoutManager linearLayoutManager;
+    private RefreshLayout refreshLayout;
+    private int pageNum = 1;
+
 
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
@@ -69,6 +81,7 @@ public class TravelNoteFragment extends BaseFragment implements OnItemChildClick
     @Override
     protected void initView() {
         recyclerView = mRootView.findViewById(R.id.recyclerView);
+        refreshLayout = mRootView.findViewById(R.id.refreshLayout);
     }
 
     @Override
@@ -88,15 +101,27 @@ public class TravelNoteFragment extends BaseFragment implements OnItemChildClick
                 //Log.e("tNoteFragment initData2",view.toString());
             }
         });
+        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh(RefreshLayout refreshlayout) {
+                //refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
+                pageNum = 1;
+                getTravelNoteList(true);
+            }
+        });
+        refreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore(RefreshLayout refreshlayout) {
+                refreshlayout.finishLoadMore(2000/*,false*/);//传入false表示加载失败
+                pageNum++;
+                getTravelNoteList(false);
+            }
+        });
 
-        //videoAdapter = new VideoAdapter(getActivity());
-        //videoAdapter.setDatas(datas);
         noteAdapter = new TravelNoteAdapter(getActivity());
         noteAdapter.setOnItemChildClickListener(this);
-        getTravelNoteList();
-        //SystemClock.sleep(1000);
+        getTravelNoteList(true);
         recyclerView.setAdapter(noteAdapter);
-        //Log.e("here????",String.valueOf(datas.size()));
     }
 
     private void getTravelNoteList() {
@@ -116,71 +141,98 @@ public class TravelNoteFragment extends BaseFragment implements OnItemChildClick
     }
 
     private void getTravelNoteList(boolean isRefresh) {
+        HashMap<String ,Object> params = new HashMap<>();
+        params.put("page",pageNum);
+        params.put("limit", ApiConfig.PAGE_SIZE);
+        if (LoginUser.getInstance().getUser() == null) { //用户未登录
+            getTravelNoteListGETMETHOD(ApiConfig.GET_TRAVEL_RECORD_NO_CUSTOMIZED,params,isRefresh);
+        } else {    //用户登录
+            params.put("userId",LoginUser.getInstance().getUser().getId());
+            getTravelNoteListGETMETHOD(ApiConfig.GET_TRAVEL_RECORD_CUSTOMIZED,params,isRefresh);
+        }
+    }
 
-        /*
-        String token = getStringFromSp("token");
-        //Log.e(token,"token");
-        if (!StringUtils.isEmpty(token)) {
-            HashMap<String ,Object> params = new HashMap<>();
-            params.put("token",token);
-            params.put("cid",categoryId);
-            params.put("page",pageNum);
-            params.put("limit", ApiConfig.PAGE_SIZE);
-            Api.config(ApiConfig.VIDEO_LIST_BY_CATEGORY,params).getRequest(new TtitCallback() {
-                @Override
-                public void onSuccess(String res) {
-
+    private void getTravelNoteListGETMETHOD(String url, HashMap<String,Object> params,boolean isRefresh) {
+        Api.config(url,params).getRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                if (isRefresh) {
+                    refreshLayout.finishRefresh(true);
+                }
+                else {
+                    refreshLayout.finishLoadMore(true);
+                }
+                ArrayList<TravelNoteEntity> list = new ArrayList<>();
+                for (int i = (pageNum - 1) * ApiConfig.PAGE_SIZE;i < pageNum * ApiConfig.PAGE_SIZE && i < 15;i++) {
+                    TravelNoteEntity te = new TravelNoteEntity();
+                    te.setId(String.valueOf(i));
+                    te.setCoverImage("");
+                    te.setNoteName("travel");
+                    te.setPortrait("");
+                    te.setLikeNum(i * 100 + i + 50);
+                    te.setRegion("吉林长春");
+                    te.setUsername("海绵宝宝");
+                    list.add(te);
+                }
+                if (list.size() > 0) {
                     if (isRefresh) {
-                        refreshLayout.finishRefresh(true);
+                        datas = list;
+                    } else {
+                        datas.addAll(list);
+                    }
+                } else {
+                    if (isRefresh) {
+                        showToastSync("暂时加载无数据");
                     }
                     else {
-                        refreshLayout.finishLoadMore(true);
+                        showToastSync("没有更多数据");
                     }
-                    VideoListResponse videoListResponse = new Gson().fromJson(res, VideoListResponse.class);
-                    //Log.e("response",String.valueOf(videoListResponse.getCode()));
-                    if (videoListResponse != null && videoListResponse.getCode() == 200 ) {
-                        ArrayList<VideoEntity> list = (ArrayList)videoListResponse.getData();
-                        if (list != null && list.size() > 0) {
-                            if (isRefresh) {
-                                datas = list;
-                            }
-                            else {
-                                datas.addAll(list);
-                            }
-
-                            videoAdapter.setDatas(datas);
-                            handler.sendEmptyMessage(0);
+                }
+                noteAdapter.setDatas(datas);
+                handler.sendEmptyMessage(0);
+                /*
+                VideoListResponse videoListResponse = new Gson().fromJson(res, VideoListResponse.class);
+                //Log.e("response",String.valueOf(videoListResponse.getCode()));
+                if (videoListResponse != null && videoListResponse.getCode() == 200 ) {
+                    ArrayList<VideoEntity> list = (ArrayList)videoListResponse.getData();
+                    if (list != null && list.size() > 0) {
+                        if (isRefresh) {
+                            datas = list;
                         }
                         else {
-                            if (isRefresh) {
-                                showToastSync("暂时加载无数据");
-                            }
-                            else {
-                                showToastSync("没有更多数据");
-                            }
+                            datas.addAll(list);
                         }
-                        //showToastSync(datas.get(0).getVtitle());
-                    }else {
-                        //navigateTo(LoginActivity.class);
-                    }
-                    //showToastSync(res);
-                }
 
-                @Override
-                public void onFailure(Exception e) {
-                    if (isRefresh) {
-                        refreshLayout.finishRefresh(true);
+                        videoAdapter.setDatas(datas);
+                        handler.sendEmptyMessage(0);
                     }
                     else {
-                        refreshLayout.finishLoadMore(true);
+                        if (isRefresh) {
+                            showToastSync("暂时加载无数据");
+                        }
+                        else {
+                            showToastSync("没有更多数据");
+                        }
                     }
+                    //showToastSync(datas.get(0).getVtitle());
+                }else {
+                    //navigateTo(LoginActivity.class);
                 }
-            });
-        }
-        else {
-            navigateTo(LoginActivity.class);
-        }
-         */
+                //showToastSync(res);
+                 */
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (isRefresh) {
+                    refreshLayout.finishRefresh(true);
+                }
+                else {
+                    refreshLayout.finishLoadMore(true);
+                }
+            }
+        });
+
     }
 
     @SuppressLint("LongLogTag")

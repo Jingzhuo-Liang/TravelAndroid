@@ -99,45 +99,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private static final int EDIT_SIGNATURE = 6;
     private TitleLayout titleLayout;
 
-    /*
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ActivityCollector.addActivity(this);
-        setContentView(R.layout.activity_user_info);
-
-        initOptionData();
-
-        ig_id = (ItemGroup)findViewById(R.id.ig_id);
-        ig_name = (ItemGroup)findViewById(R.id.ig_name);
-        ig_gender = (ItemGroup)findViewById(R.id.ig_gender);
-        ig_region = (ItemGroup)findViewById(R.id.ig_region);
-        ig_brithday = (ItemGroup)findViewById(R.id.ig_brithday);
-        ll_portrait = (LinearLayout)findViewById(R.id.ll_portrait);
-        ri_portrati = (RoundImageView)findViewById(R.id.ri_portrait);
-        titleLayout = (TitleLayout)findViewById(R.id.tl_title);
-
-        ig_name.setOnClickListener(this);
-        ig_gender.setOnClickListener(this);
-        ig_region.setOnClickListener(this);
-        ig_brithday.setOnClickListener(this);
-        ll_portrait.setOnClickListener(this);
-
-        //设置点击保存的逻辑
-        titleLayout.getTextView_forward().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ///loginUser.update();
-                //mToast.showShort(PersonInfo.this,"保存成功");
-                finish();
-            }
-        });
-
-        initInfo();
-    }
-
-     */
-
     @Override
     protected int initLayout() {
         return R.layout.activity_user_info;
@@ -179,6 +140,12 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onClick(View v) {
                 updateLogin();
+                finish();
+            }
+        });
+        titleLayout.getTextView_backward().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 finish();
             }
         });
@@ -321,6 +288,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         updateSp(loginUser.getUser());
         HashMap<String, Object> params = new HashMap<>();
         params.put("user",loginUser.getUser());
+        /*
         Api.config(ApiConfig.UPDATE_USER,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
@@ -332,6 +300,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 showToast("保存失败");
             }
         });
+
+         */
     }
 
     //处理回调
@@ -356,7 +326,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     //将拍摄的图片展示并更新数据库
                     Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
                     ri_portrati.setImageBitmap(bitmap);
-                    loginUser.setHeadPortraitPath(photoUtils.bitmap2byte(bitmap));
+                    loginUser.setHeadPortraitPath(PhotoUtils.bitmapToString(bitmap));
                 }else{
                     Log.d("travel","没有找到图片");
                 }
@@ -392,15 +362,19 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     //初始化数据并展示
     private void initInfo(){
         LoginUser loginUser = LoginUser.getInstance();
-        ig_id.getContentEdt().setText(String.valueOf(loginUser.getId()));  //ID是int，转string
-        ig_name.getContentEdt().setText(loginUser.getUsername());
-        ig_phoneNum.getContentEdt().setText(loginUser.getPhoneNum());
-        ig_email.getContentEdt().setText(loginUser.getEmail());
-        ig_signature.getContentEdt().setText(loginUser.getSignature());
-        //ri_portrati.setImageBitmap("");
-        ig_gender.getContentEdt().setText(loginUser.getGender());
-        ig_region.getContentEdt().setText(loginUser.getRegion());
-        ig_birthday.getContentEdt().setText(loginUser.getBirthday());
+        ig_id.getContentEdt().setText(String.valueOf(loginUser.getUser().getId()));  //ID是int，转string
+        ig_name.getContentEdt().setText(loginUser.getUser().getUsername());
+        ig_phoneNum.getContentEdt().setText(loginUser.getUser().getPhoneNum());
+        ig_email.getContentEdt().setText(loginUser.getUser().getEmail());
+        ig_signature.getContentEdt().setText(loginUser.getUser().getSignature());
+        if (loginUser.getUser() != null &&
+            !loginUser.getUser().getHeadPortraitPath().equals("default") &&
+            !loginUser.getUser().getHeadPortraitPath().equals("")) {
+            ri_portrati.setImageBitmap(PhotoUtils.stringToBitmap(loginUser.getUser().getHeadPortraitPath()));
+        }
+        ig_gender.getContentEdt().setText(loginUser.getUser().getGender());
+        ig_region.getContentEdt().setText(loginUser.getUser().getRegion());
+        ig_birthday.getContentEdt().setText(loginUser.getUser().getBirthday());
     }
 
 

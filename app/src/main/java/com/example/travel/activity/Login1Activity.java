@@ -65,6 +65,7 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
             showToast("请输入密码");
             return;
         }
+        /*
         if (account.equals("123") && pwd.equals("123")) {
             showToast("登录成功");
             LoginUser loginUser = LoginUser.getInstance();
@@ -86,7 +87,8 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
         } else {
             showToast("用户名或密码错误");
         }
-        /*
+         */
+
         HashMap<String, Object> params = new HashMap<>();
         params.put("account", account);
         params.put("password",pwd);
@@ -95,6 +97,7 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
             public void onSuccess(String res) {
                 Gson gson = new Gson();
                 LoginResponse loginResponse = gson.fromJson(res,LoginResponse.class);
+                //Log.e("login",res);
                 if (loginResponse.getCode() == 200) {
                     saveStringToSp("id",String.valueOf(loginResponse.getId()));
                     saveStringToSp("username",loginResponse.getUsername());
@@ -102,12 +105,13 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
                     saveStringToSp("email",loginResponse.getEmail());
                     saveStringToSp("signature",loginResponse.getSignature());
                     saveStringToSp("headPortraitPath",loginResponse.getHeadPortraitPath());
-                    saveStringToSp("backgroundPath",loginResponse.getBackgroundPath());
                     saveStringToSp("birthday",loginResponse.getBirthday());
                     saveStringToSp("region",loginResponse.getRegion());
-                    showToast("登录成功");
+                    LoginUser.getInstance().setUser(loginResponse.getData());
+                    navigateTo(HomeActivity.class);
+                    showToastSync(loginResponse.getMsg());
                 } else {
-                    showToast("登录失败");
+                    showToastSync(loginResponse.getMsg());
                 }
             }
 
@@ -116,8 +120,6 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
 
             }
         });
-
-         */
     }
 
     @Override

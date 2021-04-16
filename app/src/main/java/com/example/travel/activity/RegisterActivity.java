@@ -30,6 +30,7 @@ import com.example.travel.R;
 import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
+import com.example.travel.entity.RegisterResponse;
 import com.example.travel.util.CityBean;
 import com.example.travel.util.PhotoUtils;
 import com.example.travel.util.ProvinceBean;
@@ -111,9 +112,11 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         String confirmPwd = registerConfirmPwd.getText().toString().trim();
         String username = registerUsername.getText().toString();
         String signature = registerSignature.getText().toString();
-        String region = registerRegion.toString();
-        String gender = registerGender.toString();
-        String birthday = registerBirthday.toString();
+        String region = registerRegion.getText().toString();
+        String gender = registerGender.getText().toString();
+        gender = gender.equals("男")?"male":gender.equals("女")?"female":"unknown";
+        String birthday = registerBirthday.getText().toString();
+        birthday = birthday.equals("") ? "2020-01-01": birthday;
         if (StringUtils.isEmpty(account)) {
             showToast("请输入手机号或邮箱");
             return;
@@ -133,7 +136,8 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         }
         HashMap<String, Object> params = new HashMap<>();
         params.put("account",account);
-        params.put("pwd",pwd);
+        params.put("username",username);
+        params.put("password",pwd);
         params.put("confirmPwd",confirmPwd);
         params.put("signature",signature);
         params.put("region",region);
@@ -142,12 +146,21 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         Api.config(ApiConfig.REGISTER,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-
+                Gson gson = new Gson();
+                RegisterResponse rg = gson.fromJson(res,RegisterResponse.class);
+                if (rg.getCode() == 200) {
+                    finish();
+                    //Log.e("register success",res);
+                    showToastSync(rg.getMsg());
+                } else {
+                    showToastSync(rg.getMsg());
+                }
             }
 
             @Override
             public void onFailure(Exception e) {
-
+                showToast(e.getMessage());
+                //Log.e("register failure",e.getMessage());
             }
         });
     }
@@ -168,8 +181,10 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                     @Override
                     public void onOptionsSelect(int options1, int options2, int options3, View v) {
                         //选择了则显示并暂存LoginUser，退出时在保存至数据库
-                        String tx = options1Items.get(options1).getPickerViewText()
-                                + options2Items.get(options1).get(options2);
+                        String tx = options1Items.get(options1).getPickerViewText() + "-"
+                                + (options2Items.get(options1).size() == 0?
+                                options1Items.get(options1).getPickerViewText():
+                                options2Items.get(options1).get(options2));
                         registerRegion.setText(tx);
                         //ig_region.getContentEdt().setText(tx);
                         //loginUser.setRegion(tx);
