@@ -94,13 +94,30 @@
                         android:background="@mipmap/location_icon">
                     </Button>
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:id="@+id/si_recordRegion"
                         android:textColorHint="#bcbcbc"
                         android:textColor="@color/black"
                         android:inputType="text"
                         android:hint="@string/region_hint"
+                        >
+                    </TextView>
+                    <Button
+                        android:layout_width="35dp"
+                        android:layout_height="40dp"
+                        android:background="@mipmap/location_icon">
+                    </Button>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/si_recordLocation"
+                        android:textColorHint="#bcbcbc"
+                        android:textColor="@color/black"
+                        android:inputType="text"
+                        android:hint="@string/location_hint"
                         >
                     </TextView>
                 </LinearLayout>
@@ -159,6 +176,15 @@
                     android:textSize="18sp"
                     android:paddingBottom="60dp">
                 </EditText>
+                <!--
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/si_recordMain"
+                    android:id="@+id/si_image_test"
+                    >
+                </ImageView>
+                -->
             </RelativeLayout>
         </RelativeLayout>
     </androidx.core.widget.NestedScrollView>

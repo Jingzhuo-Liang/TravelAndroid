@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="187dp"
         android:id="@+id/travelNote_cover_image"
-        android:background="@mipmap/welcome"
+        android:src="@mipmap/welcome"
         android:scaleType="fitXY"
         android:adjustViewBounds="true"
         >
@@ -72,7 +72,7 @@
             android:scaleType="fitXY"
             android:adjustViewBounds="true"
             android:id="@+id/travelNote_portrait"
-            android:background="@mipmap/default_portrait"
+            android:src="@mipmap/default_portrait"
             >
         </ImageView>
         <TextView

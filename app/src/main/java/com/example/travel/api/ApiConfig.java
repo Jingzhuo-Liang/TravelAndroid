@@ -16,6 +16,8 @@ public class ApiConfig {
     public static final String UPDATE_USER = "/travel/updateUserInfo";
     public static final String EXIT_LOGIN = "/travel/exitLogin";
     public static final String RELEASE_TRAVEL_RECORD = "/travel/releaseTravelRecord";
-    public static final String GET_TRAVEL_RECORD_NO_CUSTOMIZED = "/travel/getTravelRecordNoCustomized";
-    public static final String GET_TRAVEL_RECORD_CUSTOMIZED = "/travel/getTravelRecordCustomized";
+    public static final String GET_TRAVEL_RECORD_NO_RECOMMEND = "/travel/getTravelRecordNoRecommend";
+    public static final String GET_TRAVEL_RECORD_RECOMMEND = "/travel/getTravelRecordRecommend";
+    public static final String GET_TRAVEL_RECORD_NO_FOCUS = "/travel/getTravelRecordNoFocus";
+    public static final String GET_TRAVEL_RECORD_FOCUS = "/travel/getTravelRecordFocus";
 }

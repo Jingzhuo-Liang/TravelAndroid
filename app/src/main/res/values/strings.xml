@@ -10,6 +10,7 @@
     <string name="gender_hint">请选择性别</string>
     <string name="birthday_hint">请选择生日</string>
     <string name="region_hint">请选择城市</string>
+    <string name="location_hint">请选择选择位置信息</string>
     <string name="login">登录</string>
     <string name="register">注册</string>
     <string name="policy_hint">继续即视为您已阅读并同意《用户服务协议》和《必要隐私政策》</string>
@@ -24,8 +25,9 @@
     <string name="defaultRegion">城市</string>
     <string name="defaultGender">性别</string>
     <string name="exitLogin">退出登录</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="my_travelNotes">我的游记</string>
     <string name="travelName_hint">给你的游记取个好名字吧……</string>
     <string name="travel_main_hint">撰写游记正文</string>
+    <string name="state_released">已发布</string>
+    <string name="state_auditing">待审核</string>
 </resources>

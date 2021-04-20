@@ -96,7 +96,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sp.edit();
         editor.clear();
         editor.apply();
-        getStringFromSp("id");
+        //getStringFromSp("id");
     }
 
     //传入：asset文件夹中json文件名

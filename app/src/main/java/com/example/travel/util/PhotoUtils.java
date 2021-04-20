@@ -167,4 +167,23 @@ public class PhotoUtils {
         byte[] imgBytes = baos.toByteArray();// 转为byte数组
         return Base64.encodeToString(imgBytes, Base64.DEFAULT);
     }
+
+    /**
+     * 根据图片路径获取bitmap
+     *
+     * @param path
+     * @return
+     */
+    public static Bitmap getBitmap(String path) {
+        Bitmap bitmap = null;
+        try {
+            File file = new File(path);
+            if (file.exists()) {
+                bitmap = BitmapFactory.decodeFile(path);
+            }
+        } catch (Exception e) {
+
+        }
+        return bitmap;
+    }
 }

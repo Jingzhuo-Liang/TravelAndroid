@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +15,14 @@ import android.widget.TextView;
 
 import com.example.travel.R;
 import com.example.travel.activity.UserInfoActivity;
+import com.example.travel.adapter.HomeAdapter;
 import com.example.travel.entity.User;
 import com.example.travel.util.LoginUser;
 import com.example.travel.util.PhotoUtils;
 import com.example.travel.widget.TitleLayout;
+import com.flyco.tablayout.SlidingTabLayout;
+
+import java.util.ArrayList;
 
 /**
  * @@author:ljz
@@ -33,6 +38,11 @@ public class UserInfoFragment extends BaseFragment {
     private ImageView my_portrait;
     private TextView my_focusNum;
     private TextView my_beFocusNum;
+
+    private ArrayList<Fragment> mFragments = new ArrayList<>();
+    private String[] mTitles;
+    private ViewPager viewPager;
+    private SlidingTabLayout slidingTabLayout;
 
     @Override
     protected int initLayout() {
@@ -60,6 +70,17 @@ public class UserInfoFragment extends BaseFragment {
                 navigateTo(UserInfoActivity.class);
             }
         });
+
+        viewPager = mRootView.findViewById(R.id.user_info_fixedViewPager);
+        slidingTabLayout = mRootView.findViewById(R.id.user_info_slideTabLayout);
+        mTitles = new String[2];
+        mTitles[0] = "我的";
+        mTitles[1] = "足迹";
+        mFragments.add(MyTravelRecordFragment.newInstance());
+        mFragments.add(MapFragment.newInstance());
+        viewPager.setOffscreenPageLimit(mFragments.size());
+        viewPager.setAdapter(new HomeAdapter(getFragmentManager(), mTitles, mFragments));
+        slidingTabLayout.setViewPager(viewPager);
     }
 
     @Override
