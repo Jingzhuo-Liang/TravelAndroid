@@ -54,6 +54,8 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
     protected void initData() {
         loginBtn.setOnClickListener(this);
         goRegister.setOnClickListener(this);
+        account.setText("1234567890");
+        pwd.setText("123");
     }
 
     private void login(String account, String pwd) {

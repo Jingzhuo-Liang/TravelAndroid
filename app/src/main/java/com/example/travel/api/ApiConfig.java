@@ -20,4 +20,6 @@ public class ApiConfig {
     public static final String GET_TRAVEL_RECORD_RECOMMEND = "/travel/getTravelRecordRecommend";
     public static final String GET_TRAVEL_RECORD_NO_FOCUS = "/travel/getTravelRecordNoFocus";
     public static final String GET_TRAVEL_RECORD_FOCUS = "/travel/getTravelRecordFocus";
+    public static final String GET_MY_TRAVEL_RECORD = "/travel/getMyTravelRecord";
+
 }

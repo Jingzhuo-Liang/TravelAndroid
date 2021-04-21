@@ -17,15 +17,18 @@ import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.MyTravelRecordEntity;
+import com.example.travel.entity.MyTravelRecordResponse;
 import com.example.travel.entity.TravelRecordEntity;
 import com.example.travel.entity.TravelRecordResponse;
 import com.example.travel.listener.OnItemChildClickListener;
+import com.example.travel.util.LoginUser;
 import com.google.gson.Gson;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class MyTravelRecordFragment extends BaseFragment implements OnItemChildClickListener {
@@ -34,7 +37,7 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
     private ArrayList<MyTravelRecordEntity> datas = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private RefreshLayout myRecordRefreshLayout;
-    private int pageNum = 1;
+    private int pageNum = 0;
     private MyTravelRecordAdapter myTravelRecordAdapter;
 
     private Handler handler = new Handler() {
@@ -97,7 +100,7 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
                 refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
-                pageNum = 1;
+                pageNum = 0;
                 getMyTravelRecordList(true);
             }
         });
@@ -117,6 +120,7 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
 
     private void getMyTravelRecordList(boolean isRefresh) {
         //Log.e("getMyRecord",String.valueOf(isRefresh));
+        /*
         ArrayList<MyTravelRecordEntity> list = new ArrayList<>();
         for (int i = (pageNum - 1) * ApiConfig.PAGE_SIZE; i < pageNum * ApiConfig.PAGE_SIZE && i < 15; i++) {
             MyTravelRecordEntity te = new MyTravelRecordEntity();
@@ -155,60 +159,61 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
         //Log.e("getMyRecord",String.valueOf(datas.size()));
         myTravelRecordAdapter.setDatas(datas);
         handler.sendEmptyMessage(0);
-                    /*
-            Api.config(url,params).getRequest(new TtitCallback() {
-                @Override
-                public void onSuccess(String res) {
-                    if (isRefresh) {
-                        refreshLayout.finishRefresh(true);
-                    }
-                    else {
-                        refreshLayout.finishLoadMore(true);
-                    }
-                    TravelRecordResponse tr = new Gson().fromJson(res, TravelRecordResponse.class);
-                    Log.e("getTravel",res);
-                    //Log.e("response",String.valueOf(videoListResponse.getCode()));
-                    if (tr != null && tr.getCode() == 200 ) {
-                        ArrayList<MyTravelRecordEntity> list = tr.getData();
-                        if (list != null && list.size() > 0) {
-                            if (isRefresh) {
-                                datas = list;
-                            }
-                            else {
-                                datas.addAll(list);
-                            }
-                            myTravelRecordAdapter.setDatas(datas);
-                            handler.sendEmptyMessage(0);
+         */
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId", LoginUser.getInstance().getUser().getId());
+        params.put("page",pageNum);
+        params.put("limit",ApiConfig.PAGE_SIZE);
+        Api.config(ApiConfig.GET_MY_TRAVEL_RECORD,params).getRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                if (isRefresh) {
+                    myRecordRefreshLayout.finishRefresh(true);
+                }
+                else {
+                    myRecordRefreshLayout.finishLoadMore(true);
+                }
+                MyTravelRecordResponse tr = new Gson().fromJson(res, MyTravelRecordResponse.class);
+                Log.e("getMyTravel",res);
+                //Log.e("response",String.valueOf(videoListResponse.getCode()));
+                if (tr != null && tr.getCode() == 200 ) {
+                    ArrayList<MyTravelRecordEntity> list = tr.getData();
+                    if (list != null && list.size() > 0) {
+                        if (isRefresh) {
+                            datas = list;
                         }
                         else {
-                            if (isRefresh) {
-                                showToastSync("暂时加载无数据");
-                            }
-                            else {
-                                Log.e("getTravel","no more");
-                                showToastSync("没有更多数据");
-                            }
+                            datas.addAll(list);
                         }
-                        //showToastSync(datas.get(0).getVtitle());
-                    }else {
-                        //navigateTo(LoginActivity.class);
-                    }
-                    //showToastSync(res);
-
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    if (isRefresh) {
-                        myRecordRefreshLayout.finishRefresh(true);
+                        myTravelRecordAdapter.setDatas(datas);
+                        handler.sendEmptyMessage(0);
                     }
                     else {
-                        myRecordRefreshLayout.finishLoadMore(true);
+                        if (isRefresh) {
+                            showToastSync("暂时加载无数据");
+                        }
+                        else {
+                            Log.e("getMyTravel","no more");
+                            showToastSync("没有更多数据");
+                        }
                     }
+                    //showToastSync(datas.get(0).getVtitle());
+                }else {
+                    //navigateTo(LoginActivity.class);
                 }
-            });
-        */
+                //showToastSync(res);
+            }
 
+            @Override
+            public void onFailure(Exception e) {
+                if (isRefresh) {
+                    myRecordRefreshLayout.finishRefresh(true);
+                }
+                else {
+                    myRecordRefreshLayout.finishLoadMore(true);
+                }
+            }
+        });
     }
 
     @Override

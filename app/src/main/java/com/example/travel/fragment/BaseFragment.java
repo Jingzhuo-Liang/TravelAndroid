@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.HashMap;
+
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -64,6 +66,17 @@ public abstract class BaseFragment extends Fragment {
     public void navigateTo(Class c) {
         Intent in = new Intent(getActivity(), c);
         startActivity(in);
+    }
+
+    public void navigateToWithPara(Class c, HashMap<String, String> map) {
+        Intent intentSimple = new Intent();
+        intentSimple.setClass(getActivity(),c);
+        Bundle bundle=new Bundle();
+        for (String key : map.keySet()) {
+            bundle.putString(key, map.get(key));
+        }
+        intentSimple.putExtras(bundle);
+        startActivity(intentSimple);
     }
 
     protected void saveStringToSp(String key, String value) {

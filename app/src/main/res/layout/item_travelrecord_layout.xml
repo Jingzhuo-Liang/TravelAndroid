@@ -97,7 +97,7 @@
                 android:layout_marginRight="5dp"
                 android:scaleType="fitXY"
                 android:id="@+id/travelNote_like"
-                android:background="@mipmap/like"
+                android:background="@mipmap/like_icon"
                 >
             </ImageView>
             <TextView

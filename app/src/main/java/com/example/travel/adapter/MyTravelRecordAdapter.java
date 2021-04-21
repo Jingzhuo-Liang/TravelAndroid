@@ -1,6 +1,7 @@
 package com.example.travel.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,29 +66,27 @@ public class MyTravelRecordAdapter  extends RecyclerView.Adapter<RecyclerView.Vi
             ViewHolderReleased vh = (ViewHolderReleased) holder;
             //Log.e("holder",ne.getTitle());
             vh.recordName.setText(ne.getRecordName());
-            vh.releaseTime.setText(ne.getRecordReleaseTime());
+            vh.releasedTime.setText(ne.getRecordReleasedTime());
             vh.likeNum.setText(String.valueOf(ne.getLikeNum()));
             vh.commitNum.setText(String.valueOf(ne.getCommitNum()));
             vh.browseNum.setText(String.valueOf(ne.getBrowseNum()));
             vh.recordRegion.setText(ne.getRecordRegion());
-            /*
+            vh.releasedTime.setText(ne.getRecordReleasedTime());
             Picasso.with(mContext)
-                    .load(ne.getCoverImage())
+                    .load(ne.getRecordCoverImage())
                     .into(vh.coverImage);
-
-             */
         }
         else if (type == 1) {
             ViewHolderAuditing vh = (ViewHolderAuditing) holder;
             vh.recordName.setText(ne.getRecordName());
-            vh.releaseTime.setText(ne.getRecordReleaseTime());
+            vh.releasedTime.setText(ne.getRecordReleasedTime());
             vh.recordRegion.setText(ne.getRecordRegion());
-            /*
+            vh.releasedTime.setText(ne.getRecordReleasedTime());
             Picasso.with(mContext)
-                    .load(ne.getCoverImage())
+                    .load(ne.getRecordCoverImage())
                     .into(vh.coverImage);
 
-             */
+
         }
     }
 
@@ -110,7 +109,7 @@ public class MyTravelRecordAdapter  extends RecyclerView.Adapter<RecyclerView.Vi
     public class ViewHolderReleased extends RecyclerView.ViewHolder {
         private ImageView coverImage;
         private TextView recordName;
-        private TextView releaseTime;
+        private TextView releasedTime;
         private TextView likeNum;
         private TextView commitNum;
         private TextView browseNum;
@@ -120,7 +119,7 @@ public class MyTravelRecordAdapter  extends RecyclerView.Adapter<RecyclerView.Vi
             super(view);
             coverImage = view.findViewById(R.id.my_travelNote_cover_image_released);
             recordName = view.findViewById(R.id.my_travelRecordName_released);
-            releaseTime = view.findViewById(R.id.my_travelRecord_releasedTime_released);
+            releasedTime = view.findViewById(R.id.my_travelRecord_releasedTime_released);
             likeNum = view.findViewById(R.id.my_travelRecord_likeNum_released);
             commitNum = view.findViewById(R.id.my_travelRecord_commitNum_released);
             browseNum = view.findViewById(R.id.my_travelRecord_BrowseNum_released);
@@ -131,14 +130,14 @@ public class MyTravelRecordAdapter  extends RecyclerView.Adapter<RecyclerView.Vi
     public class ViewHolderAuditing extends RecyclerView.ViewHolder {
         private ImageView coverImage;
         private TextView recordName;
-        private TextView releaseTime;
+        private TextView releasedTime;
         private TextView recordRegion;
 
         public ViewHolderAuditing(@NonNull View view) {
             super(view);
             coverImage = view.findViewById(R.id.my_travelNote_cover_image_auditing);
             recordName = view.findViewById(R.id.my_recordName_auditing);
-            releaseTime = view.findViewById(R.id.my_record_releasedTime_auditing);
+            releasedTime = view.findViewById(R.id.my_record_releasedTime_auditing);
             recordRegion = view.findViewById(R.id.my_travelRecordRegion_auditing);
         }
     }

@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.travel.R;
+import com.example.travel.activity.TravelRecordDetailActivity;
 import com.example.travel.adapter.TravelRecordAdapter;
 import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
@@ -42,7 +43,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
     private TravelRecordAdapter noteAdapter;
     private LinearLayoutManager linearLayoutManager;
     private RefreshLayout refreshLayout;
-    private int pageNum = 1;
+    private int pageNum = 0;
 
 
     private Handler handler = new Handler() {
@@ -107,7 +108,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
                 //refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
-                pageNum = 1;
+                pageNum = 0;
                 getTravelNoteList(true);
             }
         });
@@ -255,5 +256,9 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
     public void onItemChildClick(int position) {
         //Log.e("TravelNoteFragment-onItemChildClick", String.valueOf(categoryId) + " " + String.valueOf(position));
         //进入游记详情界面
+        //navigateTo(TravelRecordDetailActivity.class);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("recordId", String.valueOf(datas.get(position).getRecordId()));
+        navigateToWithPara(TravelRecordDetailActivity.class,params);
     }
 }

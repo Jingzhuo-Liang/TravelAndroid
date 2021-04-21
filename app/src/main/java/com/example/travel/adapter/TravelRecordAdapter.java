@@ -15,6 +15,7 @@ import com.example.travel.R;
 import com.example.travel.entity.TravelRecordEntity;
 import com.example.travel.listener.OnItemChildClickListener;
 import com.example.travel.listener.OnItemClickListener;
+import com.example.travel.util.StringUtils;
 import com.example.travel.view.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -64,13 +65,17 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         vh.position = position;
 
         // Picasso: 异步加载
-        Picasso.with(mContext)
-                .load(travelNoteEntity.getAuthorPortrait())
-                .transform(new CircleTransform())
-                .into(vh.portrait);
-        Picasso.with(mContext)
-                .load(travelNoteEntity.getRecordCoverImage())
-                .into(vh.coverImage);
+        if (!StringUtils.isEmpty(travelNoteEntity.getAuthorPortrait())) {
+            Picasso.with(mContext)
+                    .load(travelNoteEntity.getAuthorPortrait())
+                    .transform(new CircleTransform())
+                    .into(vh.portrait);
+        }
+        if (!StringUtils.isEmpty(travelNoteEntity.getRecordCoverImage())) {
+            Picasso.with(mContext)
+                    .load(travelNoteEntity.getRecordCoverImage())
+                    .into(vh.coverImage);
+        }
         vh.position  =position;
 
     }

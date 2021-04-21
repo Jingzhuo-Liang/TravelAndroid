@@ -11,7 +11,7 @@ public class MyTravelRecordEntity {
     private String recordId;
     private String recordCoverImage;
     private String recordName;
-    private String recordReleaseTime;
+    private String recordReleasedTime;
     private String recordRegion;
     private int recordState; // 0-审核通过（发布） 1-待审核
     private int likeNum;
@@ -50,12 +50,12 @@ public class MyTravelRecordEntity {
         this.recordName = recordName;
     }
 
-    public String getRecordReleaseTime() {
-        return recordReleaseTime;
+    public String getRecordReleasedTime() {
+        return recordReleasedTime;
     }
 
-    public void setRecordReleaseTime(String recordReleaseTime) {
-        this.recordReleaseTime = recordReleaseTime;
+    public void setRecordReleasedTime(String recordReleaseTime) {
+        this.recordReleasedTime = recordReleaseTime;
     }
 
     public int getRecordState() {

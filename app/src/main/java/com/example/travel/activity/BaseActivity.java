@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 
 /**
  * @@author:ljz
@@ -61,6 +62,17 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void navigateTo(Class c) {
         Intent in = new Intent(context, c);
         startActivity(in);
+    }
+
+    public void navigateToWithPara(Class c, HashMap<String, String> map) {
+        Intent intentSimple = new Intent();
+        intentSimple.setClass(context,c);
+        Bundle bundle=new Bundle();
+        for (String key : map.keySet()) {
+            bundle.putString(key, map.get(key));
+        }
+        intentSimple.putExtras(bundle);
+        startActivity(intentSimple);
     }
 
     public void saveStringToSp(String key, String value) {
