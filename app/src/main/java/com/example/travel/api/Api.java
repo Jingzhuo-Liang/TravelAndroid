@@ -48,7 +48,7 @@ public class Api {
         RequestBody requestBodyJson = RequestBody.create(
                 MediaType.parse("application/json;charset=utf-8"),jsonStr);
 
-        Log.e("PostRequest:",requestUrl);
+        //Log.e("PostRequest:",requestUrl);
         // 第三步 创建Request
         Request request = new Request.Builder()
                 .url(requestUrl)

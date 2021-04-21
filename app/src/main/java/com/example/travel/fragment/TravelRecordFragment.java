@@ -208,7 +208,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                  */
 
                 TravelRecordResponse tr = new Gson().fromJson(res, TravelRecordResponse.class);
-                Log.e("getTravel",res);
+                //Log.e("getTravel",res);
                 //Log.e("response",String.valueOf(videoListResponse.getCode()));
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<TravelRecordEntity> list = tr.getData();
