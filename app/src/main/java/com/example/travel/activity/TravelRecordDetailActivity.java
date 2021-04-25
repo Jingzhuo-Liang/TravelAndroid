@@ -1,8 +1,11 @@
 package com.example.travel.activity;
 
+import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -21,18 +24,28 @@ import com.chad.library.adapter.base.entity.MultiItemEntity;
 import com.example.travel.R;
 import com.example.travel.adapter.CommentDialogMutiAdapter;
 import com.example.travel.adapter.RecordDetailImageAdapter;
-import com.example.travel.bean.CommentEntity;
-import com.example.travel.bean.CommentMoreBean;
-import com.example.travel.bean.FirstLevelBean;
-import com.example.travel.bean.SecondLevelBean;
+import com.example.travel.api.Api;
+import com.example.travel.api.ApiConfig;
+import com.example.travel.api.TtitCallback;
+import com.example.travel.entity.AddCommentResponse;
+import com.example.travel.entity.CommentEntity;
+import com.example.travel.entity.CommentMoreEntity;
+import com.example.travel.entity.FirstLevelEntity;
+import com.example.travel.entity.RecordDetailEntity;
+import com.example.travel.entity.RecordDetailResponse;
+import com.example.travel.entity.SecondLevelEntity;
 import com.example.travel.listener.SoftKeyBoardListener;
+import com.example.travel.util.LoginUser;
 import com.example.travel.util.RecyclerViewUtil;
 import com.example.travel.widget.InputTextMsgDialog;
 import com.example.travel.widget.TitleLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class TravelRecordDetailActivity extends BaseActivity implements View.OnClickListener, BaseQuickAdapter.RequestLoadMoreListener{
@@ -50,7 +63,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     private ImageView focusIcon;
     private TextView focusNum;
     private ImageView commitIcon;
-    private TextView commitNum;
+    private TextView commentNum;
 
     private RecyclerView recordDetailImageRecycleView;
     private RecordDetailImageAdapter recordDetailAdapter;
@@ -65,19 +78,41 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
     //dialog
     private List<MultiItemEntity> data = new ArrayList<>();
-    private List<FirstLevelBean> datas = new ArrayList<>();
+    private List<FirstLevelEntity> datas = new ArrayList<>();
     private BottomSheetDialog bottomSheetDialog;
     private InputTextMsgDialog inputTextMsgDialog;
     private float slideOffset = 0;
     private String content = "我听见你的声音，有种特别的感觉。让我不断想，不敢再忘记你。如果真的有一天，爱情理想会实现，我会加倍努力好好对你，永远不改变";
     private CommentDialogMutiAdapter bottomSheetAdapter;
     private RecyclerView rv_dialog_lists;
-    private long totalCount = 22;
+    //private long totalCount = 22;
     private int offsetY;
     private int positionCount = 0;
     private RecyclerViewUtil mRecyclerViewUtil;
     private SoftKeyBoardListener mKeyBoardListener;
     //dialog
+
+
+    private String recordId;
+    private String authorId;
+    private RecordDetailEntity recordDetailEntity = new RecordDetailEntity();
+    private Handler handler = new Handler() {
+        @SuppressLint("HandlerLeak")
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:{
+                    //在主线程中执行
+                    setData(recordDetailEntity);
+                    break;
+                }
+                default:{
+
+                }
+            }
+        }
+    };
 
     @Override
     protected int initLayout() {
@@ -98,8 +133,8 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         likeNum = findViewById(R.id.record_detail_likeNum);
         focusIcon = findViewById(R.id.record_detail_focusIcon);
         focusNum = findViewById(R.id.record_detail_focusNum);
-        commitIcon = findViewById(R.id.record_detail_commitIcon);
-        commitNum = findViewById(R.id.record_detail_commitNum);
+        commitIcon = findViewById(R.id.record_detail_commentIcon);
+        commentNum = findViewById(R.id.record_detail_commentNum);
         initDrawable();
         recordDetailImageRecycleView = findViewById(R.id.record_detail_image);
         recordDetailImageRecycleView.setLayoutManager(new GridLayoutManager(this, 3));
@@ -107,16 +142,112 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
         commitIcon.setOnClickListener(this);
         focusIcon.setOnClickListener(this);
+        likeIcon.setOnClickListener(this);
 
         mRecyclerViewUtil = new RecyclerViewUtil();
-        initDialogData();
+        //initDialogData();
         dataSort(0);
         showSheetDialog();
     }
 
+    @Override
+    protected void initData() {
+        initTitleLayout();
+        Bundle bundle = this.getIntent().getExtras();
+        this.recordId = bundle.getString("recordId");
+        this.authorId = bundle.getString("authorId");
+        getTravelRecordDetail(recordId,authorId);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.record_detail_commentIcon: {
+                //Log.e("recordDetail","click commit");
+                showCommit();
+                break;
+            }
+            case R.id.record_detail_focusIcon :{
+                //Log.e("recordDetail","click focus");
+                break;
+            }
+            case R.id.record_detail_likeIcon: {
+
+            }
+            default:
+        }
+    }
+
+    private void getTravelRecordDetail(String recordId, String authorId) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId", LoginUser.getInstance().getUser().getId());
+        params.put("recordId",recordId);
+        params.put("authorId",authorId);
+        Api.config(ApiConfig.GET_RECORD_DETAIL,params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                Log.e("getDetailSuccess",res);
+                Gson gson = new Gson();
+                RecordDetailResponse rdr = new RecordDetailResponse();
+                rdr = gson.fromJson(res, RecordDetailResponse.class);
+                if (rdr.getCode() == 200) {
+                    recordDetailEntity = rdr.getData();
+                    handler.sendEmptyMessage(0);
+                } else {
+
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+
+        /*
+        ArrayList<String> images = new ArrayList<>();
+        images.add("http://114.115.173.237:8000/static/picture/picture_9ad18b83451d4fe38918b81565d424d5_0.png");
+        images.add("http://114.115.173.237:8000/static/picture/picture_4d10391eb55a425882211d1952782ce4_0.png");
+        images.add("http://114.115.173.237:8000/static/picture/picture_f8978682184642719ea69886f340cd71_0.png");
+        images.add("http://114.115.173.237:8000/static/picture/picture_a914aeac119e4e389c69f1dc7567ab2d_0.png");
+        images.add("http://114.115.173.237:8000/static/picture/picture_11048a38b7e645838ffab44f23981dd1_0.png");
+        images.add("http://114.115.173.237:8000/static/picture/picture_9ad18b83451d4fe38918b81565d424d5_0.png");
+        images.add("http://114.115.173.237:8000/static/picture/picture_4d10391eb55a425882211d1952782ce4_0.png");
+        images.add("http://114.115.173.237:8000/static/picture/picture_f8978682184642719ea69886f340cd71_0.png");
+        images.add("http://114.115.173.237:8000/static/picture/picture_a914aeac119e4e389c69f1dc7567ab2d_0.png");
+        recordDetailAdapter.refresh(images);
+        recordDetailImageRecycleView.setAdapter(recordDetailAdapter);
+         */
+
+    }
+
+    private void setData(RecordDetailEntity rde){
+        authorName.setText(rde.getAuthorName());
+        authorSignature.setText(rde.getAuthorSignature());
+        releaseTime.setText(rde.getRecordReleasedTime().split(" ")[0]);
+        releaseRegion.setText(rde.getRecordRegion());
+        recordName.setText(rde.getRecordName());
+        recordMain.setText(rde.getRecordMain());
+        likeNum.setText(String.valueOf(rde.getLikeNum()));
+        focusNum.setText(String.valueOf(rde.getFocusNum()));
+        commentNum.setText(String.valueOf(rde.getCommentNum()));
+
+        isLike = rde.getIsLike() == 1;
+        isFocus = rde.getIsFocus() == 1;
+        likeIcon.setImageDrawable(isLike ? likeDrawable : unLikeDrawable);
+        focusIcon.setImageDrawable(isFocus ? focusDrawable : unFocusDrawable);
+        datas = rde.getF1LevelComments();
+
+        Picasso.with(this)
+                .load(rde.getAuthorPortrait())
+                .into(authorPortrait);
+        recordDetailAdapter.refresh(rde.getRecordImages());
+        recordDetailImageRecycleView.setAdapter(recordDetailAdapter);
+    }
+
     private void initRefresh() {
         datas.clear();
-        initDialogData();
+        //initDialogData();
         dataSort(0);
         bottomSheetAdapter.setNewData(data);
     }
@@ -125,33 +256,33 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     private void initDialogData() {
         int size = 10;
         for (int i = 0; i < size; i++) {
-            FirstLevelBean firstLevelBean = new FirstLevelBean();
-            firstLevelBean.setContent("第" + (i + 1) + "人评论内容" + (i % 3 == 0 ? content + (i + 1) + "次" : ""));
-            firstLevelBean.setCreateTime(System.currentTimeMillis());
-            firstLevelBean.setHeadImg("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3370302115,85956606&fm=26&gp=0.jpg");
-            firstLevelBean.setId(i + "");
-            firstLevelBean.setIsLike(0);
-            firstLevelBean.setLikeCount(i);
-            firstLevelBean.setUserName("星梦缘" + (i + 1));
-            firstLevelBean.setTotalCount(i + size);
+            FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
+            firstLevelEntity.setF1LevelContent("第" + (i + 1) + "人评论内容" + (i % 3 == 0 ? content + (i + 1) + "次" : ""));
+            firstLevelEntity.setF1LevelCreateTime(System.currentTimeMillis());
+            firstLevelEntity.setF1LevelMessengerPortrait("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3370302115,85956606&fm=26&gp=0.jpg");
+            firstLevelEntity.setF1LevelMessengerId(i + "");
+            //firstLevelEntity.setIsLike(0);
+            //firstLevelEntity.setLikeCount(i);
+            firstLevelEntity.setF1LevelMessengerName("星梦缘" + (i + 1));
+            //firstLevelEntity.setTotalCount(i + size);
 
-            List<SecondLevelBean> beans = new ArrayList<>();
+            List<SecondLevelEntity> beans = new ArrayList<>();
             for (int j = 0; j < 10; j++) {
-                SecondLevelBean secondLevelBean = new SecondLevelBean();
-                secondLevelBean.setContent("一级第" + (i + 1) + "人 二级第" + (j + 1) + "人评论内容" + (j % 3 == 0 ? content + (j + 1) + "次" : ""));
-                secondLevelBean.setCreateTime(System.currentTimeMillis());
-                secondLevelBean.setHeadImg("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
-                secondLevelBean.setId(j + "");
-                secondLevelBean.setIsLike(0);
-                secondLevelBean.setLikeCount(j);
-                secondLevelBean.setUserName("星梦缘" + (i + 1) + "  " + (j + 1));
-                secondLevelBean.setIsReply(j % 5 == 0 ? 1 : 0);
-                secondLevelBean.setReplyUserName(j % 5 == 0 ? "闭嘴家族" + j : "");
-                secondLevelBean.setTotalCount(firstLevelBean.getTotalCount());
-                beans.add(secondLevelBean);
-                firstLevelBean.setSecondLevelBeans(beans);
+                SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
+                secondLevelEntity.setS2LevelContent("一级第" + (i + 1) + "人 二级第" + (j + 1) + "人评论内容" + (j % 3 == 0 ? content + (j + 1) + "次" : ""));
+                secondLevelEntity.setS2LevelCreateTime(System.currentTimeMillis());
+                secondLevelEntity.setS2LevelReplierPortrait("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
+                secondLevelEntity.setS2LevelCommentId(j + "");
+                //secondLevelEntity.setIsLike(0);
+                //secondLevelEntity.setLikeCount(j);
+                secondLevelEntity.setS2LevelReplierName("星梦缘" + (i + 1) + "  " + (j + 1));
+                //secondLevelBean.setIsReply(j % 5 == 0 ? 1 : 0);
+                //secondLevelEntity.setReplyUserName("");
+                //secondLevelEntity.setS2LevelTotalCount(firstLevelEntity.getF1LevelTotalCount());
+                beans.add(secondLevelEntity);
+                firstLevelEntity.setS2LevelComments(beans);
             }
-            datas.add(firstLevelBean);
+            datas.add(firstLevelEntity);
         }
     }
 
@@ -172,43 +303,43 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         for (int i = 0; i < count; i++) {
             if (i < position) continue;
             //一级评论
-            FirstLevelBean firstLevelBean = datas.get(i);
-            if (firstLevelBean == null) continue;
-            firstLevelBean.setPosition(i);
+            FirstLevelEntity firstLevelEntity = datas.get(i);
+            if (firstLevelEntity == null) continue;
+            firstLevelEntity.setF1LevelPosition(i);
             posCount += 2;
-            List<SecondLevelBean> secondLevelBeans = firstLevelBean.getSecondLevelBeans();
-            if (secondLevelBeans == null || secondLevelBeans.isEmpty()) {
-                firstLevelBean.setPositionCount(posCount);
-                data.add(firstLevelBean);
+            List<SecondLevelEntity> secondLevelEntities = firstLevelEntity.getS2LevelComments();
+            if (secondLevelEntities == null || secondLevelEntities.isEmpty()) {
+                firstLevelEntity.setF1LevelPositionCount(posCount);
+                data.add(firstLevelEntity);
                 continue;
             }
-            int beanSize = secondLevelBeans.size();
+            int beanSize = secondLevelEntities.size();
             posCount += beanSize;
-            firstLevelBean.setPositionCount(posCount);
-            data.add(firstLevelBean);
+            firstLevelEntity.setF1LevelPositionCount(posCount);
+            data.add(firstLevelEntity);
 
             //二级评论
             for (int j = 0; j < beanSize; j++) {
-                SecondLevelBean secondLevelBean = secondLevelBeans.get(j);
-                secondLevelBean.setChildPosition(j);
-                secondLevelBean.setPosition(i);
-                secondLevelBean.setPositionCount(posCount);
-                data.add(secondLevelBean);
+                SecondLevelEntity secondLevelEntity = secondLevelEntities.get(j);
+                secondLevelEntity.setS2LevelChildPosition(j);
+                secondLevelEntity.setS2LevelPosition(i);
+                secondLevelEntity.setS2LevelPositionCount(posCount);
+                data.add(secondLevelEntity);
             }
 
             //展示更多的item
             if (beanSize <= 18) {
-                CommentMoreBean moreBean = new CommentMoreBean();
+                CommentMoreEntity moreBean = new CommentMoreEntity();
                 moreBean.setPosition(i);
                 moreBean.setPositionCount(posCount);
-                moreBean.setTotalCount(firstLevelBean.getTotalCount());
+                //moreBean.setTotalCount(firstLevelEntity.getF1LevelTotalCount());
                 data.add(moreBean);
             }
 
         }
     }
 
-    public void show(View view) {
+    public void showCommit() {
         bottomSheetAdapter.notifyDataSetChanged();
         slideOffset = 0;
         bottomSheetDialog.show();
@@ -280,14 +411,15 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                             TravelRecordDetailActivity.this.initInputTextMsgDialog((View) view1.getParent(), false, bottomSheetAdapter.getData().get(position), position);
                         } else if (view1.getId() == R.id.ll_like) {
                             //一级评论点赞 项目中还得通知服务器 成功才可以修改
-                            FirstLevelBean bean = (FirstLevelBean) bottomSheetAdapter.getData().get(position);
-                            bean.setLikeCount(bean.getLikeCount() + (bean.getIsLike() == 0 ? 1 : -1));
-                            bean.setIsLike(bean.getIsLike() == 0 ? 1 : 0);
-                            datas.set(bean.getPosition(), bean);
+                            FirstLevelEntity bean = (FirstLevelEntity) bottomSheetAdapter.getData().get(position);
+                            //bean.setLikeCount(bean.getLikeCount() + (bean.getIsLike() == 0 ? 1 : -1));
+                            //bean.setIsLike(bean.getIsLike() == 0 ? 1 : 0);
+                            datas.set(bean.getF1LevelPosition(), bean);
                             TravelRecordDetailActivity.this.dataSort(0);
                             bottomSheetAdapter.notifyDataSetChanged();
                         }
                         break;
+                    /* 关闭回复二级评论
                     case CommentEntity.TYPE_COMMENT_CHILD:
 
                         if (view1.getId() == R.id.rl_group) {
@@ -304,24 +436,25 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 //                            CommentMultiActivity.this.dataSort(0);
                             bottomSheetAdapter.notifyDataSetChanged();
                         }
-
                         break;
+
+                     */
                     case CommentEntity.TYPE_COMMENT_MORE:
                         //在项目中是从服务器获取数据，其实就是二级评论分页获取
-                        CommentMoreBean moreBean = (CommentMoreBean) bottomSheetAdapter.getData().get(position);
-                        SecondLevelBean secondLevelBean = new SecondLevelBean();
-                        secondLevelBean.setContent("more comment" + 1);
-                        secondLevelBean.setCreateTime(System.currentTimeMillis());
-                        secondLevelBean.setHeadImg("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
-                        secondLevelBean.setId(1 + "");
-                        secondLevelBean.setIsLike(0);
-                        secondLevelBean.setLikeCount(0);
-                        secondLevelBean.setUserName("星梦缘" + 1);
-                        secondLevelBean.setIsReply(0);
-                        secondLevelBean.setReplyUserName("闭嘴家族" + 1);
-                        secondLevelBean.setTotalCount(moreBean.getTotalCount() + 1);
+                        CommentMoreEntity moreBean = (CommentMoreEntity) bottomSheetAdapter.getData().get(position);
+                        SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
+                        secondLevelEntity.setS2LevelContent("more comment" + 1);
+                        secondLevelEntity.setS2LevelCreateTime(System.currentTimeMillis());
+                        secondLevelEntity.setS2LevelReplierPortrait("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
+                        secondLevelEntity.setS2LevelCommentId(1 + "");
+                        //secondLevelEntity.setIsLike(0);
+                        //secondLevelEntity.setLikeCount(0);
+                        secondLevelEntity.setS2LevelReplierName("星梦缘" + 1);
+                        //secondLevelEntity.setIsReply(0);
+                        //secondLevelEntity.setReplyUserName("闭嘴家族" + 1);
+                        //secondLevelEntity.setS2LevelTotalCount(moreBean.getTotalCount() + 1);
 
-                        datas.get((int) moreBean.getPosition()).getSecondLevelBeans().add(secondLevelBean);
+                        datas.get((int) moreBean.getPosition()).getS2LevelComments().add(secondLevelEntity);
                         TravelRecordDetailActivity.this.dataSort(0);
                         bottomSheetAdapter.notifyDataSetChanged();
 
@@ -375,35 +508,83 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
     //添加评论
     private void addComment(boolean isReply, MultiItemEntity item, final int position, String msg) {
-        final String userName = "hui";
         if (position >= 0) {
             //添加二级评论
+            FirstLevelEntity firstLevelEntity = (FirstLevelEntity) item;
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("recordId",recordId);
+            params.put("userId",LoginUser.getInstance().getUser().getId());
+            params.put("content",msg);
+            params.put("createTime",System.currentTimeMillis());
+            params.put("firstLevelCommentId",firstLevelEntity.getF1LevelCommentId());
+
+            positionCount = (firstLevelEntity.getF1LevelPositionCount() + 1);
+            int pos = firstLevelEntity.getF1LevelPosition();
+            String replyUserName = firstLevelEntity.getF1LevelMessengerName();
+
+            Api.config(ApiConfig.ADD_SECOND_LEVEL_COMMENT,params).postRequest(new TtitCallback() {
+                @Override
+                public void onSuccess(String res) {
+                    Log.e("addS2Comment",res);
+                    Gson gson = new Gson();
+                    AddCommentResponse addComment = gson.fromJson(res, AddCommentResponse.class);
+                    if (addComment.getCode() == 200) {
+                        SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
+                        secondLevelEntity.setS2LevelContent(msg);
+                        secondLevelEntity.setS2LevelReplierPortrait(LoginUser.getInstance().getUser().getHeadPortraitPath());
+                        secondLevelEntity.setS2LevelCreateTime(System.currentTimeMillis());
+                        secondLevelEntity.setS2LevelReplierName(LoginUser.getInstance().getUser().getUsername());
+                        secondLevelEntity.setS2LevelReplierId(addComment.getData());
+                        secondLevelEntity.setS2LevelPosition(positionCount);
+                        datas.get(pos).getS2LevelComments().add(secondLevelEntity);
+                        TravelRecordDetailActivity.this.dataSort(0);
+                        bottomSheetAdapter.notifyDataSetChanged();
+                        rv_dialog_lists.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ((LinearLayoutManager) rv_dialog_lists.getLayoutManager())
+                                        .scrollToPositionWithOffset(positionCount >= data.size() - 1 ? data.size() - 1
+                                                : positionCount, positionCount >= data.size() - 1 ? Integer.MIN_VALUE : rv_dialog_lists.getHeight());
+                            }
+                        }, 100);
+                    } else {
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+
+                }
+            });
+
+            /*
             int pos = 0;
             String replyUserName = "未知";
-            if (item instanceof FirstLevelBean) {
-                FirstLevelBean firstLevelBean = (FirstLevelBean) item;
-                positionCount = (int) (firstLevelBean.getPositionCount() + 1);
-                pos = (int) firstLevelBean.getPosition();
-                replyUserName = firstLevelBean.getUserName();
-            } else if (item instanceof SecondLevelBean) {
-                SecondLevelBean secondLevelBean = (SecondLevelBean) item;
-                positionCount = (int) (secondLevelBean.getPositionCount() + 1);
-                pos = (int) secondLevelBean.getPosition();
-                replyUserName = secondLevelBean.getUserName();
+            if (item instanceof FirstLevelEntity) {
+                FirstLevelEntity firstLevelEntity = (FirstLevelEntity) item;
+                positionCount = (int) (firstLevelEntity.getF1LevelPositionCount() + 1);
+                pos = (int) firstLevelEntity.getF1LevelPosition();
+                replyUserName = firstLevelEntity.getF1LevelMessengerName();
+            } else if (item instanceof SecondLevelEntity) {
+                SecondLevelEntity secondLevelEntity = (SecondLevelEntity) item;
+                positionCount = (int) (secondLevelEntity.getS2LevelPositionCount() + 1);
+                pos = (int) secondLevelEntity.getS2LevelPosition();
+                //replyUserName = secondLevelEntity.getUserName();
             }
 
-            SecondLevelBean secondLevelBean = new SecondLevelBean();
-            secondLevelBean.setReplyUserName(replyUserName);
-            secondLevelBean.setIsReply(isReply ? 1 : 0);
-            secondLevelBean.setContent(msg);
-            secondLevelBean.setHeadImg("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3370302115,85956606&fm=26&gp=0.jpg");
-            secondLevelBean.setCreateTime(System.currentTimeMillis());
-            secondLevelBean.setIsLike(0);
-            secondLevelBean.setUserName(userName);
-            secondLevelBean.setId("");
-            secondLevelBean.setPosition(positionCount);
+            SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
+            //secondLevelEntity.setReplyUserName(replyUserName);
+            //secondLevelEntity.setIsReply(isReply ? 1 : 0);
+            secondLevelEntity.setS2LevelContent(msg);
+            secondLevelEntity.setS2LevelReplierPortrait("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3370302115,85956606&fm=26&gp=0.jpg");
+            secondLevelEntity.setS2LevelCreateTime(System.currentTimeMillis());
+            //secondLevelEntity.setIsLike(0);
+            secondLevelEntity.setS2LevelReplierName(userName);
+            secondLevelEntity.setS2LevelReplierId("");
+            secondLevelEntity.setS2LevelPosition(positionCount);
 
-            datas.get(pos).getSecondLevelBeans().add(secondLevelBean);
+            datas.get(pos).getS2LevelComments().add(secondLevelEntity);
             TravelRecordDetailActivity.this.dataSort(0);
             bottomSheetAdapter.notifyDataSetChanged();
             rv_dialog_lists.postDelayed(new Runnable() {
@@ -414,21 +595,44 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                                     : positionCount, positionCount >= data.size() - 1 ? Integer.MIN_VALUE : rv_dialog_lists.getHeight());
                 }
             }, 100);
-
+            */
         } else {
             //添加一级评论
-            FirstLevelBean firstLevelBean = new FirstLevelBean();
-            firstLevelBean.setUserName(userName);
-            firstLevelBean.setId(bottomSheetAdapter.getItemCount() + 1 + "");
-            firstLevelBean.setHeadImg("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
-            firstLevelBean.setCreateTime(System.currentTimeMillis());
-            firstLevelBean.setContent(msg);
-            firstLevelBean.setLikeCount(0);
-            firstLevelBean.setSecondLevelBeans(new ArrayList<SecondLevelBean>());
-            datas.add(0, firstLevelBean);
-            TravelRecordDetailActivity.this.dataSort(0);
-            bottomSheetAdapter.notifyDataSetChanged();
-            rv_dialog_lists.scrollToPosition(0);
+            Log.e("firstLevelComment",recordId + " " + LoginUser.getInstance().getUser().getId());
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("recordId",recordId);
+            params.put("userId",LoginUser.getInstance().getUser().getId());
+            params.put("content",msg);
+            params.put("createTime",System.currentTimeMillis());
+            Api.config(ApiConfig.ADD_FIRST_LEVEL_COMMENT,params).postRequest(new TtitCallback() {
+                @Override
+                public void onSuccess(String res) {
+                    Log.e("addF1Comment",res);
+                    Gson gson = new Gson();
+                    AddCommentResponse addF1Comment = gson.fromJson(res, AddCommentResponse.class);
+                    if (addF1Comment.getCode() == 200) {
+                        FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
+                        firstLevelEntity.setF1LevelMessengerName(LoginUser.getInstance().getUser().getUsername());
+                        firstLevelEntity.setF1LevelCommentId(addF1Comment.getData());
+                        firstLevelEntity.setF1LevelMessengerPortrait(LoginUser.getInstance().getHeadPortraitPath());
+                        firstLevelEntity.setF1LevelCreateTime(System.currentTimeMillis());
+                        firstLevelEntity.setF1LevelContent(msg);
+                        //firstLevelEntity.setLikeCount(0);
+                        firstLevelEntity.setS2LevelComments(new ArrayList<SecondLevelEntity>());
+                        datas.add(0, firstLevelEntity);
+                        TravelRecordDetailActivity.this.dataSort(0);
+                        bottomSheetAdapter.notifyDataSetChanged();
+                        rv_dialog_lists.scrollToPosition(0);
+                    } else {
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+
+                }
+            });
         }
     }
 
@@ -452,23 +656,25 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
     @Override
     public void onLoadMoreRequested() {
+        // 加载更多评论
+        /*
         if (datas.size() >= totalCount) {
             bottomSheetAdapter.loadMoreEnd(false);
             return;
         }
-        FirstLevelBean firstLevelBean = new FirstLevelBean();
-        firstLevelBean.setUserName("hui");
-        firstLevelBean.setId((datas.size() + 1) + "");
-        firstLevelBean.setHeadImg("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
-        firstLevelBean.setCreateTime(System.currentTimeMillis());
-        firstLevelBean.setContent("add loadmore comment");
-        firstLevelBean.setLikeCount(0);
-        firstLevelBean.setSecondLevelBeans(new ArrayList<SecondLevelBean>());
-        datas.add(firstLevelBean);
+        FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
+        firstLevelEntity.setUserName("hui");
+        firstLevelEntity.setId((datas.size() + 1) + "");
+        firstLevelEntity.setHeadImg("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
+        firstLevelEntity.setCreateTime(System.currentTimeMillis());
+        firstLevelEntity.setContent("add loadmore comment");
+        firstLevelEntity.setLikeCount(0);
+        firstLevelEntity.setSecondLevelEntities(new ArrayList<SecondLevelEntity>());
+        datas.add(firstLevelEntity);
         dataSort(datas.size() - 1);
         bottomSheetAdapter.notifyDataSetChanged();
         bottomSheetAdapter.loadMoreComplete();
-
+        */
     }
 
     // item滑动
@@ -509,49 +715,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
 
 
-    @Override
-    protected void initData() {
-        initTitleLayout();
-        Bundle bundle = this.getIntent().getExtras();
-        getTravelRecordDetail(bundle.getString("recordId"));
 
-        likeIcon.setImageDrawable(isLike ? likeDrawable : unLikeDrawable);
-        focusIcon.setImageDrawable(isFocus ? focusDrawable : unFocusDrawable);
-        commitIcon.setImageDrawable(commitDrawable);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.record_detail_commitIcon: {
-                //Log.e("recordDetail","click commit");
-                bottomSheetAdapter.notifyDataSetChanged();
-                slideOffset = 0;
-                bottomSheetDialog.show();
-                break;
-            }
-            case R.id.record_detail_focusIcon :{
-                //Log.e("recordDetail","click focus");
-                break;
-            }
-            default:
-        }
-    }
-
-    private void getTravelRecordDetail(String recordId) {
-        ArrayList<String> images = new ArrayList<>();
-        images.add("http://114.115.173.237:8000/static/picture/picture_9ad18b83451d4fe38918b81565d424d5_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_4d10391eb55a425882211d1952782ce4_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_f8978682184642719ea69886f340cd71_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_a914aeac119e4e389c69f1dc7567ab2d_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_11048a38b7e645838ffab44f23981dd1_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_9ad18b83451d4fe38918b81565d424d5_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_4d10391eb55a425882211d1952782ce4_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_f8978682184642719ea69886f340cd71_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_a914aeac119e4e389c69f1dc7567ab2d_0.png");
-        recordDetailAdapter.refresh(images);
-        recordDetailImageRecycleView.setAdapter(recordDetailAdapter);
-    }
 
     private void initDrawable() {
         likeDrawable = getResources().getDrawable(R.mipmap.like_icon);

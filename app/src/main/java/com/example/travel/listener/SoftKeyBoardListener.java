@@ -5,11 +5,6 @@ import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-/**
- * @author ganhuanhui
- * @date 2020/4/23 0023
- * @desc 获取软键盘的高度
- */
 public class SoftKeyBoardListener {
 
     private View rootView;//activity的根视图

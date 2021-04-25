@@ -1,12 +1,8 @@
-package com.example.travel.bean;
+package com.example.travel.entity;
 
 import java.util.List;
 
-/**
- * @author ganhuanhui
- * 时间：2019/12/11
- * 描述：
- */
+
 public class CommentEntity {
 
     public static final int TYPE_COMMENT_PARENT = 1;
@@ -15,15 +11,15 @@ public class CommentEntity {
     public static final int TYPE_COMMENT_EMPTY = 4;
     public static final int TYPE_COMMENT_OTHER = 5;
 
-    private List<com.example.travel.bean.FirstLevelBean> firstLevelBeans;
+    private List<FirstLevelEntity> firstLevelEntities;
     private long totalCount;
 
-    public List<com.example.travel.bean.FirstLevelBean> getFirstLevelBeans() {
-        return firstLevelBeans;
+    public List<FirstLevelEntity> getFirstLevelEntities() {
+        return firstLevelEntities;
     }
 
-    public void setFirstLevelBeans(List<com.example.travel.bean.FirstLevelBean> firstLevelBeans) {
-        this.firstLevelBeans = firstLevelBeans;
+    public void setFirstLevelEntities(List<FirstLevelEntity> firstLevelEntities) {
+        this.firstLevelEntities = firstLevelEntities;
     }
 
     public long getTotalCount() {
@@ -38,7 +34,7 @@ public class CommentEntity {
     public String toString() {
         final StringBuilder sb = new StringBuilder("{");
         sb.append("\"firstLevelBeans\":")
-                .append(firstLevelBeans);
+                .append(firstLevelEntities);
         sb.append(",\"totalCount\":")
                 .append(totalCount);
         sb.append('}');

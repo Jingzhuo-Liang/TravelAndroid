@@ -259,6 +259,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
         //navigateTo(TravelRecordDetailActivity.class);
         HashMap<String, String> params = new HashMap<>();
         params.put("recordId", String.valueOf(datas.get(position).getRecordId()));
+        params.put("authorId", String.valueOf(datas.get(position).getAuthorId()));
         navigateToWithPara(TravelRecordDetailActivity.class,params);
     }
 }

@@ -8,11 +8,7 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-/**
- * @author ganhuanhui
- * @date 2020/4/28 0028
- * @desc
- */
+
 public class RecyclerViewUtil {
 
     private RecyclerView recyclerView;

@@ -4,7 +4,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -17,21 +16,18 @@ import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.chad.library.adapter.base.entity.MultiItemEntity;
 import com.example.travel.R;
-import com.example.travel.bean.CommentEntity;
-import com.example.travel.bean.FirstLevelBean;
-import com.example.travel.bean.SecondLevelBean;
+import com.example.travel.entity.CommentEntity;
+import com.example.travel.entity.FirstLevelEntity;
+import com.example.travel.entity.SecondLevelEntity;
 import com.example.travel.util.TimeUtils;
 import com.example.travel.widget.TextClickSpans;
 import com.example.travel.widget.TextMovementMethods;
 import com.makeramen.roundedimageview.RoundedImageView;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-/**
- * @author ganhuanhui
- * 时间：2019/12/13 0013
- * 描述：
- */
+
 public class CommentDialogMutiAdapter extends BaseMultiItemQuickAdapter<MultiItemEntity, BaseViewHolder> {
 
     public CommentDialogMutiAdapter(List list) {
@@ -45,10 +41,10 @@ public class CommentDialogMutiAdapter extends BaseMultiItemQuickAdapter<MultiIte
     protected void convert(@NonNull BaseViewHolder helper, MultiItemEntity item) {
         switch (item.getItemType()) {
             case CommentEntity.TYPE_COMMENT_PARENT:
-                bindCommentParent(helper, (FirstLevelBean) item);
+                bindCommentParent(helper, (FirstLevelEntity) item);
                 break;
             case CommentEntity.TYPE_COMMENT_CHILD:
-                bindCommentChild(helper, (SecondLevelBean) item);
+                bindCommentChild(helper, (SecondLevelEntity) item);
                 break;
             case CommentEntity.TYPE_COMMENT_MORE:
                 bindCommonMore(helper, item);
@@ -59,41 +55,52 @@ public class CommentDialogMutiAdapter extends BaseMultiItemQuickAdapter<MultiIte
         }
     }
 
-    private void bindCommentParent(BaseViewHolder helper, FirstLevelBean item) {
-        LinearLayout ll_like = helper.getView(R.id.ll_like);
+    private void bindCommentParent(BaseViewHolder helper, FirstLevelEntity item) {
+        // like
+        //LinearLayout ll_like = helper.getView(R.id.ll_like);
         RelativeLayout rl_group = helper.getView(R.id.rl_group);
         RoundedImageView iv_header = helper.getView(R.id.iv_header);
+        /* like
         ImageView iv_like = helper.getView(R.id.iv_like);
         TextView tv_like_count = helper.getView(R.id.tv_like_count);
+         */
         TextView tv_content = helper.getView(R.id.tv_content);
 
+        /*
         ll_like.setOnClickListener(null);
         ll_like.setTag(item.getItemType());
         helper.addOnClickListener(R.id.ll_like);
+         */
 
         rl_group.setTag(item.getItemType());
         helper.addOnClickListener(R.id.rl_group);
+        /* like
         iv_like.setImageResource(item.getIsLike() == 0 ? R.mipmap.icon_topic_post_item_like : R.mipmap.icon_topic_post_item_like_blue);
         tv_like_count.setText(item.getLikeCount() + "");
         tv_like_count.setVisibility(item.getLikeCount() <= 0 ? View.GONE : View.VISIBLE);
+         */
 
-        String time = TimeUtils.getRecentTimeSpanByNow(item.getCreateTime());
+        String time = TimeUtils.getRecentTimeSpanByNow(item.getF1LevelCreateTime());
         helper.setText(R.id.tv_time, time);
-        helper.setText(R.id.tv_user_name, TextUtils.isEmpty(item.getUserName()) ? " " : item.getUserName());
+        helper.setText(R.id.tv_user_name, TextUtils.isEmpty(item.getF1LevelMessengerName()) ? " " : item.getF1LevelMessengerName());
 
-        String contents = TextUtils.isEmpty(item.getContent()) ? " " : item.getContent();
+        String contents = TextUtils.isEmpty(item.getF1LevelContent()) ? " " : item.getF1LevelContent();
         tv_content.setText(contents);
 
-        Glide.with(mContext).load(item.getHeadImg()).into(iv_header);
-
+        //Glide.with(mContext).load(item.getF1LevelMessengerPortrait().into(iv_header);
+        Picasso.with(mContext)
+                .load(item.getF1LevelMessengerPortrait())
+                .into(iv_header);
     }
 
-    private void bindCommentChild(final BaseViewHolder helper, SecondLevelBean item) {
+    private void bindCommentChild(final BaseViewHolder helper, SecondLevelEntity item) {
         LinearLayout ll_like = helper.getView(R.id.ll_like);
         RelativeLayout rl_group = helper.getView(R.id.rl_group);
         RoundedImageView iv_header = helper.getView(R.id.iv_header);
+        /* like
         ImageView iv_like = helper.getView(R.id.iv_like);
         TextView tv_like_count = helper.getView(R.id.tv_like_count);
+         */
         TextView tv_content = helper.getView(R.id.tv_content);
 
         ll_like.setOnClickListener(null);
@@ -102,12 +109,19 @@ public class CommentDialogMutiAdapter extends BaseMultiItemQuickAdapter<MultiIte
 
         rl_group.setTag(item.getItemType());
         helper.addOnClickListener(R.id.rl_group);
-        Glide.with(mContext).load(item.getHeadImg()).into(iv_header);
+        //Glide.with(mContext).load(item.getHeadImg()).into(iv_header);\
+        Picasso.with(mContext)
+                .load(item.getS2LevelReplierPortrait())
+                .into(iv_header);
+        /*like
         iv_like.setImageResource(item.getIsLike() == 0 ? R.mipmap.icon_topic_post_item_like : R.mipmap.icon_topic_post_item_like_blue);
         tv_like_count.setText(item.getLikeCount() + "");
         tv_like_count.setVisibility(item.getLikeCount() <= 0 ? View.GONE : View.VISIBLE);
-
+         */
         final TextMovementMethods movementMethods = new TextMovementMethods();
+        tv_content.setText(item.getS2LevelContent());
+        tv_content.setMovementMethod(null);
+        /*
         if (item.getIsReply() == 0) {
             tv_content.setText(item.getContent());
             tv_content.setMovementMethod(null);
@@ -117,6 +131,7 @@ public class CommentDialogMutiAdapter extends BaseMultiItemQuickAdapter<MultiIte
             tv_content.setMovementMethod(movementMethods);
 
         }
+         */
         tv_content.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,9 +141,9 @@ public class CommentDialogMutiAdapter extends BaseMultiItemQuickAdapter<MultiIte
         });
 
 
-        String time = TimeUtils.getRecentTimeSpanByNow(item.getCreateTime());
+        String time = TimeUtils.getRecentTimeSpanByNow(item.getS2LevelCreateTime());
         helper.setText(R.id.tv_time, time);
-        helper.setText(R.id.tv_user_name, TextUtils.isEmpty(item.getUserName()) ? " " : item.getUserName());
+        helper.setText(R.id.tv_user_name, TextUtils.isEmpty(item.getS2LevelReplierName()) ? " " : item.getS2LevelReplierName());
 
 
     }

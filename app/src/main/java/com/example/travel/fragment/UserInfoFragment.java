@@ -53,7 +53,7 @@ public class UserInfoFragment extends BaseFragment {
     protected void initView() {
         titleLayout = mRootView.findViewById(R.id.my_title);
         titleLayout.setTitle("我的");
-        Drawable drawable = getResources().getDrawable(R.mipmap.user_info);
+        Drawable drawable = getResources().getDrawable(R.mipmap.user_info_icon);
         drawable.setBounds(40,0,110,70);
         titleLayout.getTextView_forward().setCompoundDrawables(drawable,null,null,null);
         titleLayout.getTextView_forward().setText("");

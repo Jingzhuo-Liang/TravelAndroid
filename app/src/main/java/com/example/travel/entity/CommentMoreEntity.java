@@ -1,15 +1,11 @@
-package com.example.travel.bean;
+package com.example.travel.entity;
 
 import com.chad.library.adapter.base.entity.MultiItemEntity;
 
-import static com.example.travel.bean.CommentEntity.TYPE_COMMENT_MORE;
+import static com.example.travel.entity.CommentEntity.TYPE_COMMENT_MORE;
 
-/**
- * @author ganhuanhui
- * 时间：2019/12/12 0012
- * 描述：更多item
- */
-public class CommentMoreBean implements MultiItemEntity {
+
+public class CommentMoreEntity implements MultiItemEntity {
 
     private long totalCount;
     private long position;

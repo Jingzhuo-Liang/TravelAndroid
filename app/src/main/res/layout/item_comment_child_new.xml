@@ -33,6 +33,7 @@
         android:orientation="vertical"
         android:padding="3dp">
 
+        <!--
         <ImageView
             android:id="@+id/iv_like"
             android:layout_width="16dp"
@@ -50,6 +51,7 @@
             android:textSize="@dimen/text_size_12"
 
             />
+            -->
 
     </LinearLayout>
 

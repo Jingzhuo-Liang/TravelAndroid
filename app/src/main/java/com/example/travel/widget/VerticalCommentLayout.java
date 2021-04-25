@@ -8,7 +8,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -18,9 +17,10 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.example.travel.R;
-import com.example.travel.bean.SecondLevelBean;
+import com.example.travel.entity.SecondLevelEntity;
 import com.example.travel.util.SizeUtils;
 import com.makeramen.roundedimageview.RoundedImageView;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import java.util.List;
 public class VerticalCommentLayout extends LinearLayout implements
         ViewGroup.OnHierarchyChangeListener {
 
-    private List<SecondLevelBean> mCommentBeans;
+    private List<SecondLevelEntity> mCommentBeans;
 
     private LayoutParams mLayoutParams;
     private com.example.travel.widget.SimpleWeakObjectPool<View> COMMENT_TEXT_POOL;
@@ -80,7 +80,7 @@ public class VerticalCommentLayout extends LinearLayout implements
         this.position = position;
     }
 
-    public void addCommentsWithLimit(List<SecondLevelBean> commentBeans, int limit, boolean more) {
+    public void addCommentsWithLimit(List<SecondLevelEntity> commentBeans, int limit, boolean more) {
         if (commentBeans == null) return;
         this.mCommentBeans = commentBeans;
         int oldCount = getChildCount();
@@ -92,7 +92,7 @@ public class VerticalCommentLayout extends LinearLayout implements
         for (int i = 0; i < showCount; i++) {
             boolean hasChild = i < oldCount;
             View childView = hasChild ? getChildAt(i) : null;
-            SecondLevelBean commentBean = commentBeans.get(i);
+            SecondLevelEntity commentBean = commentBeans.get(i);
             if (childView == null) {
                 childView = COMMENT_TEXT_POOL.get();
                 if (childView == null) {
@@ -115,7 +115,7 @@ public class VerticalCommentLayout extends LinearLayout implements
 
     }
 
-    public void addComments(List<SecondLevelBean> commentBeans) {
+    public void addComments(List<SecondLevelEntity> commentBeans) {
         if (commentBeans == null) return;
         this.mCommentBeans = commentBeans;
         int oldCount = getChildCount();
@@ -132,12 +132,12 @@ public class VerticalCommentLayout extends LinearLayout implements
     /**
      * 更新指定的position的comment
      */
-    public void updateTargetComment(int position, List<SecondLevelBean> commentBeans) {
+    public void updateTargetComment(int position, List<SecondLevelEntity> commentBeans) {
         int oldCount = getChildCount();
         for (int i = 0; i < oldCount; i++) {
             if (i == position) {
                 View childView = getChildAt(i);
-                SecondLevelBean bean = commentBeans.get(i);
+                SecondLevelEntity bean = commentBeans.get(i);
                 if (bean == null || childView == null) continue;
                 updateCommentData(childView, bean, i);
                 break;
@@ -150,7 +150,7 @@ public class VerticalCommentLayout extends LinearLayout implements
     /**
      * 創建Comment item view
      */
-    private View makeCommentItemView(SecondLevelBean bean, int index) {
+    private View makeCommentItemView(SecondLevelEntity bean, int index) {
         return makeContentView(bean, index);
     }
 
@@ -158,7 +158,7 @@ public class VerticalCommentLayout extends LinearLayout implements
     /**
      * 添加需要的Comment View
      */
-    private void addCommentItemView(View view, SecondLevelBean bean, int index) {
+    private void addCommentItemView(View view, SecondLevelEntity bean, int index) {
         View commentView = makeCommentItemView(bean, index);
         addViewInLayout(commentView, index, generateMarginLayoutParams(index), true);
     }
@@ -166,32 +166,42 @@ public class VerticalCommentLayout extends LinearLayout implements
     /**
      * 更新comment list content
      */
-    private void updateCommentData(View view, SecondLevelBean bean, int index) {
+    private void updateCommentData(View view, SecondLevelEntity bean, int index) {
         bindViewData(view, bean);
     }
 
-    private View makeContentView(SecondLevelBean content, int index) {
+    private View makeContentView(SecondLevelEntity content, int index) {
         View view = View.inflate(getContext(), R.layout.item_comment_single_child_new, null);
         bindViewData(view, content);
         return view;
     }
 
-    private void bindViewData(View view, final SecondLevelBean content) {
+    private void bindViewData(View view, final SecondLevelEntity content) {
         final RelativeLayout rl_group = view.findViewById(R.id.rl_group);
         LinearLayout ll_like = view.findViewById(R.id.ll_like);
 
         RoundedImageView iv_header = view.findViewById(R.id.iv_header);
+        /* like
         ImageView iv_like = view.findViewById(R.id.iv_like);
         TextView tv_like_count = view.findViewById(R.id.tv_like_count);
+         */
         TextView tv_user_name = view.findViewById(R.id.tv_user_name);
         TextView tv_content = view.findViewById(R.id.tv_content);
 
-        Glide.with(iv_header.getContext()).load(content.getHeadImg()).into(iv_header);
+        //Glide.with(iv_header.getContext()).load(content.getHeadImg()).into(iv_header);
+        Picasso.with(iv_header.getContext())
+                .load(content.getS2LevelReplierPortrait())
+                .into(iv_header);
+        /* like
         iv_like.setImageResource(content.getIsLike() == 0 ? R.mipmap.icon_topic_post_item_like : R.mipmap.icon_topic_post_item_like_blue);
         tv_like_count.setText(content.getLikeCount() + "");
         tv_like_count.setVisibility(content.getLikeCount() <= 0 ? View.GONE : View.VISIBLE);
+         */
 
         final com.example.travel.widget.TextMovementMethods movementMethods = new com.example.travel.widget.TextMovementMethods();
+        tv_content.setText(content.getS2LevelContent());
+        tv_content.setMovementMethod(null);
+        /*
         if (content.getIsReply() == 0) {
             tv_content.setText(content.getContent());
             tv_content.setMovementMethod(null);
@@ -201,6 +211,7 @@ public class VerticalCommentLayout extends LinearLayout implements
             tv_content.setMovementMethod(movementMethods);
 
         }
+         */
         tv_content.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -208,7 +219,7 @@ public class VerticalCommentLayout extends LinearLayout implements
                 rl_group.performClick();
             }
         });
-        tv_user_name.setText(content.getUserName());
+        tv_user_name.setText(content.getS2LevelReplierName());
 
         rl_group.setOnClickListener(new OnClickListener() {
             @Override
@@ -291,9 +302,9 @@ public class VerticalCommentLayout extends LinearLayout implements
 
         void onMoreClick(View layout, int position);
 
-        void onItemClick(View view, SecondLevelBean bean, int position);
+        void onItemClick(View view, SecondLevelEntity bean, int position);
 
-        void onLikeClick(View layout, SecondLevelBean bean, int position);
+        void onLikeClick(View layout, SecondLevelEntity bean, int position);
 
     }
 }

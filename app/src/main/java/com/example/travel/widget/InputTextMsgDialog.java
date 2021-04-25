@@ -25,11 +25,7 @@ import androidx.appcompat.app.AppCompatDialog;
 
 import com.example.travel.R;
 
-/**
- * @author ganhuanhui
- * 时间：2019/12/11 0011
- * 描述：https://blog.csdn.net/qq_32518491/article/details/85000421
- */
+
 public class InputTextMsgDialog extends AppCompatDialog {
     private Context mContext;
     private InputMethodManager imm;

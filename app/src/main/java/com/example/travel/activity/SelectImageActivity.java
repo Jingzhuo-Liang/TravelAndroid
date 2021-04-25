@@ -1,6 +1,7 @@
 package com.example.travel.activity;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -23,8 +25,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -86,6 +90,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private EditText recordMain;
     private TextView recordRegion;
     private TextView recordLocation;
+    private TextView selectImageHint;
 
     private LocationManager locationManager;
     private String locationProvider;
@@ -110,6 +115,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         recordLocation = findViewById(R.id.si_recordLocation);
         recordLocation = findViewById(R.id.si_recordLocation);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        selectImageHint = findViewById(R.id.si_selectImage_hint);
 
         selectImage_btn.setOnClickListener(this);
         arrowBack_btn.setOnClickListener(this);
@@ -151,6 +157,9 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                         .canPreview(true) //是否点击放大图片查看,，默认为true
                         .setMaxSelectCount(9) // 图片的最大选择数量，小于等于0时，不限数量。
                         .start(this, REQUEST_CODE); // 打开相册
+                if (mAdapter.getImages().size() > 0) {
+                    selectImageHint.setText("");
+                }
                 break;
             }
             case R.id.si_recordRegion: {
@@ -286,6 +295,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
+                                //showNormalDialog();
                                 releaseTravelRecord();
                             }
                         });
@@ -295,6 +305,37 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 .canScroll(true)
                 .mode(EasyNavigationBar.NavigationMode.MODE_ADD)
                 .build();
+    }
+
+    // 提示框
+    private void showNormalDialog(){
+        /* @setIcon 设置对话框图标
+         * @setTitle 设置对话框标题
+         * @setMessage 设置对话框消息提示
+         * setXXX方法返回Dialog对象，因此可以链式设置属性
+         */
+        AlertDialog normalDialog =
+                new AlertDialog.Builder(SelectImageActivity.this).create();
+        normalDialog.setMessage("确认发布");
+        normalDialog.setButton(DialogInterface.BUTTON_POSITIVE, "是", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                releaseTravelRecord();
+            }
+        });
+        normalDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "否", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //Toast.makeText(MainActivity.this, "您单击了否按钮", Toast.LENGTH_SHORT).show();
+                //Log.e("click cancel","2222");
+            }
+        });
+        normalDialog.show();
+        WindowManager.LayoutParams params = normalDialog.getWindow().getAttributes();
+        params.width = 800;
+        params.height = 600;
+        params.gravity = Gravity.CENTER;
+        normalDialog.getWindow().setAttributes(params);
     }
 
     /**

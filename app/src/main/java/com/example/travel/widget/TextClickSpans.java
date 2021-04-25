@@ -6,10 +6,7 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 
 
-/**
- * @author KCrason
- * @date 2018/4/28
- */
+
 public abstract class TextClickSpans extends ClickableSpan implements View.OnClickListener {
 
     private boolean mPressed;

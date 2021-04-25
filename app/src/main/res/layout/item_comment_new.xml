@@ -29,6 +29,7 @@
             app:riv_border_color="@color/gray_d8"
             />
 
+
         <!--点赞-->
         <LinearLayout
             android:id="@+id/ll_like"
@@ -39,7 +40,7 @@
             android:gravity="center"
             android:orientation="vertical"
             android:padding="3dp">
-
+            <!--
             <ImageView
                 android:id="@+id/iv_like"
                 android:layout_width="16dp"
@@ -57,9 +58,9 @@
                 android:textSize="@dimen/text_size_12"
 
                 />
+         -->
 
         </LinearLayout>
-
         <!--用户名-->
         <TextView
             android:id="@+id/tv_user_name"
