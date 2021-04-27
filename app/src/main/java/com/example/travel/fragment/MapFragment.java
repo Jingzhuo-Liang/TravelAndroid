@@ -6,11 +6,13 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
@@ -22,10 +24,18 @@ import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.example.travel.R;
+import com.example.travel.entity.MapPointEntity;
+import com.example.travel.util.LoginUser;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+
 public class MapFragment extends BaseFragment {
 
     private MapView mMapView;
     private BaiduMap mBaiduMap;
+
+    ArrayList<MapPointEntity> list;
 
     public static MapFragment newInstance() {
         MapFragment fragment = new MapFragment();
@@ -49,15 +59,47 @@ public class MapFragment extends BaseFragment {
     protected void initData() {
         mBaiduMap = mMapView.getMap();
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
+        getMapPoints();
         showData();
     }
 
     private void showData(){
         //TODO:获取数据解析经纬度
-        create_map_point(39.91923, 116.387428);
-        create_map_point(49.91923, 110.387428);
-        create_map_point(19.91923, 16.387428);
+        //create_map_point(39.91923, 116.387428);
+        //create_map_point(49.91923, 110.387428);
+        //create_map_point(19.91923, 16.387428);
+        for (MapPointEntity mpe: list) {
+            create_map_point(mpe.getLongitude(),mpe.getLatitude());
+        }
         showInfoWindow();
+    }
+
+    private void getMapPoints() {
+        list = new ArrayList<>();
+        MapPointEntity mapPoint = new MapPointEntity();
+        mapPoint.setRecordId("1");
+        mapPoint.setLongitude(116.387428);
+        mapPoint.setLatitude(39.91923);
+        mapPoint.setRecordName("111111");
+        mapPoint.setLikeNum("111");
+        mapPoint.setRecordCoverImage("http://114.115.173.237:8000/static/picture/picture_3793ed3c665641a3b68cafa2e5cadf22.png");
+        list.add(mapPoint);
+        mapPoint = new MapPointEntity();
+        mapPoint.setRecordId("222");
+        mapPoint.setLongitude(110.387428);
+        mapPoint.setLatitude(49.91923);
+        mapPoint.setRecordName("222222");
+        mapPoint.setLikeNum("222");
+        mapPoint.setRecordCoverImage("http://114.115.173.237:8000/static/picture/picture_4d10391eb55a425882211d1952782ce4_0.png");
+        list.add(mapPoint);
+        mapPoint = new MapPointEntity();
+        mapPoint.setRecordId("333");
+        mapPoint.setLongitude(113.387428);
+        mapPoint.setLatitude(40.91923);
+        mapPoint.setRecordName("33333");
+        mapPoint.setLikeNum("333");
+        mapPoint.setRecordCoverImage("http://114.115.173.237:8000/static/picture/picture_f8978682184642719ea69886f340cd71_0.png");
+        list.add(mapPoint);
     }
 
     private void showInfoWindow(){
@@ -70,11 +112,26 @@ public class MapFragment extends BaseFragment {
                 //在显示新信息窗之前，先关闭已经在显示的信息窗
                 mBaiduMap.hideInfoWindow();
                 //获取maker此时的经纬度
-                Double latitude = marker.getPosition().latitude;
-                Double longitude = marker.getPosition().longitude;
+                //Double latitude = marker.getPosition().latitude;
+                //Double longitude = marker.getPosition().longitude;
+                MapPointEntity mapPointEntity = list.get(getMarkerIndex(marker.getPosition().longitude,marker.getPosition().latitude));
+                //Log.e("positionIndex",);
                 //TODO:通过经纬度动态加载图片到xml
                 //显示信息窗
+                //Log.e("markClick",mapPointEntity.getRecordId());
+                //Log.e("longitude",String.valueOf(marker.getPosition().longitude));
+                //Log.e("latitude",String.valueOf(marker.getPosition().latitude));
                 View infoWindow_view = getLayoutInflater().inflate(R.layout.map_pop_window, null);
+
+                ImageView recordCoverImage = infoWindow_view.findViewById(R.id.map_cover_image);
+                TextView recordLikeNum = infoWindow_view.findViewById(R.id.map_record_likeNum);
+                TextView recordName = infoWindow_view.findViewById(R.id.map_record_name);
+                Picasso.with(getActivity())
+                        .load(mapPointEntity.getRecordCoverImage())
+                        .into(recordCoverImage);
+                recordLikeNum.setText(mapPointEntity.getLikeNum());
+                recordName.setText(mapPointEntity.getRecordName());
+
                 ImageView back_image_view = (ImageView) infoWindow_view.findViewById(R.id.back);
                 back_image_view.setOnClickListener(
                         new View.OnClickListener() {
@@ -86,8 +143,6 @@ public class MapFragment extends BaseFragment {
                 );
                 BitmapDescriptor infoWindow_bitmap = BitmapDescriptorFactory.fromView(infoWindow_view);
                 //信息窗点击处理事件
-                Log.d("tag", "infoWindow_view="+infoWindow_view);
-                Log.d("tag", "infoWindow_bitmap="+infoWindow_bitmap);
                 InfoWindow.OnInfoWindowClickListener infoWindow_ClickListener = new InfoWindow.OnInfoWindowClickListener() {
 
                     @Override
@@ -117,7 +172,7 @@ public class MapFragment extends BaseFragment {
         创建地图上坐标显示
          */
         //定义Maker坐标点
-        LatLng point = new LatLng(longtitude, altitude);
+        LatLng point = new LatLng( altitude, longtitude);
         final View markerView = LayoutInflater.from(getContext()).inflate(R.layout.map_loc,null);
         Bitmap bitmap = getViewBitmap(markerView);
         BitmapDescriptor bd = BitmapDescriptorFactory.fromBitmap(bitmap);
@@ -164,6 +219,18 @@ public class MapFragment extends BaseFragment {
         super.onPause();
         //在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
         mMapView.onPause();
+    }
+
+    private int getMarkerIndex(double longitude, double latitude) {
+        int index = 0;
+        for (int i = 0;i < list.size();i++) {
+            if (list.get(i).getLatitude() == latitude && list.get(i).getLongitude() == longitude) {
+                index  = i;
+                break;
+            }
+        }
+        //Log.e("mapPoing",String.valueOf(index));
+        return index;
     }
 
 }

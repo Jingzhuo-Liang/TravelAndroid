@@ -14,7 +14,7 @@
         android:clickable="true" >
 
         <ImageView
-            android:id="@+id/info_img"
+            android:id="@+id/map_cover_image"
             android:layout_width="fill_parent"
             android:layout_height="150dp"
             android:layout_marginBottom="10dp"
@@ -41,18 +41,19 @@
                 android:orientation="vertical" >
 
                 <TextView
-                    android:id="@+id/info_name"
+                    android:id="@+id/map_record_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="老米家泡馍小炒"
                     android:textColor="#FFF5EB" />
-
+                <!--
                 <TextView
                     android:id="@+id/info_distance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="距离200米"
                     android:textColor="#FFF5EB" />
+                    -->
             </LinearLayout>
 
             <LinearLayout
@@ -76,7 +77,7 @@
                     android:src="@drawable/map_zan" />
 
                 <TextView
-                    android:id="@+id/info_zan"
+                    android:id="@+id/map_record_likeNum"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"

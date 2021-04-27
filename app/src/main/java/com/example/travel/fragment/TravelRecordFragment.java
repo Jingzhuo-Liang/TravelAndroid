@@ -271,7 +271,33 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
     }
 
     public void searchRecord(String keyWord) {
-
         //Log.e("searchRecord",keyWord);
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId",LoginUser.getInstance().getUser().getId());
+        params.put("keyword",keyWord);
+        Api.config(ApiConfig.SEARCH_TRAVEL_RECORD,params).getRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                TravelRecordResponse tr = new Gson().fromJson(res, TravelRecordResponse.class);
+                if (tr != null && tr.getCode() == 200 ) {
+                    ArrayList<TravelRecordEntity> list = tr.getData();
+                    if (list != null && list.size() > 0) {
+                        datas = list;
+                        noteAdapter.setDatas(datas);
+                        handler.sendEmptyMessage(0);
+                    }
+                    else {
+                        showToast("无相关搜索内容");
+                    }
+                }else {
+                    //navigateTo(LoginActivity.class);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
     }
 }

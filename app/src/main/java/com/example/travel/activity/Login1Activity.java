@@ -98,9 +98,9 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
         Api.config(ApiConfig.LOGIN,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
+                Log.e("login",res);
                 Gson gson = new Gson();
                 LoginResponse loginResponse = gson.fromJson(res,LoginResponse.class);
-                Log.e("login",res);
                 if (loginResponse.getCode() == 200) {
                     if (loginResponse.getData().getHeadPortraitPath().equals("default")) {
                         loginResponse.getData().setHeadPortraitPath(ApiConfig.DEFAULT_PORTRAIT_URL);

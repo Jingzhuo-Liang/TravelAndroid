@@ -29,6 +29,7 @@ public class ApiConfig {
     public static final String LIKE_RECORD = "/travel/likeRecord";
     public static final String DELETE_MY_TRAVEL_RECORD = "/travel/deleteMyTravelRecord";
     public static final String GET_MAP = "/travel/getMap";
+    public static final String SEARCH_TRAVEL_RECORD = "/travel/searchTravelRecord";
 
 
     public static final String DEFAULT_PORTRAIT_URL = "http://114.115.173.237:8000/static/avatar/default.jpg";

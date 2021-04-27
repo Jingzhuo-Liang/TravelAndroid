@@ -257,7 +257,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         Api.config(ApiConfig.GET_RECORD_DETAIL,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                Log.e("getDetailSuccess",res);
+                //Log.e("getDetailSuccess",res);
                 Gson gson = new Gson();
                 RecordDetailResponse rdr = new RecordDetailResponse();
                 rdr = gson.fromJson(res, RecordDetailResponse.class);
@@ -594,15 +594,15 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             params.put("firstLevelCommentId",firstLevelEntity.getF1LevelCommentId());
             positionCount = (firstLevelEntity.getF1LevelPositionCount() + 1);
             int pos = firstLevelEntity.getF1LevelPosition();
-            Log.e("addS2CommentBegin","1111");
+            //Log.e("addS2CommentBegin","1111");
             Api.config(ApiConfig.ADD_SECOND_LEVEL_COMMENT,params).postRequest(new TtitCallback() {
                 @Override
                 public void onSuccess(String res) {
-                    Log.e("addS2Comment",res);
+                    //Log.e("addS2Comment",res);
                     Gson gson = new Gson();
                     CommonResponse addComment = gson.fromJson(res, CommonResponse.class);
                     if (addComment.getCode() == 200) {
-                        Log.e("addS2Comment",res);
+                        //Log.e("addS2Comment",res);
                         SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
                         secondLevelEntity.setS2LevelContent(msg);
                         secondLevelEntity.setS2LevelReplierPortrait(LoginUser.getInstance().getUser().getHeadPortraitPath());
@@ -631,48 +631,9 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
                 }
             });
-
-            /*
-            int pos = 0;
-            String replyUserName = "未知";
-            if (item instanceof FirstLevelEntity) {
-                FirstLevelEntity firstLevelEntity = (FirstLevelEntity) item;
-                positionCount = (int) (firstLevelEntity.getF1LevelPositionCount() + 1);
-                pos = (int) firstLevelEntity.getF1LevelPosition();
-                replyUserName = firstLevelEntity.getF1LevelMessengerName();
-            } else if (item instanceof SecondLevelEntity) {
-                SecondLevelEntity secondLevelEntity = (SecondLevelEntity) item;
-                positionCount = (int) (secondLevelEntity.getS2LevelPositionCount() + 1);
-                pos = (int) secondLevelEntity.getS2LevelPosition();
-                //replyUserName = secondLevelEntity.getUserName();
-            }
-
-            SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
-            //secondLevelEntity.setReplyUserName(replyUserName);
-            //secondLevelEntity.setIsReply(isReply ? 1 : 0);
-            secondLevelEntity.setS2LevelContent(msg);
-            secondLevelEntity.setS2LevelReplierPortrait("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3370302115,85956606&fm=26&gp=0.jpg");
-            secondLevelEntity.setS2LevelCreateTime(System.currentTimeMillis());
-            //secondLevelEntity.setIsLike(0);
-            secondLevelEntity.setS2LevelReplierName(userName);
-            secondLevelEntity.setS2LevelReplierId("");
-            secondLevelEntity.setS2LevelPosition(positionCount);
-
-            datas.get(pos).getS2LevelComments().add(secondLevelEntity);
-            TravelRecordDetailActivity.this.dataSort(0);
-            bottomSheetAdapter.notifyDataSetChanged();
-            rv_dialog_lists.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ((LinearLayoutManager) rv_dialog_lists.getLayoutManager())
-                            .scrollToPositionWithOffset(positionCount >= data.size() - 1 ? data.size() - 1
-                                    : positionCount, positionCount >= data.size() - 1 ? Integer.MIN_VALUE : rv_dialog_lists.getHeight());
-                }
-            }, 100);
-            */
         } else {
             //添加一级评论
-            Log.e("firstLevelComment",recordId + " " + LoginUser.getInstance().getUser().getId());
+            //Log.e("firstLevelComment",recordId + " " + LoginUser.getInstance().getUser().getId());
             HashMap<String, Object> params = new HashMap<>();
             params.put("recordId",recordId);
             params.put("userId",LoginUser.getInstance().getUser().getId());
