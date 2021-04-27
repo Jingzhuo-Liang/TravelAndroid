@@ -2,19 +2,12 @@ package com.example.travel.activity;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
@@ -32,6 +25,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -47,6 +41,7 @@ import com.example.travel.R;
 import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
+import com.example.travel.entity.CommonResponse;
 import com.example.travel.util.ActivityCollector;
 import com.example.travel.util.CityBean;
 import com.example.travel.util.LoginUser;
@@ -59,6 +54,7 @@ import com.example.travel.widget.RoundImageView;
 import com.example.travel.widget.TitleLayout;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.picasso.Picasso;
 
 /**
  * @@author:ljz
@@ -98,6 +94,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private static final int EDIT_EMAIL = 5;
     private static final int EDIT_SIGNATURE = 6;
     private TitleLayout titleLayout;
+
+    private boolean isDirty = false; //false: not modified true:modified
 
     @Override
     protected int initLayout() {
@@ -140,6 +138,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onClick(View v) {
                 updateLogin();
+                setResult(RESULT_OK);
                 finish();
             }
         });
@@ -158,6 +157,89 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         ActivityCollector.removeActivity(this);
     }
 
+    //退出登录
+    private void exitLogin() {
+        loginUser.clear(); //清除本地变量
+        clearSp();
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId", loginUser.getUser().getId());
+        Api.config(ApiConfig.EXIT_LOGIN,params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                showToast("登出成功");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                showToast("登出失败");
+            }
+        });
+    }
+
+    //更新用户信息
+    private void updateLogin() {
+
+        if (imagePath != null) { //修改头像
+            //Log.e("UserInfoPortraitPath",imagePath);
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("userId",LoginUser.getInstance().getUser().getId());
+            params.put("portrait", StringUtils.bitmapToBase64(PhotoUtils.getBitmap(imagePath)));
+            Api.config(ApiConfig.UPDATE_USER_PORTRAIT,params).postRequest(new TtitCallback() {
+                @Override
+                public void onSuccess(String res) {
+                    Log.e("UserInfoPortrait",res);
+                    Gson gson = new Gson();
+                    CommonResponse cr = gson.fromJson(res, CommonResponse.class);
+                    if (cr.getCode() == 200) {
+                        // 获取url
+                        loginUser.setHeadPortraitPath(cr.getData());
+                        loginUser.update();
+                        updateSp(loginUser.getUser());
+                    } else {
+                        showToast("更换头像失败");
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+
+                }
+            });
+        }
+        //Log.e("updateUserInfo",String.valueOf(isDirty));
+        if (isDirty) {
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("userId", loginUser.getUser().getId());
+            params.put("phoneNum", ig_phoneNum.getContentEdt().getText().toString());
+            params.put("email", ig_email.getContentEdt().getText().toString());
+            params.put("username", ig_name.getContentEdt().getText().toString());
+            params.put("gender", ig_gender.getContentEdt().getText().toString());
+            params.put("birthday", ig_birthday.getContentEdt().getText().toString());
+            params.put("region", ig_region.getContentEdt().getText().toString());
+            params.put("signature", ig_signature.getContentEdt().getText().toString());
+            Api.config(ApiConfig.UPDATE_USER, params).postRequest(new TtitCallback() {
+                @Override
+                public void onSuccess(String res) {
+                    Log.e("updateUserInfo", res);
+                    showToastSync("保存成功");
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    showToastSync("保存失败");
+                }
+            });
+            loginUser.setUsername(ig_name.getContentEdt().getText().toString());
+            loginUser.setRegion(ig_region.getContentEdt().getText().toString());
+            loginUser.setGender(ig_gender.getContentEdt().getText().toString());
+            loginUser.setBirthday(ig_birthday.getContentEdt().getText().toString());
+            loginUser.setSignature(ig_signature.getContentEdt().getText().toString());
+            loginUser.update();
+            updateSp(loginUser.getUser());
+        }
+    }
+
+
     @SuppressLint("NonConstantResourceId")
     public void onClick(View v){
         switch (v.getId()){
@@ -168,6 +250,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 startActivityForResult(intent, EDIT_NAME);
                 break;
             }
+            /*
             //修改手机号
             case R.id.ig_phoneNum:{
                 loginUser.setType(2);
@@ -182,6 +265,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 startActivityForResult(intent, EDIT_EMAIL);
                 break;
             }
+             */
             //修改个性签名
             case R.id.ig_signature:{
                 loginUser.setType(4);
@@ -195,8 +279,11 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     @Override
                     public void onOptionsSelect(int options1, int options2, int options3, View v) {
                         //选择了则显示并暂存LoginUser，退出时在保存至数据库
-                        String tx = options1Items.get(options1).getPickerViewText()
-                                + options2Items.get(options1).get(options2);
+                        String tx = options1Items.get(options1).getPickerViewText() + "-"
+                                + (options2Items.get(options1).size() == 0?
+                                options1Items.get(options1).getPickerViewText():
+                                options2Items.get(options1).get(options2));
+                        isDirty = isDirty || !ig_region.getContentEdt().getText().toString().equals(tx);
                         ig_region.getContentEdt().setText(tx);
                         loginUser.setRegion(tx);
                     }
@@ -213,6 +300,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     public void onOptionsSelect(int options1, int option2, int options3, View v) {
                         //选择了则显示并暂存LoginUser，退出时在保存至数据库
                         String tx = optionsItems_gender.get(options1);
+                        isDirty = isDirty || !ig_gender.getContentEdt().getText().toString().equals(tx);
                         ig_gender.getContentEdt().setText(tx);
                         loginUser.setGender(tx);
                     }
@@ -240,6 +328,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     public void onTimeSelect(Date date, View v) {
                         //选择了则显示并暂存LoginUser，退出时在保存至数据库
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        isDirty = isDirty || !ig_birthday.getContentEdt().getText().toString().equals(sdf.format(date));
                         ig_birthday.getContentEdt().setText(sdf.format(date));
                         loginUser.setBirthday(sdf.format(date));
                     }
@@ -263,47 +352,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
-    //退出登录
-    private void exitLogin() {
-        loginUser.clear(); //清除本地变量
-        clearSp();
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("userId", loginUser.getUser().getId());
-        Api.config(ApiConfig.EXIT_LOGIN,params).postRequest(new TtitCallback() {
-            @Override
-            public void onSuccess(String res) {
-                showToast("登出成功");
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                showToast("登出失败");
-            }
-        });
-    }
-
-    //更新用户信息
-    private void updateLogin() {
-        loginUser.update();//更新本地变量
-        updateSp(loginUser.getUser());
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("user",loginUser.getUser());
-        /*
-        Api.config(ApiConfig.UPDATE_USER,params).postRequest(new TtitCallback() {
-            @Override
-            public void onSuccess(String res) {
-                showToast("保存成功");
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                showToast("保存失败");
-            }
-        });
-
-         */
-    }
-
     //处理回调
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -323,10 +371,10 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     }
                 }
                 if(imagePath != null){
-                    //将拍摄的图片展示并更新数据库
+                    //将拍摄的图片展示
                     Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
                     ri_portrati.setImageBitmap(bitmap);
-                    loginUser.setHeadPortraitPath(PhotoUtils.bitmapToString(bitmap));
+                    //loginUser.setHeadPortraitPath(PhotoUtils.bitmapToString(bitmap));
                 }else{
                     Log.d("travel","没有找到图片");
                 }
@@ -334,24 +382,26 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             //如果是编辑名字，则修改展示
             case EDIT_NAME:
                 if(resultCode == RESULT_OK){
-                    ig_name.getContentEdt().setText(loginUser.getUsername());
+                    isDirty = isDirty || !ig_name.getContentEdt().getText().toString().equals(loginUser.getTempString());
+                    ig_name.getContentEdt().setText(loginUser.getTempString());
                 }
                 break;
             case EDIT_PHONENUM:{
                 if (resultCode == RESULT_OK) {
-                    ig_phoneNum.getContentEdt().setText(loginUser.getPhoneNum());
+                    ig_phoneNum.getContentEdt().setText(loginUser.getTempString());
                 }
                 break;
             }
             case EDIT_EMAIL: {
                 if (resultCode == RESULT_OK) {
-                    ig_email.getContentEdt().setText(loginUser.getEmail());
+                    ig_email.getContentEdt().setText(loginUser.getTempString());
                 }
                 break;
             }
             case EDIT_SIGNATURE: {
                 if (resultCode == RESULT_OK) {
-                    ig_signature.getContentEdt().setText(loginUser.getSignature());
+                    isDirty = isDirty || !ig_signature.getContentEdt().getText().toString().equals(loginUser.getTempString());
+                    ig_signature.getContentEdt().setText(loginUser.getTempString());
                 }
                 break;
             }
@@ -370,7 +420,10 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         if (loginUser.getUser() != null &&
             !loginUser.getUser().getHeadPortraitPath().equals("default") &&
             !loginUser.getUser().getHeadPortraitPath().equals("")) {
-            ri_portrati.setImageBitmap(PhotoUtils.stringToBitmap(loginUser.getUser().getHeadPortraitPath()));
+            //ri_portrati.setImageBitmap(PhotoUtils.stringToBitmap(loginUser.getUser().getHeadPortraitPath()));
+            Picasso.with(this)
+                    .load(LoginUser.getInstance().getUser().getHeadPortraitPath())
+                    .into(ri_portrati);
         }
         ig_gender.getContentEdt().setText(loginUser.getUser().getGender());
         ig_region.getContentEdt().setText(loginUser.getUser().getRegion());

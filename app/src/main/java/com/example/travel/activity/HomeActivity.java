@@ -2,6 +2,7 @@ package com.example.travel.activity;
 
 import androidx.fragment.app.Fragment;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -105,6 +106,5 @@ public class HomeActivity extends BaseActivity {
     protected void initData() {
 
     }
-
 
 }

@@ -6,7 +6,7 @@ package com.example.travel.entity;
  * @@version:1.0
  * @@annotation:
  **/
-public class AddCommentResponse {
+public class CommonResponse {
 
     private int code;
     private String msg;

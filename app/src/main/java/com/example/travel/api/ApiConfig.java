@@ -14,6 +14,7 @@ public class ApiConfig {
     public static final String LOGIN = "/travel/login";
     public static final String REGISTER = "/travel/register";
     public static final String UPDATE_USER = "/travel/updateUserInfo";
+    public static final String UPDATE_USER_PORTRAIT = "/travel/updateUserPortrait";
     public static final String EXIT_LOGIN = "/travel/exitLogin";
     public static final String RELEASE_TRAVEL_RECORD = "/travel/releaseTravelRecord";
     public static final String GET_TRAVEL_RECORD_NO_RECOMMEND = "/travel/getTravelRecordNoRecommend";
@@ -26,4 +27,9 @@ public class ApiConfig {
     public static final String ADD_SECOND_LEVEL_COMMENT = "/travel/addSecondLevelComment";
     public static final String FOCUS_AUTHOR = "/travel/focusAuthor";
     public static final String LIKE_RECORD = "/travel/likeRecord";
+    public static final String DELETE_MY_TRAVEL_RECORD = "/travel/deleteMyTravelRecord";
+    public static final String GET_MAP = "/travel/getMap";
+
+
+    public static final String DEFAULT_PORTRAIT_URL = "http://114.115.173.237:8000/static/avatar/default.jpg";
 }

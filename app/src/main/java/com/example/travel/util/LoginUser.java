@@ -3,6 +3,8 @@ package com.example.travel.util;
 import android.app.Application;
 import android.util.Log;
 
+import com.example.travel.api.Api;
+import com.example.travel.api.ApiConfig;
 import com.example.travel.entity.User;
 
 //使用饿汉模式实现单例的登录用户信息记录
@@ -16,6 +18,7 @@ public class LoginUser extends Application {
     private static LoginUser login_user = new LoginUser();
     private static User user;
     private int type; // 1-username 2-phoneNum 3-email  4-signature
+    private String tempString;
 
     private String id;
     private String phoneNum;
@@ -23,7 +26,7 @@ public class LoginUser extends Application {
     private String email;
     private String username;
     private String gender;
-    private String headPortraitPath;
+    private String headPortraitPath = ApiConfig.DEFAULT_PORTRAIT_URL;
     private String signature;
     private String backgroundPath;
     private String birthday;
@@ -41,7 +44,7 @@ public class LoginUser extends Application {
     public void update(){
         if(user.getId().equals(this.id)){
             user.setUsername(this.username);
-            Log.e("update:", user.getUsername());
+            //Log.e("update:", user.getUsername());
             user.setPhoneNum(this.phoneNum);
             user.setEmail(this.email);
             user.setHeadPortraitPath(this.headPortraitPath);
@@ -73,7 +76,12 @@ public class LoginUser extends Application {
         setPhoneNum(user.getPhoneNum());
         setEmail(user.getEmail());
         setSignature(user.getSignature());
-        setHeadPortraitPath(user.getHeadPortraitPath());
+        if (!(user.getHeadPortraitPath() == null ||
+            user.getHeadPortraitPath().length() == 0||
+            user.getHeadPortraitPath().equals("default"))) {
+            setHeadPortraitPath(user.getHeadPortraitPath());
+        }
+
         setBackgroundPath(user.getBackgroundPath());
         setBirthday(user.getBirthday());
         setGender(user.getGender());
@@ -166,5 +174,13 @@ public class LoginUser extends Application {
 
     public void setBackgroundPath(String backgroundPath) {
         this.backgroundPath = backgroundPath;
+    }
+
+    public String getTempString() {
+        return tempString;
+    }
+
+    public void setTempString(String tempString) {
+        this.tempString = tempString;
     }
 }

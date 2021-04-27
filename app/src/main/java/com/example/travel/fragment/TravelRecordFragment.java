@@ -10,6 +10,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.travel.R;
 import com.example.travel.activity.TravelRecordDetailActivity;
@@ -35,8 +38,9 @@ import java.util.HashMap;
  * @@version:1.0
  * @@annotation:
  **/
-public class TravelRecordFragment extends BaseFragment implements OnItemChildClickListener {
+public class TravelRecordFragment extends BaseFragment implements OnItemChildClickListener{
 
+    private TravelRecordFragment travelRecordFragment;
     private int categoryId;
     private RecyclerView recyclerView;
     private ArrayList<TravelRecordEntity> datas = new ArrayList<>();
@@ -44,7 +48,6 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
     private LinearLayoutManager linearLayoutManager;
     private RefreshLayout refreshLayout;
     private int pageNum = 0;
-
 
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
@@ -71,10 +74,14 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
     public static TravelRecordFragment newInstance(int categoryId) {
         TravelRecordFragment fragment = new TravelRecordFragment();
+        fragment.travelRecordFragment = fragment;
         fragment.categoryId = categoryId;
         return fragment;
     }
 
+    public TravelRecordFragment getInstance() {
+        return travelRecordFragment;
+    }
 
     @Override
     protected int initLayout() {
@@ -261,5 +268,10 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
         params.put("recordId", String.valueOf(datas.get(position).getRecordId()));
         params.put("authorId", String.valueOf(datas.get(position).getAuthorId()));
         navigateToWithPara(TravelRecordDetailActivity.class,params);
+    }
+
+    public void searchRecord(String keyWord) {
+
+        //Log.e("searchRecord",keyWord);
     }
 }

@@ -17,6 +17,7 @@ import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.LoginResponse;
 import com.example.travel.entity.User;
 import com.example.travel.util.LoginUser;
+import com.example.travel.util.PhotoUtils;
 import com.example.travel.util.StringUtils;
 import com.google.gson.Gson;
 
@@ -99,22 +100,25 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
             public void onSuccess(String res) {
                 Gson gson = new Gson();
                 LoginResponse loginResponse = gson.fromJson(res,LoginResponse.class);
-                //Log.e("login",res);
+                Log.e("login",res);
                 if (loginResponse.getCode() == 200) {
+                    if (loginResponse.getData().getHeadPortraitPath().equals("default")) {
+                        loginResponse.getData().setHeadPortraitPath(ApiConfig.DEFAULT_PORTRAIT_URL);
+                    }
+                    LoginUser.getInstance().setUser(loginResponse.getData());
                     saveStringToSp("id",String.valueOf(loginResponse.getId()));
                     saveStringToSp("username",loginResponse.getUsername());
                     saveStringToSp("phoneNum", loginResponse.getPhoneNum());
                     saveStringToSp("email",loginResponse.getEmail());
                     saveStringToSp("signature",loginResponse.getSignature());
-                    saveStringToSp("headPortraitPath",loginResponse.getHeadPortraitPath());
+                    if (!loginResponse.getHeadPortraitPath().equals("default")) {
+                        saveStringToSp("headPortraitPath", loginResponse.getHeadPortraitPath());
+                    }
                     saveStringToSp("birthday",loginResponse.getBirthday());
                     saveStringToSp("region",loginResponse.getRegion());
-                    LoginUser.getInstance().setUser(loginResponse.getData());
                     navigateTo(HomeActivity.class);
-                    showToastSync(loginResponse.getMsg());
-                } else {
-                    showToastSync(loginResponse.getMsg());
                 }
+                showToastSync(loginResponse.getMsg());
             }
 
             @Override

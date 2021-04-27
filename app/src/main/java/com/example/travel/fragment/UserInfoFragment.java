@@ -1,11 +1,13 @@
 package com.example.travel.fragment;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.travel.R;
+import com.example.travel.activity.EditName;
 import com.example.travel.activity.UserInfoActivity;
 import com.example.travel.adapter.HomeAdapter;
 import com.example.travel.entity.User;
@@ -21,6 +24,7 @@ import com.example.travel.util.LoginUser;
 import com.example.travel.util.PhotoUtils;
 import com.example.travel.widget.TitleLayout;
 import com.flyco.tablayout.SlidingTabLayout;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -67,7 +71,9 @@ public class UserInfoFragment extends BaseFragment {
         titleLayout.getTextView_forward().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                navigateTo(UserInfoActivity.class);
+                Intent intent = new Intent(getActivity(), UserInfoActivity.class);
+                startActivityForResult(intent, 0);
+                //navigateTo(UserInfoActivity.class);
             }
         });
 
@@ -103,10 +109,20 @@ public class UserInfoFragment extends BaseFragment {
             if (user.getHeadPortraitPath().equals("default") || user.getHeadPortraitPath().equals("")) {
                 my_portrait.setBackground(getResources().getDrawable(R.mipmap.default_portrait));
             } else {
-                my_portrait.setImageBitmap(PhotoUtils.stringToBitmap(user.getHeadPortraitPath()));
+                //my_portrait.setImageBitmap(PhotoUtils.stringToBitmap(user.getHeadPortraitPath()));
+                Picasso.with(getContext())
+                        .load(LoginUser.getInstance().getUser().getHeadPortraitPath())
+                        .into(my_portrait);
             }
             my_focusNum.setText("123");
             my_beFocusNum.setText("456");
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode,data);
+        //Log.e("userInfoBack","here???");
+        getUserInfo();
     }
 }

@@ -1,6 +1,10 @@
 package com.example.travel.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -21,6 +25,7 @@ import com.example.travel.entity.MyTravelRecordResponse;
 import com.example.travel.entity.TravelRecordEntity;
 import com.example.travel.entity.TravelRecordResponse;
 import com.example.travel.listener.OnItemChildClickListener;
+import com.example.travel.listener.OnItemDeleteListener;
 import com.example.travel.util.LoginUser;
 import com.google.gson.Gson;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
@@ -31,7 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class MyTravelRecordFragment extends BaseFragment implements OnItemChildClickListener {
+public class MyTravelRecordFragment extends BaseFragment implements OnItemChildClickListener, OnItemDeleteListener {
 
     private RecyclerView myRecordRecyclerView;
     private ArrayList<MyTravelRecordEntity> datas = new ArrayList<>();
@@ -114,52 +119,12 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
         });
         myTravelRecordAdapter = new MyTravelRecordAdapter(getActivity());
         myTravelRecordAdapter.setOnItemChildClickListener(this);
+        myTravelRecordAdapter.setOnItemDeleteListener(this::onItemDeleteListener);
         getMyTravelRecordList(true);
         myRecordRecyclerView.setAdapter(myTravelRecordAdapter);
     }
 
     private void getMyTravelRecordList(boolean isRefresh) {
-        //Log.e("getMyRecord",String.valueOf(isRefresh));
-        /*
-        ArrayList<MyTravelRecordEntity> list = new ArrayList<>();
-        for (int i = (pageNum - 1) * ApiConfig.PAGE_SIZE; i < pageNum * ApiConfig.PAGE_SIZE && i < 15; i++) {
-            MyTravelRecordEntity te = new MyTravelRecordEntity();
-            if (i % 2 == 0) {
-                te.setRecordState(0);
-                te.setLikeNum(i * 100 + i + 50);
-                te.setCommitNum(i * 50 + i + 50);
-                te.setBrowseNum(i * 30 + i + 50);
-            } else {
-                te.setRecordState(1);
-                te.setLikeNum(0);
-                te.setCommitNum(0);
-                te.setBrowseNum(0);
-            }
-            te.setRecordId(String.valueOf(i));
-            te.setRecordCoverImage("");
-            te.setRecordName("这是我的第" + i + "个游记");
-            te.setRecordReleaseTime("2021-0" +i +  "-0" + i);
-            te.setRecordRegion("吉林省-长春市");
-            list.add(te);
-        }
-        if (list.size() > 0) {
-            if (isRefresh) {
-                datas = list;
-            } else {
-                datas.addAll(list);
-            }
-        } else {
-            if (isRefresh) {
-                showToast("暂时加载无数据");
-            }
-            else {
-                showToast("没有更多数据");
-            }
-        }
-        //Log.e("getMyRecord",String.valueOf(datas.size()));
-        myTravelRecordAdapter.setDatas(datas);
-        handler.sendEmptyMessage(0);
-         */
         HashMap<String, Object> params = new HashMap<>();
         params.put("userId", LoginUser.getInstance().getUser().getId());
         params.put("page",pageNum);
@@ -173,8 +138,8 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
                 else {
                     myRecordRefreshLayout.finishLoadMore(true);
                 }
-                MyTravelRecordResponse tr = new Gson().fromJson(res, MyTravelRecordResponse.class);
                 //Log.e("getMyTravel",res);
+                MyTravelRecordResponse tr = new Gson().fromJson(res, MyTravelRecordResponse.class);
                 //Log.e("response",String.valueOf(videoListResponse.getCode()));
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<MyTravelRecordEntity> list = tr.getData();
@@ -193,7 +158,7 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
                             showToastSync("暂时加载无数据");
                         }
                         else {
-                            Log.e("getMyTravel","no more");
+                            //Log.e("getMyTravel","no more");
                             showToastSync("没有更多数据");
                         }
                     }
@@ -219,5 +184,14 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
     @Override
     public void onItemChildClick(int position) {
         //进入我的游记详情界面
+        //Log.e("MyRecordDetail",String.valueOf(position));
     }
+
+    @Override
+    public void onItemDeleteListener(int position) {
+        //删除我的游记
+        //Log.e("deleteMyRecord",String.valueOf(position));
+
+    }
+
 }

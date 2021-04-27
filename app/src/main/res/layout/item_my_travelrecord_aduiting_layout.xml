@@ -29,14 +29,35 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:orientation="vertical">
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/my_travelRecordRegion_auditing"
-                android:text="recordRegion"
-                android:textColor="@color/text_color"
-                android:textSize="12sp">
-            </TextView>
+                android:layout_height="20dp"
+                android:orientation="horizontal"
+                >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/my_travelRecordRegion_auditing"
+                    android:text="recordRegion"
+                    android:textColor="@color/text_color"
+                    android:textSize="12sp">
+                </TextView>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right"
+                    android:gravity="right"
+                    >
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="20dp"
+                        android:id="@+id/my_travel_record_auditing_delete"
+                        android:src="@mipmap/delete_icon"
+                        >
+                    </ImageView>
+
+                </LinearLayout>
+            </LinearLayout>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

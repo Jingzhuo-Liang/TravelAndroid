@@ -3,6 +3,7 @@ package com.example.travel.adapter;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -81,6 +82,8 @@ public class CommentDialogMutiAdapter extends BaseMultiItemQuickAdapter<MultiIte
          */
 
         String time = TimeUtils.getRecentTimeSpanByNow(item.getF1LevelCreateTime());
+        //Log.e("dialogAdapter1",String.valueOf(System.currentTimeMillis()));
+        //Log.e("dialogAdapter2",String.valueOf(item.getF1LevelCreateTime()));
         helper.setText(R.id.tv_time, time);
         helper.setText(R.id.tv_user_name, TextUtils.isEmpty(item.getF1LevelMessengerName()) ? " " : item.getF1LevelMessengerName());
 
@@ -88,6 +91,7 @@ public class CommentDialogMutiAdapter extends BaseMultiItemQuickAdapter<MultiIte
         tv_content.setText(contents);
 
         //Glide.with(mContext).load(item.getF1LevelMessengerPortrait().into(iv_header);
+        //Log.e("userPortraitAdapter",item.getF1LevelMessengerPortrait());
         Picasso.with(mContext)
                 .load(item.getF1LevelMessengerPortrait())
                 .into(iv_header);

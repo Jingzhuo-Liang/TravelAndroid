@@ -99,29 +99,14 @@ public class EditName extends BaseActivity {
             @Override
             public void onClick(View v) {
                 //Log.e("type:",String.valueOf(loginUser.getType()));
-                switch (loginUser.getType()) {
-
-                    case 1: {
-                        loginUser.setUsername(edit_name.getText().toString());
-                        break;
-                    }
-                    case 2: {
-                        loginUser.setPhoneNum(edit_name.getText().toString());
-                        Log.e("phoneNum:",edit_name.getText().toString());
-                        break;
-                    }
-                    case 3:{
-                        loginUser.setEmail(edit_name.getText().toString());
-                        break;
-                    }
-                    case 4:{
-                        loginUser.setSignature(edit_name.getText().toString());
-                        break;
-                    }
-                    default:
-                        break;
-                }
+                loginUser.setTempString(edit_name.getText().toString());
                 setResult(RESULT_OK);
+                finish();
+            }
+        });
+        tl_title.getTextView_backward().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 finish();
             }
         });

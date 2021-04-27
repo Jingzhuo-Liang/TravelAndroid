@@ -27,7 +27,7 @@ import com.example.travel.adapter.RecordDetailImageAdapter;
 import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
-import com.example.travel.entity.AddCommentResponse;
+import com.example.travel.entity.CommonResponse;
 import com.example.travel.entity.CommentEntity;
 import com.example.travel.entity.CommentMoreEntity;
 import com.example.travel.entity.FirstLevelEntity;
@@ -37,6 +37,7 @@ import com.example.travel.entity.SecondLevelEntity;
 import com.example.travel.listener.SoftKeyBoardListener;
 import com.example.travel.util.LoginUser;
 import com.example.travel.util.RecyclerViewUtil;
+import com.example.travel.util.TimeUtils;
 import com.example.travel.widget.InputTextMsgDialog;
 import com.example.travel.widget.TitleLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -107,6 +108,11 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                     setData(recordDetailEntity);
                     break;
                 }
+                case 1: {
+                    // 一级评论
+                    bottomSheetAdapter.notifyDataSetChanged();
+                    rv_dialog_lists.scrollToPosition(0);
+                }
                 default:{
 
                 }
@@ -169,13 +175,78 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             }
             case R.id.record_detail_focusIcon :{
                 //Log.e("recordDetail","click focus");
+                showFocus();
                 break;
             }
             case R.id.record_detail_likeIcon: {
-
+                showLike();
             }
             default:
         }
+    }
+
+    private void showLike() {
+        if (TimeUtils.isFastDoubleClick()) {
+            return;
+        }
+        isLike = !isLike;
+        int likeTempNum = Integer.parseInt(likeNum.getText().toString());
+        if (isLike) {
+            likeTempNum++;
+            showToast("点赞成功");
+        } else {
+            likeTempNum = Math.max(likeTempNum - 1, 0);
+            showToast("取消点赞");
+        }
+        likeIcon.setImageDrawable(isLike ? likeDrawable : unLikeDrawable);
+        likeNum.setText(String.valueOf(likeTempNum));
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId",LoginUser.getInstance().getUser().getId());
+        params.put("recordId",recordId);
+        params.put("isLike",isLike ? 1:0);
+        Api.config(ApiConfig.LIKE_RECORD,params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+    }
+
+    private void showFocus() {
+        if (TimeUtils.isFastDoubleClick()) {
+            return;
+        }
+        isFocus = !isFocus;
+        int focusTempNum = Integer.parseInt(focusNum.getText().toString());
+        if (isFocus) {
+            focusTempNum++;
+            showToast("关注成功");
+        } else  {
+            focusTempNum = Math.max(focusTempNum - 1, 0);
+            showToast("取消关注");
+        }
+        focusIcon.setImageDrawable(isFocus ? focusDrawable : unFocusDrawable);
+        focusNum.setText(String.valueOf(focusTempNum));
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId",LoginUser.getInstance().getUser().getId());
+        params.put("authorId",authorId);
+        params.put("isFocus",isFocus ? 1:0);
+        Api.config(ApiConfig.FOCUS_AUTHOR,params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
     }
 
     private void getTravelRecordDetail(String recordId, String authorId) {
@@ -192,6 +263,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                 rdr = gson.fromJson(res, RecordDetailResponse.class);
                 if (rdr.getCode() == 200) {
                     recordDetailEntity = rdr.getData();
+                    //Log.e("commentDetail",String.valueOf(recordDetailEntity.getF1LevelComments().get(0).getF1LevelContent()));
                     handler.sendEmptyMessage(0);
                 } else {
 
@@ -237,6 +309,8 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         likeIcon.setImageDrawable(isLike ? likeDrawable : unLikeDrawable);
         focusIcon.setImageDrawable(isFocus ? focusDrawable : unFocusDrawable);
         datas = rde.getF1LevelComments();
+        dataSort(0);
+        bottomSheetAdapter.setNewData(data);
 
         Picasso.with(this)
                 .load(rde.getAuthorPortrait())
@@ -440,6 +514,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
                      */
                     case CommentEntity.TYPE_COMMENT_MORE:
+                        /*
                         //在项目中是从服务器获取数据，其实就是二级评论分页获取
                         CommentMoreEntity moreBean = (CommentMoreEntity) bottomSheetAdapter.getData().get(position);
                         SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
@@ -457,7 +532,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                         datas.get((int) moreBean.getPosition()).getS2LevelComments().add(secondLevelEntity);
                         TravelRecordDetailActivity.this.dataSort(0);
                         bottomSheetAdapter.notifyDataSetChanged();
-
+                        */
                         break;
                     case CommentEntity.TYPE_COMMENT_EMPTY:
                         TravelRecordDetailActivity.this.initRefresh();
@@ -517,18 +592,17 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             params.put("content",msg);
             params.put("createTime",System.currentTimeMillis());
             params.put("firstLevelCommentId",firstLevelEntity.getF1LevelCommentId());
-
             positionCount = (firstLevelEntity.getF1LevelPositionCount() + 1);
             int pos = firstLevelEntity.getF1LevelPosition();
-            String replyUserName = firstLevelEntity.getF1LevelMessengerName();
-
+            Log.e("addS2CommentBegin","1111");
             Api.config(ApiConfig.ADD_SECOND_LEVEL_COMMENT,params).postRequest(new TtitCallback() {
                 @Override
                 public void onSuccess(String res) {
                     Log.e("addS2Comment",res);
                     Gson gson = new Gson();
-                    AddCommentResponse addComment = gson.fromJson(res, AddCommentResponse.class);
+                    CommonResponse addComment = gson.fromJson(res, CommonResponse.class);
                     if (addComment.getCode() == 200) {
+                        Log.e("addS2Comment",res);
                         SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
                         secondLevelEntity.setS2LevelContent(msg);
                         secondLevelEntity.setS2LevelReplierPortrait(LoginUser.getInstance().getUser().getHeadPortraitPath());
@@ -538,7 +612,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                         secondLevelEntity.setS2LevelPosition(positionCount);
                         datas.get(pos).getS2LevelComments().add(secondLevelEntity);
                         TravelRecordDetailActivity.this.dataSort(0);
-                        bottomSheetAdapter.notifyDataSetChanged();
                         rv_dialog_lists.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -547,6 +620,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                                                 : positionCount, positionCount >= data.size() - 1 ? Integer.MIN_VALUE : rv_dialog_lists.getHeight());
                             }
                         }, 100);
+                        handler.sendEmptyMessage(1);
                     } else {
 
                     }
@@ -607,22 +681,23 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             Api.config(ApiConfig.ADD_FIRST_LEVEL_COMMENT,params).postRequest(new TtitCallback() {
                 @Override
                 public void onSuccess(String res) {
-                    Log.e("addF1Comment",res);
+                    //Log.e("addF1Comment",res);
                     Gson gson = new Gson();
-                    AddCommentResponse addF1Comment = gson.fromJson(res, AddCommentResponse.class);
+                    CommonResponse addF1Comment = gson.fromJson(res, CommonResponse.class);
                     if (addF1Comment.getCode() == 200) {
                         FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
                         firstLevelEntity.setF1LevelMessengerName(LoginUser.getInstance().getUser().getUsername());
                         firstLevelEntity.setF1LevelCommentId(addF1Comment.getData());
-                        firstLevelEntity.setF1LevelMessengerPortrait(LoginUser.getInstance().getHeadPortraitPath());
+                        //Log.e("userPortrait",LoginUser.getInstance().getUser().getHeadPortraitPath());
+                        firstLevelEntity.setF1LevelMessengerPortrait(LoginUser.getInstance().getUser().getHeadPortraitPath());
                         firstLevelEntity.setF1LevelCreateTime(System.currentTimeMillis());
+                        //Log.e("addF1Comment",String.valueOf(System.currentTimeMillis()));
                         firstLevelEntity.setF1LevelContent(msg);
                         //firstLevelEntity.setLikeCount(0);
                         firstLevelEntity.setS2LevelComments(new ArrayList<SecondLevelEntity>());
                         datas.add(0, firstLevelEntity);
-                        TravelRecordDetailActivity.this.dataSort(0);
-                        bottomSheetAdapter.notifyDataSetChanged();
-                        rv_dialog_lists.scrollToPosition(0);
+                        dataSort(0);
+                        handler.sendEmptyMessage(1);
                     } else {
 
                     }
@@ -656,6 +731,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
     @Override
     public void onLoadMoreRequested() {
+        bottomSheetAdapter.loadMoreEnd(false);
         // 加载更多评论
         /*
         if (datas.size() >= totalCount) {
@@ -711,10 +787,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         bottomSheetAdapter = null;
         super.onDestroy();
     }
-
-
-
-
 
 
     private void initDrawable() {
