@@ -9,7 +9,8 @@
         android:layout_height="35dp"
         android:scaleType="centerCrop"
         android:padding="5dip"
-        android:src="@drawable/ic_launcher_airballoon"/>
+        android:src="@mipmap/map_icon"
+        />
 
     <TextView android:layout_width="wrap_content"
         android:layout_height="wrap_content"

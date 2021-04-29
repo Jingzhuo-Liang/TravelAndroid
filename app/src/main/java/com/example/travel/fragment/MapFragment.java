@@ -1,11 +1,15 @@
 package com.example.travel.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,21 +28,47 @@ import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.example.travel.R;
+import com.example.travel.api.Api;
+import com.example.travel.api.ApiConfig;
+import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.MapPointEntity;
+import com.example.travel.entity.MapPointResponse;
 import com.example.travel.util.LoginUser;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MapFragment extends BaseFragment {
 
     private MapView mMapView;
     private BaiduMap mBaiduMap;
+    List<MapPointEntity> list;
+    private String userId;
 
-    ArrayList<MapPointEntity> list;
+    private Handler handler = new Handler() {
+        @SuppressLint("HandlerLeak")
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:{
+                    //在主线程中执行
+                    showData();
+                    break;
+                }
+                default:{
 
-    public static MapFragment newInstance() {
+                }
+            }
+        }
+    };
+
+    public static MapFragment newInstance(String userId) {
         MapFragment fragment = new MapFragment();
+        fragment.userId = userId;
         return fragment;
     }
 
@@ -60,7 +90,7 @@ public class MapFragment extends BaseFragment {
         mBaiduMap = mMapView.getMap();
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
         getMapPoints();
-        showData();
+        //showData();
     }
 
     private void showData(){
@@ -69,12 +99,37 @@ public class MapFragment extends BaseFragment {
         //create_map_point(49.91923, 110.387428);
         //create_map_point(19.91923, 16.387428);
         for (MapPointEntity mpe: list) {
+            //Log.e("mapPoints",mpe.getRecordId());
             create_map_point(mpe.getLongitude(),mpe.getLatitude());
         }
         showInfoWindow();
     }
 
     private void getMapPoints() {
+        HashMap<String , Object> params = new HashMap<>();
+        params.put("userId",userId);
+        Api.config(ApiConfig.GET_MAP,params).getRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                //Log.e("getMap",res);
+                Gson gson = new Gson();
+                MapPointResponse mr = gson.fromJson(res, MapPointResponse.class);
+                if (mr.getCode() == 200) {
+                    list = mr.getData();
+                    //Log.e("mapPoints",String.valueOf(list.size()));
+                    handler.sendEmptyMessage(0);
+                } else {
+
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+
+        /*
         list = new ArrayList<>();
         MapPointEntity mapPoint = new MapPointEntity();
         mapPoint.setRecordId("1");
@@ -100,6 +155,8 @@ public class MapFragment extends BaseFragment {
         mapPoint.setLikeNum("333");
         mapPoint.setRecordCoverImage("http://114.115.173.237:8000/static/picture/picture_f8978682184642719ea69886f340cd71_0.png");
         list.add(mapPoint);
+
+         */
     }
 
     private void showInfoWindow(){
@@ -112,8 +169,6 @@ public class MapFragment extends BaseFragment {
                 //在显示新信息窗之前，先关闭已经在显示的信息窗
                 mBaiduMap.hideInfoWindow();
                 //获取maker此时的经纬度
-                //Double latitude = marker.getPosition().latitude;
-                //Double longitude = marker.getPosition().longitude;
                 MapPointEntity mapPointEntity = list.get(getMarkerIndex(marker.getPosition().longitude,marker.getPosition().latitude));
                 //Log.e("positionIndex",);
                 //TODO:通过经纬度动态加载图片到xml

@@ -20,6 +20,7 @@ import com.example.travel.adapter.TravelRecordAdapter;
 import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
+import com.example.travel.entity.CommonResponse;
 import com.example.travel.entity.MyTravelRecordEntity;
 import com.example.travel.entity.MyTravelRecordResponse;
 import com.example.travel.entity.TravelRecordEntity;
@@ -45,6 +46,8 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
     private int pageNum = 0;
     private MyTravelRecordAdapter myTravelRecordAdapter;
 
+    private String userId;
+
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
         @Override
@@ -65,11 +68,11 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
     };
 
     public MyTravelRecordFragment() {
-
     }
 
-    public static MyTravelRecordFragment newInstance() {
+    public static MyTravelRecordFragment newInstance(String userId) {
         MyTravelRecordFragment fragment = new MyTravelRecordFragment();
+        fragment.userId = userId;
         return fragment;
     }
 
@@ -106,7 +109,7 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
             public void onRefresh(RefreshLayout refreshlayout) {
                 refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
                 pageNum = 0;
-                getMyTravelRecordList(true);
+                getTravelRecordList(true);
             }
         });
         myRecordRefreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
@@ -114,22 +117,35 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
             public void onLoadMore(RefreshLayout refreshlayout) {
                 refreshlayout.finishLoadMore(2000/*,false*/);//传入false表示加载失败
                 pageNum++;
-                getMyTravelRecordList(false);
+                getTravelRecordList(false);
             }
         });
-        myTravelRecordAdapter = new MyTravelRecordAdapter(getActivity());
+        myTravelRecordAdapter = new MyTravelRecordAdapter(getActivity(), userId.equals(LoginUser.getInstance().getUser().getId()));
         myTravelRecordAdapter.setOnItemChildClickListener(this);
         myTravelRecordAdapter.setOnItemDeleteListener(this::onItemDeleteListener);
-        getMyTravelRecordList(true);
+        getTravelRecordList(true);
         myRecordRecyclerView.setAdapter(myTravelRecordAdapter);
     }
 
-    private void getMyTravelRecordList(boolean isRefresh) {
+    private void getTravelRecordList(boolean isRefresh) {
         HashMap<String, Object> params = new HashMap<>();
-        params.put("userId", LoginUser.getInstance().getUser().getId());
-        params.put("page",pageNum);
-        params.put("limit",ApiConfig.PAGE_SIZE);
-        Api.config(ApiConfig.GET_MY_TRAVEL_RECORD,params).getRequest(new TtitCallback() {
+        if (userId.equals(LoginUser.getInstance().getUser().getId())) { //我的游记
+            //Log.e("getMyTravel",userId);
+            params.put("userId", userId);
+            params.put("page",pageNum);
+            params.put("limit",ApiConfig.PAGE_SIZE);
+            getMyTravelRecordList(isRefresh, ApiConfig.GET_MY_TRAVEL_RECORD, params);
+        } else { //其他用户的游记
+            //Log.e("getMyTravel",userId);
+            params.put("otherUserId", userId);
+            params.put("page",pageNum);
+            params.put("limit",ApiConfig.PAGE_SIZE);
+            getMyTravelRecordList(isRefresh, ApiConfig.GET_OTHER_USER_TRAVEL_RECORD, params);
+        }
+    }
+
+    private void getMyTravelRecordList(boolean isRefresh, String url, HashMap<String, Object> params) {
+        Api.config(url,params).getRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
                 if (isRefresh) {
@@ -138,8 +154,8 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
                 else {
                     myRecordRefreshLayout.finishLoadMore(true);
                 }
-                //Log.e("getMyTravel",res);
                 MyTravelRecordResponse tr = new Gson().fromJson(res, MyTravelRecordResponse.class);
+                //Log.e("getMyTravel",res);
                 //Log.e("response",String.valueOf(videoListResponse.getCode()));
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<MyTravelRecordEntity> list = tr.getData();
@@ -190,8 +206,29 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
     @Override
     public void onItemDeleteListener(int position) {
         //删除我的游记
-        //Log.e("deleteMyRecord",String.valueOf(position));
+        HashMap<String , Object> params = new HashMap<>();
+        params.put("userId",LoginUser.getInstance().getUser().getId());
+        params.put("recordId",datas.get(position).getRecordId());
+        Api.config(ApiConfig.DELETE_MY_TRAVEL_RECORD,params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                Log.e("deleteMyRecord",res);
+                Gson gson = new Gson();
+                CommonResponse commonResponse = gson.fromJson(res, CommonResponse.class);
+                if (commonResponse.getCode() == 200) {
+                    datas.remove(position);
+                    handler.sendEmptyMessage(0);
+                    showToastSync("删除成功");
+                } else {
+                    showToastSync(commonResponse.getMsg());
+                }
+            }
 
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
     }
 
 }

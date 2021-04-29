@@ -42,6 +42,7 @@ import com.example.travel.adapter.ImageAdapter;
 import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
+import com.example.travel.entity.CommonResponse;
 import com.example.travel.util.CityBean;
 import com.example.travel.util.LoginUser;
 import com.example.travel.util.PhotoUtils;

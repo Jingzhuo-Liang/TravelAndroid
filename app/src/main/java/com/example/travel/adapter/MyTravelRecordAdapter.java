@@ -29,6 +29,8 @@ import java.util.ArrayList;
 public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
+    private boolean isUser;
+
     private ArrayList<MyTravelRecordEntity> datas;
     private OnItemChildClickListener onItemChildClickListener;
     private OnItemClickListener  onItemClickListener;
@@ -39,8 +41,9 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         this.datas = arrayList;
     }
 
-    public MyTravelRecordAdapter(Context context) {
+    public MyTravelRecordAdapter(Context context, boolean isUser) {
         this.mContext = context;
+        this.isUser = isUser;
     }
 
     @NonNull
@@ -48,12 +51,12 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == 0) {
             View view = LayoutInflater.from(mContext).inflate(R.layout.item_my_travelrecord_released_layout,parent,false);
-            ViewHolderReleased viewHolder = new ViewHolderReleased(view);
+            ViewHolderReleased viewHolder = new ViewHolderReleased(view, isUser);
             return  viewHolder;
         }
         else {
             View view = LayoutInflater.from(mContext).inflate(R.layout.item_my_travelrecord_aduiting_layout,parent,false);
-            ViewHolderAuditing viewHolder = new ViewHolderAuditing(view);
+            ViewHolderAuditing viewHolder = new ViewHolderAuditing(view, isUser);
             return viewHolder;
         }
     }
@@ -67,12 +70,12 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ViewHolderReleased vh = (ViewHolderReleased) holder;
             //Log.e("holder",ne.getTitle());
             vh.recordName.setText(ne.getRecordName());
-            vh.releasedTime.setText(ne.getRecordReleasedTime());
+            vh.releasedTime.setText(ne.getRecordReleasedTime().split(" ")[0]);
             vh.likeNum.setText(String.valueOf(ne.getLikeNum()));
             vh.commitNum.setText(String.valueOf(ne.getCommitNum()));
             vh.browseNum.setText(String.valueOf(ne.getBrowseNum()));
             vh.recordRegion.setText(ne.getRecordRegion());
-            vh.releasedTime.setText(ne.getRecordReleasedTime());
+            //vh.releasedTime.setText(ne.getRecordReleasedTime());
             Picasso.with(mContext)
                     .load(ne.getRecordCoverImage())
                     .into(vh.coverImage);
@@ -81,9 +84,9 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         else if (type == 1) {
             ViewHolderAuditing vh = (ViewHolderAuditing) holder;
             vh.recordName.setText(ne.getRecordName());
-            vh.releasedTime.setText(ne.getRecordReleasedTime());
+            vh.releasedTime.setText(ne.getRecordReleasedTime().split(" ")[0]);
             vh.recordRegion.setText(ne.getRecordRegion());
-            vh.releasedTime.setText(ne.getRecordReleasedTime());
+            //vh.releasedTime.setText(ne.getRecordReleasedTime());
             Picasso.with(mContext)
                     .load(ne.getRecordCoverImage())
                     .into(vh.coverImage);
@@ -120,7 +123,7 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         private ImageView deleteBtn;
         private int position;
 
-        public ViewHolderReleased(@NonNull View view) {
+        public ViewHolderReleased(@NonNull View view, boolean isUser) {
             super(view);
             coverImage = view.findViewById(R.id.my_travelNote_cover_image_released);
             recordName = view.findViewById(R.id.my_travelRecordName_released);
@@ -130,8 +133,12 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             browseNum = view.findViewById(R.id.my_travelRecord_BrowseNum_released);
             recordRegion = view.findViewById(R.id.my_travelRecordRegion_released);
             deleteBtn = view.findViewById(R.id.my_travel_record_released_delete);
-            if (onItemDeleteListener != null) {
-                deleteBtn.setOnClickListener(this);
+            if (isUser) {
+                if (onItemDeleteListener != null) {
+                    deleteBtn.setOnClickListener(this);
+                }
+            } else {
+                deleteBtn.setVisibility(View.INVISIBLE);
             }
             if (onItemChildClickListener != null) {
                 coverImage.setOnClickListener(this);
@@ -168,15 +175,19 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         private ImageView deleteBtn;
         public int position;
 
-        public ViewHolderAuditing(@NonNull View view) {
+        public ViewHolderAuditing(@NonNull View view, boolean isUser) {
             super(view);
             coverImage = view.findViewById(R.id.my_travelNote_cover_image_auditing);
             recordName = view.findViewById(R.id.my_recordName_auditing);
             releasedTime = view.findViewById(R.id.my_record_releasedTime_auditing);
             recordRegion = view.findViewById(R.id.my_travelRecordRegion_auditing);
             deleteBtn = view.findViewById(R.id.my_travel_record_auditing_delete);
-            if (onItemDeleteListener != null) {
-                deleteBtn.setOnClickListener(this);
+            if (isUser) {
+                if (onItemDeleteListener != null) {
+                    deleteBtn.setOnClickListener(this);
+                }
+            } else {
+                deleteBtn.setVisibility(View.INVISIBLE);
             }
             if (onItemChildClickListener != null) {
                 coverImage.setOnClickListener(this);

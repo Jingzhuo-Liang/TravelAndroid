@@ -139,7 +139,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             public void onClick(View v) {
                 updateLogin();
                 setResult(RESULT_OK);
-                finish();
+                //finish();
             }
         });
         titleLayout.getTextView_backward().setOnClickListener(new View.OnClickListener() {
@@ -178,12 +178,12 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
 
     //更新用户信息
     private void updateLogin() {
-
         if (imagePath != null) { //修改头像
             //Log.e("UserInfoPortraitPath",imagePath);
             HashMap<String, Object> params = new HashMap<>();
             params.put("userId",LoginUser.getInstance().getUser().getId());
             params.put("portrait", StringUtils.bitmapToBase64(PhotoUtils.getBitmap(imagePath)));
+            //Log.e("portraitPath",String.valueOf(StringUtils.bitmapToBase64(PhotoUtils.getBitmap(imagePath)).length()));
             Api.config(ApiConfig.UPDATE_USER_PORTRAIT,params).postRequest(new TtitCallback() {
                 @Override
                 public void onSuccess(String res) {
@@ -195,8 +195,9 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                         loginUser.setHeadPortraitPath(cr.getData());
                         loginUser.update();
                         updateSp(loginUser.getUser());
+                        showToastSync("更换头像成功");
                     } else {
-                        showToast("更换头像失败");
+                        showToastSync("更换头像失败");
                     }
                 }
 
@@ -205,9 +206,11 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
 
                 }
             });
+            imagePath = null;
         }
         //Log.e("updateUserInfo",String.valueOf(isDirty));
         if (isDirty) {
+            //Log.e("updateUserInfoIsDirty", String.valueOf(isDirty));
             HashMap<String, Object> params = new HashMap<>();
             params.put("userId", loginUser.getUser().getId());
             params.put("phoneNum", ig_phoneNum.getContentEdt().getText().toString());
@@ -220,7 +223,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             Api.config(ApiConfig.UPDATE_USER, params).postRequest(new TtitCallback() {
                 @Override
                 public void onSuccess(String res) {
-                    Log.e("updateUserInfo", res);
+                    //Log.e("updateUserInfo", res);
                     showToastSync("保存成功");
                 }
 

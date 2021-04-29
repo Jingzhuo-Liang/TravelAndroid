@@ -105,6 +105,7 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
                     if (loginResponse.getData().getHeadPortraitPath().equals("default")) {
                         loginResponse.getData().setHeadPortraitPath(ApiConfig.DEFAULT_PORTRAIT_URL);
                     }
+                    loginResponse.getData().setBirthday(loginResponse.getData().getBirthday().split("T")[0]);
                     LoginUser.getInstance().setUser(loginResponse.getData());
                     saveStringToSp("id",String.valueOf(loginResponse.getId()));
                     saveStringToSp("username",loginResponse.getUsername());

@@ -272,6 +272,9 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
     public void searchRecord(String keyWord) {
         //Log.e("searchRecord",keyWord);
+        if (categoryId != 1) { //推荐页面
+            return;
+        }
         HashMap<String, Object> params = new HashMap<>();
         params.put("userId",LoginUser.getInstance().getUser().getId());
         params.put("keyword",keyWord);
@@ -287,7 +290,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                         handler.sendEmptyMessage(0);
                     }
                     else {
-                        showToast("无相关搜索内容");
+                        showToastSync("无相关搜索内容");
                     }
                 }else {
                     //navigateTo(LoginActivity.class);

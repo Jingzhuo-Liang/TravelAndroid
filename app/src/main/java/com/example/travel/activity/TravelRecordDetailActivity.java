@@ -49,7 +49,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class TravelRecordDetailActivity extends BaseActivity implements View.OnClickListener, BaseQuickAdapter.RequestLoadMoreListener{
+public class TravelRecordDetailActivity extends BaseActivity implements View.OnClickListener, BaseQuickAdapter.RequestLoadMoreListener, View.OnLongClickListener{
 
     private TitleLayout titleLayout;
     private ImageView authorPortrait;
@@ -93,6 +93,8 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     private SoftKeyBoardListener mKeyBoardListener;
     //dialog
 
+    private int likeTempNum;
+    private int focusTempNum;
 
     private String recordId;
     private String authorId;
@@ -112,6 +114,25 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                     // 一级评论
                     bottomSheetAdapter.notifyDataSetChanged();
                     rv_dialog_lists.scrollToPosition(0);
+                    break;
+                }
+                case 2: {
+                    // 点赞
+                    likeIcon.setImageDrawable(isLike ? likeDrawable : unLikeDrawable);
+                    likeNum.setText(String.valueOf(likeTempNum));
+                    showToast(isLike ? "点赞成功":"取消点赞");
+                    break;
+                }
+                case 3:  {
+                    //关注
+                    focusIcon.setImageDrawable(isFocus ? focusDrawable : unFocusDrawable);
+                    focusNum.setText(String.valueOf(focusTempNum));
+                    showToast(isFocus ? "关注成功":"取消关注");
+                    break;
+                }
+                case 4: {
+                    notExist();
+                    break;
                 }
                 default:{
 
@@ -137,8 +158,10 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         recordMain = findViewById(R.id.record_detail_recordMain);
         likeIcon = findViewById(R.id.record_detail_likeIcon);
         likeNum = findViewById(R.id.record_detail_likeNum);
+        likeTempNum = Integer.parseInt(likeNum.getText().toString());
         focusIcon = findViewById(R.id.record_detail_focusIcon);
         focusNum = findViewById(R.id.record_detail_focusNum);
+        focusTempNum = Integer.parseInt(focusNum.getText().toString());
         commitIcon = findViewById(R.id.record_detail_commentIcon);
         commentNum = findViewById(R.id.record_detail_commentNum);
         initDrawable();
@@ -149,6 +172,8 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         commitIcon.setOnClickListener(this);
         focusIcon.setOnClickListener(this);
         likeIcon.setOnClickListener(this);
+        authorPortrait.setOnLongClickListener(this);
+        authorPortrait.setOnClickListener(this);
 
         mRecyclerViewUtil = new RecyclerViewUtil();
         //initDialogData();
@@ -166,6 +191,21 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     }
 
     @Override
+    public boolean onLongClick(View v) {
+        switch (v.getId()) {
+            case R.id.record_detail_authorPortrait: {
+                // 进入他人主页
+                //Log.e("onLongClick","here");
+                HashMap<String , String> params = new HashMap<>();
+                params.put("otherUserId",authorId);
+                navigateToWithPara(OtherUserInfoActivity.class, params);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.record_detail_commentIcon: {
@@ -180,6 +220,11 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             }
             case R.id.record_detail_likeIcon: {
                 showLike();
+                break;
+            }
+            case R.id.record_detail_authorPortrait: {
+                showToast("长按可进入主页");
+                break;
             }
             default:
         }
@@ -190,16 +235,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             return;
         }
         isLike = !isLike;
-        int likeTempNum = Integer.parseInt(likeNum.getText().toString());
-        if (isLike) {
-            likeTempNum++;
-            showToast("点赞成功");
-        } else {
-            likeTempNum = Math.max(likeTempNum - 1, 0);
-            showToast("取消点赞");
-        }
-        likeIcon.setImageDrawable(isLike ? likeDrawable : unLikeDrawable);
-        likeNum.setText(String.valueOf(likeTempNum));
         HashMap<String, Object> params = new HashMap<>();
         params.put("userId",LoginUser.getInstance().getUser().getId());
         params.put("recordId",recordId);
@@ -207,12 +242,25 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         Api.config(ApiConfig.LIKE_RECORD,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
+                //Log.e("likeClick",res);
+                Gson gson = new Gson();
+                CommonResponse cr = gson.fromJson(res, CommonResponse.class);
+                if (cr.getCode() == 200) {
+                    likeTempNum = Integer.parseInt(likeNum.getText().toString());
+                    if (isLike) {
+                        likeTempNum++;
+                    } else {
+                        likeTempNum = Math.max(likeTempNum - 1, 0);
+                    }
+                    handler.sendEmptyMessage(2);
+                } else {
+                    showToast(cr.getMsg());
+                }
 
             }
-
             @Override
             public void onFailure(Exception e) {
-
+                showToast("操作失败");
             }
         });
     }
@@ -222,16 +270,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             return;
         }
         isFocus = !isFocus;
-        int focusTempNum = Integer.parseInt(focusNum.getText().toString());
-        if (isFocus) {
-            focusTempNum++;
-            showToast("关注成功");
-        } else  {
-            focusTempNum = Math.max(focusTempNum - 1, 0);
-            showToast("取消关注");
-        }
-        focusIcon.setImageDrawable(isFocus ? focusDrawable : unFocusDrawable);
-        focusNum.setText(String.valueOf(focusTempNum));
         HashMap<String, Object> params = new HashMap<>();
         params.put("userId",LoginUser.getInstance().getUser().getId());
         params.put("authorId",authorId);
@@ -239,12 +277,25 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         Api.config(ApiConfig.FOCUS_AUTHOR,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-
+                Gson gson = new Gson();
+                CommonResponse cr = gson.fromJson(res, CommonResponse.class);
+                if (cr.getCode() == 200) {
+                    //Log.e("clickFocus",res);
+                    focusTempNum = Integer.parseInt(focusNum.getText().toString());
+                    if (isFocus) {
+                        focusTempNum++;
+                    } else  {
+                        focusTempNum = Math.max(focusTempNum - 1, 0);
+                    }
+                    handler.sendEmptyMessage(3);
+                } else  {
+                    showToastSync(cr.getMsg());
+                }
             }
 
             @Override
             public void onFailure(Exception e) {
-
+                showToast("操作失败");
             }
         });
     }
@@ -266,7 +317,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                     //Log.e("commentDetail",String.valueOf(recordDetailEntity.getF1LevelComments().get(0).getF1LevelContent()));
                     handler.sendEmptyMessage(0);
                 } else {
-
+                    handler.sendEmptyMessage(4);
                 }
             }
 
@@ -324,6 +375,11 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         //initDialogData();
         dataSort(0);
         bottomSheetAdapter.setNewData(data);
+    }
+
+    private void notExist() {
+        showToast("获取游记失败");
+        onDestroy();
     }
 
     //原始数据 一般是从服务器接口请求过来的
