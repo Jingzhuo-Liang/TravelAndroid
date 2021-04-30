@@ -49,6 +49,8 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
     private RefreshLayout refreshLayout;
     private int pageNum = 0;
 
+    //private boolean isSearch = false;
+
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
         @Override
@@ -272,7 +274,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
     public void searchRecord(String keyWord) {
         //Log.e("searchRecord",keyWord);
-        if (categoryId != 1) { //推荐页面
+        if (categoryId != 1 || keyWord == null || keyWord.trim().length() == 0) { //推荐页面
             return;
         }
         HashMap<String, Object> params = new HashMap<>();
@@ -282,6 +284,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
             @Override
             public void onSuccess(String res) {
                 TravelRecordResponse tr = new Gson().fromJson(res, TravelRecordResponse.class);
+                Log.e("search",res);
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<TravelRecordEntity> list = tr.getData();
                     if (list != null && list.size() > 0) {

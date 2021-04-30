@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @@author:ljz
@@ -62,6 +64,20 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void navigateTo(Class c) {
         Intent in = new Intent(context, c);
         startActivity(in);
+    }
+
+    public void navigateToWithTime(Class c, int time) {
+        //Intent in = new Intent(context, c);
+        //startActivity(in);
+        Intent in =new Intent(context,c);
+        Timer timer=new Timer();
+        TimerTask task=new TimerTask(){
+            @Override
+            public void run(){
+                startActivity(in);
+            }
+        };
+        timer.schedule(task,time);
     }
 
     public void navigateToWithPara(Class c, HashMap<String, String> map) {

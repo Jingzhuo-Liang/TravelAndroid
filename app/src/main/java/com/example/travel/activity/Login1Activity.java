@@ -98,25 +98,34 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
         Api.config(ApiConfig.LOGIN,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                Log.e("login",res);
+                //Log.e("login",res);
                 Gson gson = new Gson();
                 LoginResponse loginResponse = gson.fromJson(res,LoginResponse.class);
                 if (loginResponse.getCode() == 200) {
                     if (loginResponse.getData().getHeadPortraitPath().equals("default")) {
                         loginResponse.getData().setHeadPortraitPath(ApiConfig.DEFAULT_PORTRAIT_URL);
                     }
+                    if (loginResponse.getData().getGender().equals("male")) {
+                        loginResponse.getData().setGender("男");
+                    } else if (loginResponse.getData().getGender().equals("female")) {
+                        loginResponse.getData().setGender("女");
+                    } else if (loginResponse.getData().getGender().equals("unknown")) {
+                        loginResponse.getData().setGender("未知");
+                    }
                     loginResponse.getData().setBirthday(loginResponse.getData().getBirthday().split("T")[0]);
                     LoginUser.getInstance().setUser(loginResponse.getData());
+                    clearSp();
                     saveStringToSp("id",String.valueOf(loginResponse.getId()));
-                    saveStringToSp("username",loginResponse.getUsername());
-                    saveStringToSp("phoneNum", loginResponse.getPhoneNum());
-                    saveStringToSp("email",loginResponse.getEmail());
-                    saveStringToSp("signature",loginResponse.getSignature());
-                    if (!loginResponse.getHeadPortraitPath().equals("default")) {
-                        saveStringToSp("headPortraitPath", loginResponse.getHeadPortraitPath());
+                    saveStringToSp("username",loginResponse.getData().getUsername());
+                    saveStringToSp("phoneNum", loginResponse.getData().getPhoneNum());
+                    saveStringToSp("email",loginResponse.getData().getEmail());
+                    saveStringToSp("signature",loginResponse.getData().getSignature());
+                    if (!loginResponse.getData().getHeadPortraitPath().equals("default")) {
+                        saveStringToSp("headPortraitPath", loginResponse.getData().getHeadPortraitPath());
                     }
-                    saveStringToSp("birthday",loginResponse.getBirthday());
-                    saveStringToSp("region",loginResponse.getRegion());
+                    saveStringToSp("gender",loginResponse.getData().getGender());
+                    saveStringToSp("birthday",loginResponse.getData().getBirthday());
+                    saveStringToSp("region",loginResponse.getData().getRegion());
                     navigateTo(HomeActivity.class);
                 }
                 showToastSync(loginResponse.getMsg());

@@ -133,7 +133,7 @@ public class UserInfoFragment extends BaseFragment {
         Api.config(ApiConfig.GET_USER_RELATED_INFO,params).getRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                Log.e("getUserRelatedInfo",res);
+                //Log.e("getUserRelatedInfo",res);
                 Gson gson = new Gson();
                 UserRelatedInfoResponse userRes = gson.fromJson(res, UserRelatedInfoResponse.class);
                 if (userRes.getCode() == 200) {

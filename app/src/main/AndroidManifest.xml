@@ -22,8 +22,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".activity.OtherUserInfoActivity"></activity>
-        <activity android:name=".activity.TravelRecordDetailActivity" />
         <activity
             android:name="com.donkingliang.imageselector.ImageSelectorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -41,8 +39,12 @@
         <activity android:name=".activity.RegisterActivity" />
         <activity android:name=".activity.UserInfoActivity" />
         <activity android:name=".activity.EditName" />
+
+        <activity android:name=".activity.OtherUserInfoActivity" />
+        <activity android:name=".activity.TravelRecordDetailActivity" />
         <activity android:name=".activity.Login2Activity" /> <!-- <activity android:name=".activity.Login"></activity> -->
-        <activity android:name=".activity.Login1Activity">
+        <activity android:name=".activity.Login1Activity"/>
+        <activity android:name=".activity.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

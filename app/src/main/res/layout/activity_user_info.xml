@@ -42,70 +42,80 @@
 
     </LinearLayout>
     <!--    编辑界面，此处可以写成一个ItemGroup上传至com上-->
-    <com.example.travel.widget.ItemGroup
-        android:id="@+id/ig_id"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="46dp"
-        app:jt_visible="false"
-        app:paddingLeft="@dimen/padding_left_and_right"
-        app:title="ID号" />
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+            <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_id"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:jt_visible="false"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="ID号" />
 
-    <com.example.travel.widget.ItemGroup
-        android:id="@+id/ig_name"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        app:edt_hint_content="修改昵称"
-        app:paddingLeft="@dimen/padding_left_and_right"
-        app:title="@string/defaultName" />
+            <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_name"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:edt_hint_content="修改昵称"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="@string/defaultName" />
 
-    <com.example.travel.widget.ItemGroup
-        android:id="@+id/ig_phoneNum"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        app:edt_hint_content="修改手机号"
-        app:paddingLeft="@dimen/padding_left_and_right"
-        app:title="@string/defaultPhoneNum" />
+            <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_phoneNum"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:edt_hint_content="修改手机号"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="@string/defaultPhoneNum" />
 
-    <com.example.travel.widget.ItemGroup
-        android:id="@+id/ig_email"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        app:edt_hint_content="修改邮箱"
-        app:paddingLeft="@dimen/padding_left_and_right"
-        app:title="@string/defaultEmail" />
+            <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_email"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:edt_hint_content="修改邮箱"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="@string/defaultEmail" />
 
-    <com.example.travel.widget.ItemGroup
-        android:id="@+id/ig_gender"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        app:edt_hint_content="性别"
-        app:paddingLeft="@dimen/padding_left_and_right"
-        app:title="@string/defaultGender"/>
+            <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_gender"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:edt_hint_content="性别"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="@string/defaultGender"/>
 
 
-    <com.example.travel.widget.ItemGroup
-        android:id="@+id/ig_birthday"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        app:edt_hint_content="未选择"
-        app:paddingLeft="@dimen/padding_left_and_right"
-        app:title="生日" />
+            <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_birthday"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:edt_hint_content="未选择"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="生日" />
 
-    <com.example.travel.widget.ItemGroup
-        android:id="@+id/ig_region"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        app:edt_hint_content="修改城市"
-        app:paddingLeft="@dimen/padding_left_and_right"
-        app:title="@string/defaultRegion" />
+            <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_region"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:edt_hint_content="修改城市"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="@string/defaultRegion" />
 
-    <com.example.travel.widget.ItemGroup
-        android:id="@+id/ig_signature"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        app:edt_hint_content="修改个性签名"
-        app:paddingLeft="@dimen/padding_left_and_right"
-        app:title="@string/defaultSignature" />
+            <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_signature"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:edt_hint_content="修改个性签名"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="@string/defaultSignature" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
