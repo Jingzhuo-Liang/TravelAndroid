@@ -98,7 +98,7 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
         Api.config(ApiConfig.LOGIN,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                //Log.e("login",res);
+                Log.e("login",res);
                 Gson gson = new Gson();
                 LoginResponse loginResponse = gson.fromJson(res,LoginResponse.class);
                 if (loginResponse.getCode() == 200) {

@@ -1,5 +1,6 @@
 package com.example.travel.activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +11,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,6 +27,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -97,6 +101,25 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private String locationProvider;
 
     //private ImageView imageTest;
+    private Handler handler = new Handler() {
+        @SuppressLint("HandlerLeak")
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:{
+                    //在主线程中执行
+                    //progressDialog.cancel();
+                    //progressDialog.dismiss();
+                    finish();
+                    break;
+                }
+                default:{
+
+                }
+            }
+        }
+    };
 
     @Override
     protected int initLayout() {
@@ -133,6 +156,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         mAdapter = new ImageAdapter(this);
         rvImage.setAdapter(mAdapter);
 
+        //progressDialog = new ProgressDialog(this);
         //imageTest = findViewById(R.id.si_image_test);
     }
 
@@ -195,7 +219,9 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
+    //private ProgressDialog progressDialog;
     private void releaseTravelRecord() {
+        //progressDialog = ProgressDialog.show(this, "请稍等...", "游记发布中...", true);//显示加载框
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
             showToast("请选项城市");
             return;
@@ -209,6 +235,8 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             showToast("请至少选择一张图片");
             return;
         }
+
+        //progressDialog.show();
         //根据图片路径获取图片并转成base64字符串
         for (int i = 0;i < imagePaths.size();i++) {
             images.add(PhotoUtils.bitmapToString(PhotoUtils.getBitmap(imagePaths.get(i))));
@@ -224,10 +252,12 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             params.put("longitude", userLocation.getLongitude());
         }
 
+
         Api.config(ApiConfig.RELEASE_TRAVEL_RECORD, params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
                 showToastSync("发布成功");
+                handler.sendEmptyMessage(0);
             }
 
             @Override
@@ -235,7 +265,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
             }
         });
-        finish();
+        //finish();
     }
 
 
@@ -433,6 +463,9 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     @Override
     protected void onDestroy() {
         super.onDestroy();
+//        if (progressDialog != null) {
+//            progressDialog.dismiss();
+//        }
         if(locationManager!=null){
             //移除监听器
             locationManager.removeUpdates(locationListener);

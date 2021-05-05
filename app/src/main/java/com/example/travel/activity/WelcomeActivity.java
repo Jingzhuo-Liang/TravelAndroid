@@ -21,7 +21,7 @@ public class WelcomeActivity extends BaseActivity {
 
     @Override
     protected void initData() {
-
+        //clearSp();
         String id = getStringFromSp("id");
         Log.e("welcome_userId",id);
         if (id == null || id.length() == 0) {

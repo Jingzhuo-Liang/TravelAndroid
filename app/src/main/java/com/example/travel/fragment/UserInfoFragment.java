@@ -140,7 +140,7 @@ public class UserInfoFragment extends BaseFragment {
                     userRelatedInfo = userRes.getData();
                     handler.sendEmptyMessage(0);
                 } else {
-                    showToast(userRes.getMsg());
+                    showToastSync(userRes.getMsg());
                 }
             }
 

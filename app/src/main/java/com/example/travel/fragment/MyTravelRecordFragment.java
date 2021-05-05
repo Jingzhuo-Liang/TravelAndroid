@@ -145,6 +145,7 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
     }
 
     private void getMyTravelRecordList(boolean isRefresh, String url, HashMap<String, Object> params) {
+        //Log.e("myTravelId",LoginUser.getInstance().getUser().getId());
         Api.config(url,params).getRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
@@ -154,8 +155,8 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
                 else {
                     myRecordRefreshLayout.finishLoadMore(true);
                 }
-                MyTravelRecordResponse tr = new Gson().fromJson(res, MyTravelRecordResponse.class);
                 //Log.e("getMyTravel",res);
+                MyTravelRecordResponse tr = new Gson().fromJson(res, MyTravelRecordResponse.class);
                 //Log.e("response",String.valueOf(videoListResponse.getCode()));
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<MyTravelRecordEntity> list = tr.getData();

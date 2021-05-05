@@ -73,7 +73,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private ItemGroup ig_signature;
     private Button ig_exitLoginBtn;
 
-    private LoginUser loginUser = LoginUser.getInstance();
+    private LoginUser loginUser;
     private LinearLayout ll_portrait;
 
     private ArrayList<String> optionsItems_gender = new ArrayList<>();
@@ -133,6 +133,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     protected void initData() {
+        loginUser = LoginUser.getInstance();
         initOptionData();
         titleLayout.getTextView_forward().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -161,6 +162,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private void exitLogin() {
         loginUser.clear(); //清除本地变量
         clearSp();
+        navigateTo(Login1Activity.class);
+        /*
         HashMap<String, Object> params = new HashMap<>();
         params.put("userId", loginUser.getUser().getId());
         Api.config(ApiConfig.EXIT_LOGIN,params).postRequest(new TtitCallback() {
@@ -174,6 +177,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 showToast("登出失败");
             }
         });
+
+         */
     }
 
     //更新用户信息

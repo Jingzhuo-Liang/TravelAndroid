@@ -73,7 +73,7 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             vh.releasedTime.setText(ne.getRecordReleasedTime().split(" ")[0]);
             vh.likeNum.setText(String.valueOf(ne.getLikeNum()));
             vh.commitNum.setText(String.valueOf(ne.getCommitNum()));
-            vh.browseNum.setText(String.valueOf(ne.getBrowseNum()));
+            //vh.browseNum.setText(String.valueOf(ne.getBrowseNum()));
             vh.recordRegion.setText(ne.getRecordRegion());
             //vh.releasedTime.setText(ne.getRecordReleasedTime());
             Picasso.with(mContext)
@@ -118,7 +118,7 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         private TextView releasedTime;
         private TextView likeNum;
         private TextView commitNum;
-        private TextView browseNum;
+        //private TextView browseNum;
         private TextView recordRegion;
         private ImageView deleteBtn;
         private int position;
@@ -130,7 +130,7 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             releasedTime = view.findViewById(R.id.my_travelRecord_releasedTime_released);
             likeNum = view.findViewById(R.id.my_travelRecord_likeNum_released);
             commitNum = view.findViewById(R.id.my_travelRecord_commitNum_released);
-            browseNum = view.findViewById(R.id.my_travelRecord_BrowseNum_released);
+            //browseNum = view.findViewById(R.id.my_travelRecord_BrowseNum_released);
             recordRegion = view.findViewById(R.id.my_travelRecordRegion_released);
             deleteBtn = view.findViewById(R.id.my_travel_record_released_delete);
             if (isUser) {
