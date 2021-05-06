@@ -31,6 +31,7 @@ import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.RegisterResponse;
+import com.example.travel.util.ActivityCollector;
 import com.example.travel.util.CityBean;
 import com.example.travel.util.PhotoUtils;
 import com.example.travel.util.ProvinceBean;
@@ -81,6 +82,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     protected void initView() {
+        ActivityCollector.addActivity(this);
         registerAccount = findViewById(R.id.register_id_account);
         registerPwd = findViewById(R.id.register_id_pwd);
         registerConfirmPwd = findViewById(R.id.register_id_confirmPwd);

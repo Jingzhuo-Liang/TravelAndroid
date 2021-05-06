@@ -1,9 +1,11 @@
 package com.example.travel.activity;
 
+import android.os.SystemClock;
 import android.util.Log;
 
 import com.example.travel.R;
 import com.example.travel.entity.User;
+import com.example.travel.util.ActivityCollector;
 import com.example.travel.util.LoginUser;
 
 public class WelcomeActivity extends BaseActivity {
@@ -22,8 +24,9 @@ public class WelcomeActivity extends BaseActivity {
     @Override
     protected void initData() {
         //clearSp();
+        ActivityCollector.addActivity(this);
         String id = getStringFromSp("id");
-        Log.e("welcome_userId",id);
+        //Log.e("welcome_userId",id);
         if (id == null || id.length() == 0) {
             navigateToWithTime(Login1Activity.class, 2000);
         } else {
@@ -50,5 +53,11 @@ public class WelcomeActivity extends BaseActivity {
         loginUser.setBirthday(birthday);
         loginUser.setRegion(region);
         LoginUser.getInstance().setUser(loginUser);
+        //finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

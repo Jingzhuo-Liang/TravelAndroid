@@ -50,6 +50,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             >
+            <!--
             <com.example.travel.widget.ItemGroup
                 android:id="@+id/ig_id"
                 android:layout_width="match_parent"
@@ -57,7 +58,7 @@
                 app:jt_visible="false"
                 app:paddingLeft="@dimen/padding_left_and_right"
                 app:title="ID号" />
-
+              -->
             <com.example.travel.widget.ItemGroup
                 android:id="@+id/ig_name"
                 android:layout_width="match_parent"

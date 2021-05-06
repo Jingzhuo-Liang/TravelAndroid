@@ -16,6 +16,7 @@ import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.LoginResponse;
 import com.example.travel.entity.User;
+import com.example.travel.util.ActivityCollector;
 import com.example.travel.util.LoginUser;
 import com.example.travel.util.PhotoUtils;
 import com.example.travel.util.StringUtils;
@@ -44,6 +45,8 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
 
     @Override
     protected void initView() {
+        ActivityCollector.finishAll();
+        ActivityCollector.addActivity(this);
         account = findViewById(R.id.login1_id_account);
         pwd = findViewById(R.id.login1_id_pwd);
         switchLogin = findViewById(R.id.login1_id_switchLogin);
@@ -55,8 +58,8 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
     protected void initData() {
         loginBtn.setOnClickListener(this);
         goRegister.setOnClickListener(this);
-        account.setText("1234567890");
-        pwd.setText("123");
+        //account.setText("1234567890");
+        //pwd.setText("123");
     }
 
     private void login(String account, String pwd) {

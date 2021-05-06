@@ -37,6 +37,8 @@ import com.bigkoo.pickerview.listener.OnOptionsSelectListener;
 import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.OptionsPickerView;
 import com.bigkoo.pickerview.view.TimePickerView;
+import com.donkingliang.imageselector.utils.ImageUtil;
+import com.donkingliang.imageselector.utils.UriUtils;
 import com.example.travel.R;
 import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
@@ -105,7 +107,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     @Override
     protected void initView() {
         ActivityCollector.addActivity(this);
-        ig_id = (ItemGroup)findViewById(R.id.ig_id);
+        //ig_id = (ItemGroup)findViewById(R.id.ig_id);
         ig_name = (ItemGroup)findViewById(R.id.ig_name);
         ig_gender = (ItemGroup)findViewById(R.id.ig_gender);
         ig_region = (ItemGroup)findViewById(R.id.ig_region);
@@ -187,12 +189,12 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             //Log.e("UserInfoPortraitPath",imagePath);
             HashMap<String, Object> params = new HashMap<>();
             params.put("userId",LoginUser.getInstance().getUser().getId());
-            params.put("portrait", StringUtils.bitmapToBase64(PhotoUtils.getBitmap(imagePath)));
+            params.put("portrait", StringUtils.bitmapToBase64(ImageUtil.getBitmapFromUri(this,UriUtils.getImageContentUri(this, imagePath))));
             //Log.e("portraitPath",String.valueOf(StringUtils.bitmapToBase64(PhotoUtils.getBitmap(imagePath)).length()));
             Api.config(ApiConfig.UPDATE_USER_PORTRAIT,params).postRequest(new TtitCallback() {
                 @Override
                 public void onSuccess(String res) {
-                    Log.e("UserInfoPortrait",res);
+                    //Log.e("UserInfoPortrait",res);
                     Gson gson = new Gson();
                     CommonResponse cr = gson.fromJson(res, CommonResponse.class);
                     if (cr.getCode() == 200) {
@@ -200,6 +202,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                         loginUser.setHeadPortraitPath(cr.getData());
                         loginUser.update();
                         updateSp(loginUser.getUser());
+                        //Log.e("spHeadPortraitPath",getStringFromSp(""));
                         showToastSync("更换头像成功");
                     } else {
                         showToastSync("更换头像失败");
@@ -380,7 +383,9 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 }
                 if(imagePath != null){
                     //将拍摄的图片展示
-                    Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+                    Uri uri = UriUtils.getImageContentUri(this, imagePath);
+                    Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri);
+                    //Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
                     ri_portrati.setImageBitmap(bitmap);
                     //loginUser.setHeadPortraitPath(PhotoUtils.bitmapToString(bitmap));
                 }else{
@@ -420,7 +425,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     //初始化数据并展示
     private void initInfo(){
         LoginUser loginUser = LoginUser.getInstance();
-        ig_id.getContentEdt().setText(String.valueOf(loginUser.getUser().getId()));  //ID是int，转string
+        //ig_id.getContentEdt().setText(String.valueOf(loginUser.getUser().getId()));  //ID是int，转string
         ig_name.getContentEdt().setText(loginUser.getUser().getUsername());
         ig_phoneNum.getContentEdt().setText(loginUser.getUser().getPhoneNum());
         ig_email.getContentEdt().setText(loginUser.getUser().getEmail());

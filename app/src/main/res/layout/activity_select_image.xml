@@ -73,7 +73,7 @@
                         android:id="@+id/si_selectImage_hint"
                         android:layout_centerHorizontal="true"
                         android:layout_centerVertical="true"
-                        android:text="选择你的照片"
+                        android:text=""
                         android:textSize="15sp"
                         android:textColor="@color/gray5"
                         />

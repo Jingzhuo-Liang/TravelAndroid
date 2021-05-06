@@ -66,6 +66,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
         viewPager.setOffscreenPageLimit(mFragments.size());
         viewPager.setAdapter(new HomeAdapter(getFragmentManager(), mTitles, mFragments));
         slidingTabLayout.setViewPager(viewPager);
+        slidingTabLayout.setCurrentTab(1);
     }
 
     @Override

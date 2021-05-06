@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,6 +43,8 @@ import android.widget.TextView;
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder;
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener;
 import com.donkingliang.imageselector.utils.ImageSelector;
+import com.donkingliang.imageselector.utils.ImageUtil;
+import com.donkingliang.imageselector.utils.UriUtils;
 import com.example.travel.R;
 import com.example.travel.adapter.ImageAdapter;
 import com.example.travel.api.Api;
@@ -57,8 +61,10 @@ import com.google.gson.reflect.TypeToken;
 import com.next.easynavigation.view.EasyNavigationBar;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -220,7 +226,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     }
 
     //private ProgressDialog progressDialog;
-    private void releaseTravelRecord() {
+    private void releaseTravelRecord() throws FileNotFoundException {
         //progressDialog = ProgressDialog.show(this, "请稍等...", "游记发布中...", true);//显示加载框
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
             showToast("请选项城市");
@@ -236,11 +242,19 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             return;
         }
 
+
+
         //progressDialog.show();
         //根据图片路径获取图片并转成base64字符串
         for (int i = 0;i < imagePaths.size();i++) {
-            images.add(PhotoUtils.bitmapToString(PhotoUtils.getBitmap(imagePaths.get(i))));
+            //Log.e("imagePath",imagePaths.get(i));
+            //images.add(PhotoUtils.bitmapToString(PhotoUtils.getBitmap(imagePaths.get(i))));
+            //images.add(PhotoUtils.bitmapToString(BitmapFactory.decodeStream(getContentResolver().openInputStream(Uri.parse(URLEncoder.encode(imagePaths.get(i)))))));
+            Uri uri = UriUtils.getImageContentUri(this, imagePaths.get(i));
+            Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri);
+            images.add(PhotoUtils.bitmapToString(bitmap));
         }
+
         HashMap<String, Object> params = new HashMap<>();
         params.put("userId", LoginUser.getInstance().getUser().getId());
         params.put("recordName", recordName.getText().toString());
@@ -252,12 +266,14 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             params.put("longitude", userLocation.getLongitude());
         }
 
+        //Log.e("images",String.valueOf(images.size()));
 
         Api.config(ApiConfig.RELEASE_TRAVEL_RECORD, params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                showToastSync("发布成功");
-                handler.sendEmptyMessage(0);
+                //Log.e("releaseRecord",res);
+                //handler.sendEmptyMessage(0);
+                showToastSync("游记发布成功");
             }
 
             @Override
@@ -265,7 +281,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
             }
         });
-        //finish();
+        finish();
     }
 
 
@@ -327,7 +343,11 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                             @Override
                             public void run() {
                                 //showNormalDialog();
-                                releaseTravelRecord();
+                                try {
+                                    releaseTravelRecord();
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                         return false;
@@ -351,7 +371,11 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         normalDialog.setButton(DialogInterface.BUTTON_POSITIVE, "是", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                releaseTravelRecord();
+                try {
+                    releaseTravelRecord();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         });
         normalDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "否", new DialogInterface.OnClickListener() {

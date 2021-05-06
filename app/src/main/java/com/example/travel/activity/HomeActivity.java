@@ -11,6 +11,7 @@ import com.example.travel.R;
 import com.example.travel.adapter.ImageAdapter;
 import com.example.travel.fragment.HomeFragment;
 import com.example.travel.fragment.UserInfoFragment;
+import com.example.travel.util.ActivityCollector;
 import com.example.travel.util.LoginUser;
 import com.next.easynavigation.view.EasyNavigationBar;
 
@@ -45,6 +46,8 @@ public class HomeActivity extends BaseActivity {
 
     @Override
     protected void initView() {
+        ActivityCollector.finishAll();
+        ActivityCollector.addActivity(this);
         navigationBar = findViewById(R.id.home_navigationBar);
 
         fragments.add(new HomeFragment());

@@ -163,7 +163,7 @@ public class PhotoUtils {
      */
     public static String bitmapToString(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] imgBytes = baos.toByteArray();// 转为byte数组
         return Base64.encodeToString(imgBytes, Base64.DEFAULT);
     }

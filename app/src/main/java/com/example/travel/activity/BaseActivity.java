@@ -113,7 +113,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         saveStringToSp("email",user.getEmail());
         saveStringToSp("gender",user.getGender());
         saveStringToSp("signature",user.getSignature());
-        saveStringToSp("headPortraitPath","");
+        saveStringToSp("headPortraitPath",user.getHeadPortraitPath());
         saveStringToSp("backgroundPath","");
         saveStringToSp("birthday",user.getBirthday());
         saveStringToSp("region",user.getRegion());

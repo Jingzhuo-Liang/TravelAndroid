@@ -169,6 +169,7 @@ public class UserInfoFragment extends BaseFragment {
             my_username.setText(user.getUsername());
             my_signature.setText(user.getSignature());
             if (user.getHeadPortraitPath().equals("default") || user.getHeadPortraitPath().equals("")) {
+                //Log.e("updatePortraitDefault","1234567");
                 my_portrait.setBackground(getResources().getDrawable(R.mipmap.default_portrait));
             } else {
                 //my_portrait.setImageBitmap(PhotoUtils.stringToBitmap(user.getHeadPortraitPath()));
@@ -179,8 +180,8 @@ public class UserInfoFragment extends BaseFragment {
                         .networkPolicy(NetworkPolicy.NO_CACHE)
                         .into(my_portrait);
             }
-            my_focusNum.setText("123");
-            my_beFocusNum.setText("456");
+            //my_focusNum.setText("123");
+            //my_beFocusNum.setText("456");
         }
     }
 
