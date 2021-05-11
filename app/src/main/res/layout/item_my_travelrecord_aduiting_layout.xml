@@ -49,6 +49,14 @@
                     android:gravity="right"
                     >
                     <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:id="@+id/my_travel_record_auditing_modify"
+                        android:src="@mipmap/modify_icon"
+                        android:layout_marginRight="5dp"
+                        >
+                    </ImageView>
+                    <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="20dp"
                         android:id="@+id/my_travel_record_auditing_delete"
@@ -78,6 +86,17 @@
                     android:textColor="@color/yellow0"
                     android:textSize="15sp"
                     android:layout_gravity="bottom"
+                    >
+                </TextView>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/my_travelRecord_limit_auditing"
+                    android:text="@string/state_limit"
+                    android:textColor="@color/text_color"
+                    android:textSize="15sp"
+                    android:layout_gravity="bottom"
+                    android:layout_marginLeft="15dp"
                     >
                 </TextView>
                 <LinearLayout

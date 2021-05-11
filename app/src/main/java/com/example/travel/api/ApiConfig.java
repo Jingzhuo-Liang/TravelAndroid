@@ -8,9 +8,10 @@ package com.example.travel.api;
  **/
 public class ApiConfig {
     //public static final String BASE_URL = "http://192.168.31.206:8666";
+    public static final String DEFAULT_PORTRAIT_URL = "http://114.115.173.237:8000/static/avatar/default.jpg";
+    public static final String BASE_URL = "http://114.115.173.237:8000";
     public static final int PAGE_SIZE = 4;
 
-    public static final String BASE_URL = "http://114.115.173.237:8000";
     public static final String LOGIN = "/travel/login";
     public static final String REGISTER = "/travel/register";
     public static final String UPDATE_USER = "/travel/updateUserInfo";
@@ -33,6 +34,12 @@ public class ApiConfig {
     public static final String GET_USER_RELATED_INFO = "/travel/getUserRelatedInfo";
     public static final String GET_OTHER_USER_INFO = "/travel/getOtherUserInfo";
     public static final String GET_OTHER_USER_TRAVEL_RECORD = "/travel/getOtherUserTravelRecord";
+    public static final String BROWSE_TRAVEL_RECORD = "/travel/browseTravelRecord";
+    public static final String MODIFY_MY_TRAVEL_RECORD_STEP1 = "/travel/modifyTravelRecord/getRecord";
+    public static final String MODIFY_MY_TRAVEL_RECORD_STEP2 = "/travel/modifyTravelRecord/postRecord";
 
-    public static final String DEFAULT_PORTRAIT_URL = "http://114.115.173.237:8000/static/avatar/default.jpg";
+
+    //常量
+    public static final int HOMEPAGE_RECOMMEND = 1;
+    public static final int HOME_FOCUS = 0;
 }

@@ -9,9 +9,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.example.travel.R;
@@ -22,6 +26,7 @@ import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.TravelRecordEntity;
 import com.example.travel.entity.TravelRecordResponse;
+import com.example.travel.listener.OnAdJudgeClickListener;
 import com.example.travel.listener.OnItemChildClickListener;
 import com.example.travel.util.LoginUser;
 import com.google.gson.Gson;
@@ -31,6 +36,7 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * @@author:ljz
@@ -38,7 +44,7 @@ import java.util.HashMap;
  * @@version:1.0
  * @@annotation:
  **/
-public class TravelRecordFragment extends BaseFragment implements OnItemChildClickListener{
+public class TravelRecordFragment extends BaseFragment implements OnItemChildClickListener, OnAdJudgeClickListener {
 
     private TravelRecordFragment travelRecordFragment;
     private int categoryId;
@@ -48,8 +54,6 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
     private LinearLayoutManager linearLayoutManager;
     private RefreshLayout refreshLayout;
     private int pageNum = 0;
-
-    //private boolean isSearch = false;
 
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
@@ -92,6 +96,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
     @Override
     protected void initView() {
+        //setHasOptionsMenu(true);
         recyclerView = mRootView.findViewById(R.id.recyclerView);
         refreshLayout = mRootView.findViewById(R.id.refreshLayout);
     }
@@ -132,6 +137,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
         noteAdapter = new TravelRecordAdapter(getActivity());
         noteAdapter.setOnItemChildClickListener(this);
+        noteAdapter.setOnAdJudgeClickListener(this);
         getTravelNoteList(true);
         recyclerView.setAdapter(noteAdapter);
     }
@@ -157,7 +163,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
         HashMap<String ,Object> params = new HashMap<>();
         params.put("page",pageNum);
         params.put("limit", ApiConfig.PAGE_SIZE);
-        if (categoryId == 0) { //关注
+        if (categoryId == ApiConfig.HOME_FOCUS) { //关注
             if (LoginUser.getInstance().getUser() == null) { //用户未登录
                 getTravelNoteListGETMETHOD(ApiConfig.GET_TRAVEL_RECORD_NO_FOCUS,params,isRefresh);
             } else {    //用户登录
@@ -165,6 +171,9 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                 getTravelNoteListGETMETHOD(ApiConfig.GET_TRAVEL_RECORD_FOCUS,params,isRefresh);
             }
         } else { //推荐
+            if (isRefresh) { //将搜索栏情况
+                ((EditText)Objects.requireNonNull(getActivity()).findViewById(R.id.home_fragment_search_text)).setText("");
+            }
             if (LoginUser.getInstance().getUser() == null) { //用户未登录
                 getTravelNoteListGETMETHOD(ApiConfig.GET_TRAVEL_RECORD_NO_RECOMMEND,params,isRefresh);
             } else {    //用户登录
@@ -185,43 +194,25 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                 else {
                     refreshLayout.finishLoadMore(true);
                 }
-                /*
-                ArrayList<TravelRecordEntity> list = new ArrayList<>();
-                for (int i = (pageNum - 1) * ApiConfig.PAGE_SIZE;i < pageNum * ApiConfig.PAGE_SIZE && i < 15;i++) {
-                    TravelRecordEntity te = new TravelRecordEntity();
-                    te.setId(String.valueOf(i));
-                    te.setCoverImage("");
-                    te.setNoteName("travel");
-                    te.setPortrait("");
-                    te.setLikeNum(i * 100 + i + 50);
-                    te.setRegion("吉林长春");
-                    te.setUsername("海绵宝宝");
-                    list.add(te);
-                }
-                if (list.size() > 0) {
-                    if (isRefresh) {
-                        datas = list;
-                    } else {
-                        datas.addAll(list);
-                    }
-                } else {
-                    if (isRefresh) {
-                        showToastSync("暂时加载无数据");
-                    }
-                    else {
-                        showToastSync("没有更多数据");
-                    }
-                }
-                noteAdapter.setDatas(datas);
-                handler.sendEmptyMessage(0);
-                 */
 
                 TravelRecordResponse tr = new Gson().fromJson(res, TravelRecordResponse.class);
                 //Log.e("getTravel",res);
-                //Log.e("response",String.valueOf(videoListResponse.getCode()));
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<TravelRecordEntity> list = tr.getData();
                     if (list != null && list.size() > 0) {
+
+                        for (int i = 0;i < list.size();i++) {
+                            if (categoryId == ApiConfig.HOMEPAGE_RECOMMEND) {
+                                if (i == 2) {
+                                    list.get(i).setType(1);
+                                    list.get(i).setAdUrl("www.baidu.com");
+                                    list.get(i).setRecordName("这是广告!!!!!!!!");
+                                } else {
+                                    list.get(i).setType(0);
+                                }
+                            }
+                        }
+
                         if (isRefresh) {
                             datas = list;
                         }
@@ -260,7 +251,6 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
     }
 
-    @SuppressLint("LongLogTag")
     @Override
     public void onItemChildClick(int position) {
         //Log.e("TravelNoteFragment-onItemChildClick", String.valueOf(categoryId) + " " + String.valueOf(position));
@@ -284,7 +274,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
             @Override
             public void onSuccess(String res) {
                 TravelRecordResponse tr = new Gson().fromJson(res, TravelRecordResponse.class);
-                Log.e("search",res);
+                //Log.e("search",res);
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<TravelRecordEntity> list = tr.getData();
                     if (list != null && list.size() > 0) {
@@ -305,5 +295,34 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
             }
         });
+    }
+
+    @Override
+    public void onAdJudgeClick(View view, int position) {
+        //Log.e("click an ad", String.valueOf(position));
+        showPopupMenu(view);
+    }
+
+    private void showPopupMenu(View view) {
+        // View当前PopupMenu显示的相对View的位置
+        PopupMenu popupMenu = new PopupMenu(getContext(), view);
+        // menu布局
+        popupMenu.getMenuInflater().inflate(R.menu.menu_advertisement_layout, popupMenu.getMenu());
+        // menu的item点击事件
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Log.e("menu", item.getTitle().toString());
+                return false;
+            }
+        });
+        // PopupMenu关闭事件
+        popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+            @Override
+            public void onDismiss(PopupMenu menu) {
+                //Log.e("menu", "you close the menu");
+            }
+        });
+        popupMenu.show();
     }
 }

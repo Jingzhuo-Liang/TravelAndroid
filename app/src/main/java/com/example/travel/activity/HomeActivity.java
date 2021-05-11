@@ -16,6 +16,7 @@ import com.example.travel.util.LoginUser;
 import com.next.easynavigation.view.EasyNavigationBar;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -94,7 +95,9 @@ public class HomeActivity extends BaseActivity {
                                     showToast("请登录");
                                     return;
                                 }
-                                navigateTo(SelectImageActivity.class);
+                                HashMap<String, String> params = new HashMap<>();
+                                params.put("recordId", "");
+                                navigateToWithPara(SelectImageActivity.class,params);
                             }
                         });
                         return false;

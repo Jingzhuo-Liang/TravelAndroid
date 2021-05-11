@@ -1,7 +1,6 @@
 package com.example.travel.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.travel.R;
 import com.example.travel.entity.MyTravelRecordEntity;
 import com.example.travel.listener.OnItemChildClickListener;
-import com.example.travel.listener.OnItemClickListener;
 import com.example.travel.listener.OnItemDeleteListener;
+import com.example.travel.listener.OnItemModifyClickListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -33,8 +32,8 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     private ArrayList<MyTravelRecordEntity> datas;
     private OnItemChildClickListener onItemChildClickListener;
-    private OnItemClickListener  onItemClickListener;
     private OnItemDeleteListener onItemDeleteListener;
+    private OnItemModifyClickListener onItemModifyClickListener;
 
     public MyTravelRecordAdapter(Context context, ArrayList<MyTravelRecordEntity> arrayList) {
         this.mContext = context;
@@ -73,8 +72,10 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             vh.releasedTime.setText(ne.getRecordReleasedTime().split(" ")[0]);
             vh.likeNum.setText(String.valueOf(ne.getLikeNum()));
             vh.commitNum.setText(String.valueOf(ne.getCommitNum()));
-            //vh.browseNum.setText(String.valueOf(ne.getBrowseNum()));
+            vh.browseNum.setText(String.valueOf(ne.getBrowseNum()));
             vh.recordRegion.setText(ne.getRecordRegion());
+            vh.recordLimit.setText(ne.getRecordLimit() == 0 ? "所有可见":
+                                    ne.getRecordLimit() == 1 ? "仅关注可见": "仅自己可见");
             //vh.releasedTime.setText(ne.getRecordReleasedTime());
             Picasso.with(mContext)
                     .load(ne.getRecordCoverImage())
@@ -86,6 +87,8 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             vh.recordName.setText(ne.getRecordName());
             vh.releasedTime.setText(ne.getRecordReleasedTime().split(" ")[0]);
             vh.recordRegion.setText(ne.getRecordRegion());
+            vh.recordLimit.setText(ne.getRecordLimit() == 0 ? "所有可见":
+                    ne.getRecordLimit() == 1 ? "仅关注可见": "仅自己可见");
             //vh.releasedTime.setText(ne.getRecordReleasedTime());
             Picasso.with(mContext)
                     .load(ne.getRecordCoverImage())
@@ -118,8 +121,9 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         private TextView releasedTime;
         private TextView likeNum;
         private TextView commitNum;
-        //private TextView browseNum;
+        private TextView browseNum;
         private TextView recordRegion;
+        private TextView recordLimit;
         private ImageView deleteBtn;
         private int position;
 
@@ -130,8 +134,9 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             releasedTime = view.findViewById(R.id.my_travelRecord_releasedTime_released);
             likeNum = view.findViewById(R.id.my_travelRecord_likeNum_released);
             commitNum = view.findViewById(R.id.my_travelRecord_commitNum_released);
-            //browseNum = view.findViewById(R.id.my_travelRecord_BrowseNum_released);
+            browseNum = view.findViewById(R.id.my_travelRecord_BrowseNum_released);
             recordRegion = view.findViewById(R.id.my_travelRecordRegion_released);
+            recordLimit = view.findViewById(R.id.my_travelRecord_limit_released);
             deleteBtn = view.findViewById(R.id.my_travel_record_released_delete);
             if (isUser) {
                 if (onItemDeleteListener != null) {
@@ -172,7 +177,9 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         private TextView recordName;
         private TextView releasedTime;
         private TextView recordRegion;
+        private TextView recordLimit;
         private ImageView deleteBtn;
+        private ImageView modifyBtn;
         public int position;
 
         public ViewHolderAuditing(@NonNull View view, boolean isUser) {
@@ -181,7 +188,9 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             recordName = view.findViewById(R.id.my_recordName_auditing);
             releasedTime = view.findViewById(R.id.my_record_releasedTime_auditing);
             recordRegion = view.findViewById(R.id.my_travelRecordRegion_auditing);
+            recordLimit = view.findViewById(R.id.my_travelRecord_limit_auditing);
             deleteBtn = view.findViewById(R.id.my_travel_record_auditing_delete);
+            modifyBtn = view.findViewById(R.id.my_travel_record_auditing_modify);
             if (isUser) {
                 if (onItemDeleteListener != null) {
                     deleteBtn.setOnClickListener(this);
@@ -191,6 +200,9 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             }
             if (onItemChildClickListener != null) {
                 coverImage.setOnClickListener(this);
+            }
+            if (onItemModifyClickListener != null) {
+                modifyBtn.setOnClickListener(this);
             }
         }
 
@@ -206,6 +218,12 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 case R.id.my_travelNote_cover_image_auditing: {
                     if (onItemChildClickListener != null) {
                         onItemChildClickListener.onItemChildClick(position);
+                    }
+                    break;
+                }
+                case R.id.my_travel_record_auditing_modify: {
+                    if (onItemModifyClickListener != null) {
+                        onItemModifyClickListener.onItemModifyListener(position);
                     }
                     break;
                 }
@@ -225,11 +243,11 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         this.onItemChildClickListener = onItemChildClickListener;
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
-    }
-
     public void setOnItemDeleteListener(OnItemDeleteListener onItemDeleteListener) {
         this.onItemDeleteListener = onItemDeleteListener;
+    }
+
+    public void setOnItemModifyClickListener(OnItemModifyClickListener onItemModifyClickListener) {
+        this.onItemModifyClickListener = onItemModifyClickListener;
     }
 }

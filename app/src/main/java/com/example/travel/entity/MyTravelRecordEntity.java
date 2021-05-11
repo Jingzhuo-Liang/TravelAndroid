@@ -14,9 +14,18 @@ public class MyTravelRecordEntity {
     private String recordReleasedTime;
     private String recordRegion;
     private int recordState; // 0-审核通过（发布） 1-待审核
+    private int recordLimit = 0; // 游记权限 0-所有人可见 1-仅关注可见 2-仅自己可见
     private int likeNum;
     private int commitNum;
     private int browseNum;
+
+    public int getRecordLimit() {
+        return recordLimit;
+    }
+
+    public void setRecordLimit(int recordLimit) {
+        this.recordLimit = recordLimit;
+    }
 
     public String getRecordRegion() {
         return recordRegion;

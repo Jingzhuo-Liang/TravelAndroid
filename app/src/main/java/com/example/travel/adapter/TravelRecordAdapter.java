@@ -12,27 +12,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.example.travel.R;
+import com.example.travel.entity.MyTravelRecordEntity;
 import com.example.travel.entity.TravelRecordEntity;
+import com.example.travel.listener.OnAdJudgeClickListener;
 import com.example.travel.listener.OnItemChildClickListener;
-import com.example.travel.listener.OnItemClickListener;
+import com.example.travel.listener.OnItemModifyClickListener;
 import com.example.travel.util.StringUtils;
 import com.example.travel.view.CircleTransform;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.DoubleSummaryStatistics;
 
 /**
  * @@author:ljz
  * @@date:2021/4/14,10:46
  * @@version:1.0
- * @@annotation:
+ * @@annotation: travelRecord and advertisement
  **/
 public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
     private ArrayList<TravelRecordEntity> datas;
     private OnItemChildClickListener onItemChildClickListener;
-    private OnItemClickListener  onItemClickListener;
+    private OnAdJudgeClickListener onAdJudgeClickListener;
 
     public TravelRecordAdapter(Context context, ArrayList<TravelRecordEntity> arrayList) {
         this.mContext = context;
@@ -46,38 +49,59 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.item_travelrecord_layout,parent,false);
-        ViewHolder viewHolder = new ViewHolder(view);
-        return viewHolder;
+        if (viewType == 0) { //record
+            View view = LayoutInflater.from(mContext).inflate(R.layout.item_travelrecord_layout,parent,false);
+            TravelRecord travelRecord = new TravelRecord(view);
+            return travelRecord;
+        } else  { //ad
+            View view = LayoutInflater.from(mContext).inflate(R.layout.item_advertisement_layout,parent,false);
+            Advertisement advertisement = new Advertisement(view);
+            return advertisement;
+        }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ViewHolder vh = (ViewHolder) holder;
+        int type = getItemViewType(position);
         TravelRecordEntity travelNoteEntity = datas.get(position);
+        if (type == 0) { //record
+            TravelRecord tr = (TravelRecord) holder;
+            tr.region.setText(travelNoteEntity.getRecordRegion());
+            tr.noteName.setText(travelNoteEntity.getRecordName());
+            tr.username.setText(travelNoteEntity.getAuthorName());
+            tr.likeNum.setText(String.valueOf(travelNoteEntity.getLikeNum()));
+            tr.position = position;
 
-        //vh.coverImage.setImageBitmap(travelNoteEntity.getCoverImage());
-        vh.region.setText(travelNoteEntity.getRecordRegion());
-        vh.noteName.setText(travelNoteEntity.getRecordName());
-        //vh.portrait.setImageBitmap(travelNoteEntity.getPortrait());
-        vh.username.setText(travelNoteEntity.getAuthorName());
-        vh.likeNum.setText(String.valueOf(travelNoteEntity.getLikeNum()));
-        vh.position = position;
+            // Picasso: 异步加载
+            if (!StringUtils.isEmpty(travelNoteEntity.getAuthorPortrait())) {
+                Picasso.with(mContext)
+                        .load(travelNoteEntity.getAuthorPortrait())
+                        .transform(new CircleTransform())
+                        .into(tr.portrait);
+            }
+            if (!StringUtils.isEmpty(travelNoteEntity.getRecordCoverImage())) {
+                Picasso.with(mContext)
+                        .load(travelNoteEntity.getRecordCoverImage())
+                        .into(tr.coverImage);
+            }
+        } else { //ad
+            Advertisement ad = (Advertisement) holder;
+            ad.adName.setText(travelNoteEntity.getRecordName());
+            ad.position = position;
 
-        // Picasso: 异步加载
-        if (!StringUtils.isEmpty(travelNoteEntity.getAuthorPortrait())) {
-            Picasso.with(mContext)
-                    .load(travelNoteEntity.getAuthorPortrait())
-                    .transform(new CircleTransform())
-                    .into(vh.portrait);
+            // Picasso: 异步加载
+            if (!StringUtils.isEmpty(travelNoteEntity.getAuthorPortrait())) {
+                Picasso.with(mContext)
+                        .load(travelNoteEntity.getAuthorPortrait())
+                        .transform(new CircleTransform())
+                        .into(ad.adPortrait);
+            }
+            if (!StringUtils.isEmpty(travelNoteEntity.getRecordCoverImage())) {
+                Picasso.with(mContext)
+                        .load(travelNoteEntity.getRecordCoverImage())
+                        .into(ad.adImage);
+            }
         }
-        if (!StringUtils.isEmpty(travelNoteEntity.getRecordCoverImage())) {
-            Picasso.with(mContext)
-                    .load(travelNoteEntity.getRecordCoverImage())
-                    .into(vh.coverImage);
-        }
-        vh.position  =position;
-
     }
 
     @Override
@@ -87,9 +111,12 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
        return 0;
     }
+    @Override
+    public int getItemViewType(int position) {
+        return datas.get(position).getType();
+    }
 
-
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class TravelRecord extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public ImageView coverImage;
         public TextView username;
@@ -99,7 +126,7 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public TextView likeNum;
         public int position;
 
-        public ViewHolder(@NonNull View view) {
+        public TravelRecord(@NonNull View view) {
             super(view);
             coverImage = view.findViewById(R.id.travelNote_cover_image);
             username = view.findViewById(R.id.travelNote_userName);
@@ -111,10 +138,6 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             if (onItemChildClickListener != null) {
                 coverImage.setOnClickListener(this);
             }
-            if (onItemClickListener != null) {
-                view.setOnClickListener(this);
-            }
-
             view.setTag(this);
         }
 
@@ -125,14 +148,47 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     onItemChildClickListener.onItemChildClick(position);
                 }
             }
-            /*
-            else {
-                if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(position);
+        }
+    }
+
+    public class Advertisement extends RecyclerView.ViewHolder implements View.OnClickListener{
+
+        public ImageView adImage;
+        public TextView adName;
+        public ImageView adPortrait;
+        public TextView adLink;
+        public ImageView adDownArrow;
+        public int position;
+
+        public Advertisement(@NonNull View view) {
+            super(view);
+            adImage = view.findViewById(R.id.ad_image);
+            adName = view.findViewById(R.id.ad_name);
+            adPortrait = view.findViewById(R.id.ad_portrait);
+            adLink = view.findViewById(R.id.ad_link);
+            adDownArrow = view.findViewById(R.id.ad_down_arrow);
+
+            if (onItemChildClickListener != null) {
+                adImage.setOnClickListener(this);
+                adLink.setOnClickListener(this);
+            }
+            if (onAdJudgeClickListener != null) {
+                adDownArrow.setOnClickListener(this);
+            }
+            view.setTag(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.ad_image || v.getId() == R.id.ad_link) {
+                if (onItemChildClickListener != null) {
+                    onItemChildClickListener.onItemChildClick(position);
+                }
+            } else if (v.getId() == R.id.ad_down_arrow) {
+                if (onAdJudgeClickListener != null) {
+                    onAdJudgeClickListener.onAdJudgeClick(adDownArrow, position);
                 }
             }
-             */
-
         }
     }
 
@@ -144,7 +200,7 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         this.onItemChildClickListener = onItemChildClickListener;
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
+    public void setOnAdJudgeClickListener(OnAdJudgeClickListener onAdJudgeClickListener) {
+        this.onAdJudgeClickListener = onAdJudgeClickListener;
     }
 }

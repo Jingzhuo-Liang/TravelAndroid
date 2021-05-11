@@ -17,7 +17,7 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/my_travelNote_cover_image_released"
+            android:id="@+id/my_travelNote_cover_image_auditing"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:adjustViewBounds="true"
@@ -29,7 +29,6 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:orientation="vertical">
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
@@ -38,12 +37,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/my_travelRecordRegion_released"
+                    android:id="@+id/my_travelRecordRegion_auditing"
                     android:text="recordRegion"
                     android:textColor="@color/text_color"
                     android:textSize="12sp">
                 </TextView>
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -51,9 +49,17 @@
                     android:gravity="right"
                     >
                     <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:id="@+id/my_travel_record_auditing_modify"
+                        android:src="@mipmap/modify_icon"
+                        android:layout_marginRight="5dp"
+                        >
+                    </ImageView>
+                    <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="20dp"
-                        android:id="@+id/my_travel_record_released_delete"
+                        android:id="@+id/my_travel_record_auditing_delete"
                         android:src="@mipmap/delete_icon"
                         >
                     </ImageView>
@@ -64,7 +70,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:id="@+id/my_travelRecordName_released"
+                android:id="@+id/my_recordName_auditing"
                 android:text="recordName"
                 android:textColor="@color/text_color"
                 android:textSize="17sp">
@@ -76,17 +82,16 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/state_released"
-                    android:textColor="@color/text_color"
+                    android:text="@string/state_rejected"
+                    android:textColor="@color/red1"
                     android:textSize="15sp"
                     android:layout_gravity="bottom"
                     >
                 </TextView>
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/my_travelRecord_limit_released"
+                    android:id="@+id/my_travelRecord_limit_auditing"
                     android:text="@string/state_limit"
                     android:textColor="@color/text_color"
                     android:textSize="15sp"
@@ -99,11 +104,10 @@
                     android:layout_height="match_parent"
                     android:gravity="right"
                     >
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/my_travelRecord_releasedTime_released"
+                        android:id="@+id/my_record_releasedTime_auditing"
                         android:text="发布时间"
                         android:textColor="@color/text_color"
                         android:textSize="15sp"
@@ -112,84 +116,6 @@
                     </TextView>
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:orientation="horizontal">
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            >
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@mipmap/browse_icon"
-                >
-            </ImageView>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:gravity="center"
-                android:id="@+id/my_travelRecord_BrowseNum_released"
-                android:text="0"
-                android:textColor="@color/gray3"
-                android:textSize="15sp"
-                >
-            </TextView>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@mipmap/commit_icon"
-                >
-            </ImageView>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:gravity="center"
-                android:id="@+id/my_travelRecord_commitNum_released"
-                android:text="0"
-                android:textColor="@color/gray3"
-                android:textSize="15sp"
-                >
-            </TextView>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@mipmap/unlike_icon"
-                >
-            </ImageView>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:gravity="center"
-                android:id="@+id/my_travelRecord_likeNum_released"
-                android:text="0"
-                android:textColor="@color/gray3"
-                android:textSize="15sp"
-                >
-            </TextView>
         </LinearLayout>
     </LinearLayout>
 

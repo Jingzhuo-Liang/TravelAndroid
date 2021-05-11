@@ -30,6 +30,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -39,7 +40,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.baidu.location.BDLocation;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.BMapManager;
+import com.baidu.mapapi.SDKInitializer;
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder;
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener;
 import com.donkingliang.imageselector.utils.ImageSelector;
@@ -53,12 +61,14 @@ import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.CommonResponse;
 import com.example.travel.util.CityBean;
 import com.example.travel.util.LoginUser;
+import com.example.travel.util.MyLocationListener;
 import com.example.travel.util.PhotoUtils;
 import com.example.travel.util.ProvinceBean;
 import com.example.travel.util.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.next.easynavigation.view.EasyNavigationBar;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -80,6 +90,10 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private static final int PERMISSION_WRITE_EXTERNAL_REQUEST_CODE = 0x00000012;
     private static final int REQUEST_LOCATION = 0x00000013;
 
+    private int recordLimitCode = -1;
+    private boolean recordImagesDirty = false;
+    private String recordId = "";
+
     private RecyclerView rvImage;
     private ImageAdapter mAdapter;
     private EasyNavigationBar navigationBar;
@@ -93,6 +107,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private boolean flag = true;
     private ArrayList<ProvinceBean> options1Items = new ArrayList<>();
     private ArrayList<ArrayList<String>> options2Items = new ArrayList<>();
+    private ArrayList<String> optionsLimit = new ArrayList<>();
     private Location userLocation;
 
     private Button selectImage_btn;
@@ -102,11 +117,15 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private TextView recordRegion;
     private TextView recordLocation;
     private TextView selectImageHint;
+    private TextView recordLimit;
 
     private LocationManager locationManager;
     private String locationProvider;
+    public LocationClient mLocationClient = null;
+    private MyLocationListener myListener = new MyLocationListener();
 
-    //private ImageView imageTest;
+    private MaterialDialog mLoadingDialog;
+
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
         @Override
@@ -115,8 +134,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             switch (msg.what) {
                 case 0:{
                     //在主线程中执行
-                    //progressDialog.cancel();
-                    //progressDialog.dismiss();
+                    dismissLoadingDialog();
                     finish();
                     break;
                 }
@@ -143,14 +161,15 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         recordRegion = findViewById(R.id.si_recordRegion);
         navigationBar = findViewById(R.id.si_navigationBar);
         recordLocation = findViewById(R.id.si_recordLocation);
-        recordLocation = findViewById(R.id.si_recordLocation);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         selectImageHint = findViewById(R.id.si_selectImage_hint);
+        recordLimit = findViewById(R.id.si_recordLimit);
 
         selectImage_btn.setOnClickListener(this);
         arrowBack_btn.setOnClickListener(this);
         recordRegion.setOnClickListener(this);
         recordLocation.setOnClickListener(this);
+        recordLimit.setOnClickListener(this);
 
         rvImage.setLayoutManager(new GridLayoutManager(this, 3));
         recordName.setHorizontallyScrolling(false);
@@ -161,15 +180,48 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
         mAdapter = new ImageAdapter(this);
         rvImage.setAdapter(mAdapter);
-
-        //progressDialog = new ProgressDialog(this);
-        //imageTest = findViewById(R.id.si_image_test);
     }
 
     @Override
     protected void initData() {
         initOptionData();
         setNavigationBar();
+        Bundle bundle = this.getIntent().getExtras();
+        recordId = bundle.getString("recordId");
+        if (recordId != null && recordId.length() > 0) {
+            Log.e("recordId",recordId);
+            setModifyData(recordId);
+        } else {
+            Log.e("recordId", "is null");
+        }
+    }
+
+    private void setModifyData(String recordId) {
+        ArrayList<String> images = new ArrayList<>();
+        for (int i = 0;i < 9;i++) {
+            images.add(ApiConfig.DEFAULT_PORTRAIT_URL);
+        }
+        mAdapter.refresh(images);
+        recordRegion.setText("北京市-北京市");
+        recordLimit.setText(optionsLimit.get(0));
+        recordName.setText("test");
+        recordMain.setText("test");
+        /*
+        HashMap<String , Object> params = new HashMap<>();
+        params.put("userId",LoginUser.getInstance().getUser().getId());
+        params.put("recordId",recordId);
+        Api.config(ApiConfig.MODIFY_MY_TRAVEL_RECORD_STEP1,params).getRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+         */
     }
 
     @Override
@@ -210,14 +262,32 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 break;
             }
             case R.id.si_recordLocation: {
-                userLocation = getLocation();
-                if (userLocation != null) {
+                //userLocation = getLocation();
+                getLocation();
+                if (myListener.getLocation() != null) {
                     recordLocation.setText("获取位置成功");
+                    recordRegion.setText(myListener.getRegion());
                     //Log.e("latitude",String.valueOf(userLocation.getLatitude()));
                     //Log.e("longitude",String.valueOf(userLocation.getLongitude()));
                 } else {
                     recordLocation.setText("获取位置失败");
                 }
+                break;
+            }
+            case R.id.si_recordLimit : {
+                pvOptions = new OptionsPickerBuilder(this, new OnOptionsSelectListener() {
+                    @Override
+                    public void onOptionsSelect(int options1, int options2, int options3, View v) {
+                        //选择了则显示并暂存LoginUser，退出时在保存至数据库
+                        String tx = optionsLimit.get(options1);
+                        //Log.e("recordLimit",String.valueOf(options1));
+                        recordLimit.setText(tx);
+                        recordLimitCode = options1;
+                    }
+                }).setCancelColor(Color.GRAY).build();
+                pvOptions.setPicker(optionsLimit);//二级选择器
+                pvOptions.show();
+                break;
             }
             default: {
 
@@ -225,14 +295,22 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
-    //private ProgressDialog progressDialog;
+    private void modifyTravelRecord() {
+        if (recordImagesDirty) { //修改了图片
+
+        }
+    }
+
     private void releaseTravelRecord() throws FileNotFoundException {
         //progressDialog = ProgressDialog.show(this, "请稍等...", "游记发布中...", true);//显示加载框
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
-            showToast("请选项城市");
+            showToast("请选择城市");
             return;
         } else if (StringUtils.isEmpty(recordName.getText().toString())) {
             showToast("请输入游记名字");
+            return;
+        } else if (recordLimitCode == -1) {
+            showToast("请选择权限");
             return;
         }
         ArrayList<String> imagePaths = mAdapter.getImages();
@@ -241,15 +319,10 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             showToast("请至少选择一张图片");
             return;
         }
-
-
-
-        //progressDialog.show();
+        showLoadingDialog();
+        //avi.show();
         //根据图片路径获取图片并转成base64字符串
         for (int i = 0;i < imagePaths.size();i++) {
-            //Log.e("imagePath",imagePaths.get(i));
-            //images.add(PhotoUtils.bitmapToString(PhotoUtils.getBitmap(imagePaths.get(i))));
-            //images.add(PhotoUtils.bitmapToString(BitmapFactory.decodeStream(getContentResolver().openInputStream(Uri.parse(URLEncoder.encode(imagePaths.get(i)))))));
             Uri uri = UriUtils.getImageContentUri(this, imagePaths.get(i));
             Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri);
             images.add(PhotoUtils.bitmapToString(bitmap));
@@ -260,10 +333,13 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         params.put("recordName", recordName.getText().toString());
         params.put("recordMain", recordMain.getText().toString());
         params.put("recordRegion", recordRegion.getText().toString());
+        params.put("recordLimit", recordLimitCode);
         params.put("recordImages", images);
         if (userLocation != null) {
-            params.put("latitude", userLocation.getLatitude());
-            params.put("longitude", userLocation.getLongitude());
+            //params.put("latitude", userLocation.getLatitude());
+            //params.put("longitude", userLocation.getLongitude());
+            params.put("latitude",myListener.getLocation().getLatitude());
+            params.put("longitude", myListener.getLocation().getLongitude());
         }
 
         //Log.e("images",String.valueOf(images.size()));
@@ -272,7 +348,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onSuccess(String res) {
                 //Log.e("releaseRecord",res);
-                //handler.sendEmptyMessage(0);
+                handler.sendEmptyMessage(0);
                 showToastSync("游记发布成功");
             }
 
@@ -281,11 +357,15 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
             }
         });
-        finish();
+        //finish();
     }
 
 
     private void initOptionData() {
+        optionsLimit.add("所有可见");
+        optionsLimit.add("仅关注可见");
+        optionsLimit.add("仅自己可见");
+
         Gson gson = new Gson();
         options1Items = gson.fromJson(province_data, new TypeToken<ArrayList<ProvinceBean>>() {
         }.getType());
@@ -344,7 +424,11 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                             public void run() {
                                 //showNormalDialog();
                                 try {
-                                    releaseTravelRecord();
+                                    if (recordId != null && recordId.length() > 0) {
+                                        modifyTravelRecord();
+                                    } else {
+                                        releaseTravelRecord();
+                                    }
                                 } catch (FileNotFoundException e) {
                                     e.printStackTrace();
                                 }
@@ -356,41 +440,6 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 .canScroll(true)
                 .mode(EasyNavigationBar.NavigationMode.MODE_ADD)
                 .build();
-    }
-
-    // 提示框
-    private void showNormalDialog(){
-        /* @setIcon 设置对话框图标
-         * @setTitle 设置对话框标题
-         * @setMessage 设置对话框消息提示
-         * setXXX方法返回Dialog对象，因此可以链式设置属性
-         */
-        AlertDialog normalDialog =
-                new AlertDialog.Builder(SelectImageActivity.this).create();
-        normalDialog.setMessage("确认发布");
-        normalDialog.setButton(DialogInterface.BUTTON_POSITIVE, "是", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    releaseTravelRecord();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        normalDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "否", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //Toast.makeText(MainActivity.this, "您单击了否按钮", Toast.LENGTH_SHORT).show();
-                //Log.e("click cancel","2222");
-            }
-        });
-        normalDialog.show();
-        WindowManager.LayoutParams params = normalDialog.getWindow().getAttributes();
-        params.width = 800;
-        params.height = 600;
-        params.gravity = Gravity.CENTER;
-        normalDialog.getWindow().setAttributes(params);
     }
 
     /**
@@ -426,10 +475,11 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         if (requestCode == REQUEST_CODE && data != null) {
             ArrayList<String> images = data.getStringArrayListExtra(ImageSelector.SELECT_RESULT);
             mAdapter.refresh(images);
+            recordImagesDirty = true;
         }
     }
 
-    private Location getLocation() {
+    private void getLocation() {
         int hasWriteExternalPermission = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
         if (hasWriteExternalPermission != PackageManager.PERMISSION_GRANTED) {
@@ -437,6 +487,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
         }
+        /*
         //获取所有可用的位置提供器
         List<String> providers = locationManager.getProviders(true);
         if (providers.contains(LocationManager.GPS_PROVIDER)) {
@@ -454,7 +505,23 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         Location location = locationManager.getLastKnownLocation(locationProvider);
         //监视地理位置变化
         locationManager.requestLocationUpdates(locationProvider, 3000, 1, locationListener);
-        return location;
+        */
+
+        mLocationClient = new LocationClient(getApplicationContext());
+        mLocationClient.registerLocationListener(myListener);
+        LocationClientOption option = new LocationClientOption();
+        option.setIsNeedAddress(true);
+        option.setOpenGps(true);
+        option.setAddrType("all");// 返回的定位结果包含地址信息
+        option.setCoorType("bd09ll");
+        LocationManager locManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        //可选，是否需要地址信息，默认为不需要，即参数为false
+        //如果开发者需要获得当前点的地址信息，此处必须为true
+
+        option.setNeedNewVersionRgc(true);
+        //可选，设置是否需要最新版本的地址信息。默认需要，即参数为true
+        mLocationClient.setLocOption(option);
+        mLocationClient.start();
     }
 
     /**
@@ -487,9 +554,6 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        if (progressDialog != null) {
-//            progressDialog.dismiss();
-//        }
         if(locationManager!=null){
             //移除监听器
             locationManager.removeUpdates(locationListener);
@@ -498,5 +562,22 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return true;
+    }
+
+    public void showLoadingDialog() {
+        if (mLoadingDialog == null) {
+            mLoadingDialog = new MaterialDialog.Builder(this)
+                    .widgetColorRes(R.color.colorPrimary)
+                    .progress(true, 0)
+                    .cancelable(false)
+                    .build();
+        }
+        mLoadingDialog.setContent("游记发布中...");
+        mLoadingDialog.show();
+    }
+    public void dismissLoadingDialog() {
+        if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
+            mLoadingDialog.dismiss();
+        }
     }
 }

@@ -11,6 +11,7 @@ import com.donkingliang.imageselector.utils.ImageUtil;
 import com.donkingliang.imageselector.utils.UriUtils;
 import com.donkingliang.imageselector.utils.VersionUtils;
 import com.example.travel.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -47,9 +48,17 @@ public class ImageAdapter  extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
         // 是否是剪切返回的图片
         boolean isCutImage = ImageUtil.isCutImage(mContext, image);
         if (isAndroidQ && !isCutImage) {
-            Glide.with(mContext).load(UriUtils.getImageContentUri(mContext, image)).into(holder.ivImage);
+            if (image.contains("http:")) {
+                Picasso.with(mContext).load(image).into(holder.ivImage);
+            } else {
+                Glide.with(mContext).load(UriUtils.getImageContentUri(mContext, image)).into(holder.ivImage);
+            }
         } else {
-            Glide.with(mContext).load(image).into(holder.ivImage);
+            if (image.contains("http:")) {
+                Picasso.with(mContext).load(image).into(holder.ivImage);
+            } else {
+                Glide.with(mContext).load(image).into(holder.ivImage);
+            }
         }
 
     }

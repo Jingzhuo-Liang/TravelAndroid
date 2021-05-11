@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -15,6 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.travel.R;
+import com.example.travel.activity.SelectImageActivity;
+import com.example.travel.activity.TravelRecordDetailActivity;
 import com.example.travel.adapter.MyTravelRecordAdapter;
 import com.example.travel.adapter.TravelRecordAdapter;
 import com.example.travel.api.Api;
@@ -27,6 +30,7 @@ import com.example.travel.entity.TravelRecordEntity;
 import com.example.travel.entity.TravelRecordResponse;
 import com.example.travel.listener.OnItemChildClickListener;
 import com.example.travel.listener.OnItemDeleteListener;
+import com.example.travel.listener.OnItemModifyClickListener;
 import com.example.travel.util.LoginUser;
 import com.google.gson.Gson;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
@@ -37,7 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class MyTravelRecordFragment extends BaseFragment implements OnItemChildClickListener, OnItemDeleteListener {
+public class MyTravelRecordFragment extends BaseFragment implements OnItemChildClickListener, OnItemDeleteListener, OnItemModifyClickListener {
 
     private RecyclerView myRecordRecyclerView;
     private ArrayList<MyTravelRecordEntity> datas = new ArrayList<>();
@@ -122,7 +126,8 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
         });
         myTravelRecordAdapter = new MyTravelRecordAdapter(getActivity(), userId.equals(LoginUser.getInstance().getUser().getId()));
         myTravelRecordAdapter.setOnItemChildClickListener(this);
-        myTravelRecordAdapter.setOnItemDeleteListener(this::onItemDeleteListener);
+        myTravelRecordAdapter.setOnItemDeleteListener(this);
+        myTravelRecordAdapter.setOnItemModifyClickListener(this);
         getTravelRecordList(true);
         myRecordRecyclerView.setAdapter(myTravelRecordAdapter);
     }
@@ -201,7 +206,15 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
     @Override
     public void onItemChildClick(int position) {
         //进入我的游记详情界面
-        //Log.e("MyRecordDetail",String.valueOf(position));
+        HashMap<String, String> params = new HashMap<>();
+        params.put("recordId", datas.get(position).getRecordId());
+        navigateToWithPara(TravelRecordDetailActivity.class, params);
+    }
+    @Override
+    public void onItemModifyListener(int position) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("recordId", datas.get(position).getRecordId());
+        navigateToWithPara(SelectImageActivity.class, params);
     }
 
     @Override
@@ -213,7 +226,7 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
         Api.config(ApiConfig.DELETE_MY_TRAVEL_RECORD,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                Log.e("deleteMyRecord",res);
+                //Log.e("deleteMyRecord",res);
                 Gson gson = new Gson();
                 CommonResponse commonResponse = gson.fromJson(res, CommonResponse.class);
                 if (commonResponse.getCode() == 200) {
@@ -231,5 +244,6 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
             }
         });
     }
+
 
 }

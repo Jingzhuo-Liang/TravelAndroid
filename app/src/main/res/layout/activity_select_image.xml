@@ -86,49 +86,78 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:id="@+id/si_region_layer"
-                    android:layout_marginTop="23dp"
+                    android:id="@+id/si_region_and_limit_layer"
+                    android:orientation="vertical"
                     >
-                    <Button
-                        android:layout_width="35dp"
-                        android:layout_height="40dp"
-                        android:background="@mipmap/location_icon">
-                    </Button>
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/si_recordRegion"
-                        android:textColorHint="#bcbcbc"
-                        android:textColor="@color/black"
-                        android:inputType="text"
-                        android:hint="@string/region_hint"
+                        android:orientation="horizontal"
+                        android:id="@+id/si_region_layer"
+                        android:layout_marginTop="23dp"
                         >
-                    </TextView>
-                    <Button
-                        android:layout_width="35dp"
-                        android:layout_height="40dp"
-                        android:background="@mipmap/location_icon">
-                    </Button>
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        <Button
+                            android:layout_width="35dp"
+                            android:layout_height="40dp"
+                            android:background="@mipmap/location_icon">
+                        </Button>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/si_recordRegion"
+                            android:textColorHint="#bcbcbc"
+                            android:textColor="@color/black"
+                            android:inputType="text"
+                            android:hint="@string/region_hint"
+                            >
+                        </TextView>
+                        <Button
+                            android:layout_width="35dp"
+                            android:layout_height="40dp"
+                            android:background="@mipmap/location_icon">
+                        </Button>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/si_recordLocation"
+                            android:textColorHint="#bcbcbc"
+                            android:textColor="@color/black"
+                            android:inputType="text"
+                            android:hint="@string/location_hint"
+                            >
+                        </TextView>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/si_recordLocation"
-                        android:textColorHint="#bcbcbc"
-                        android:textColor="@color/black"
-                        android:inputType="text"
-                        android:hint="@string/location_hint"
+                        android:orientation="horizontal"
+                        android:id="@+id/si_limit_layer"
                         >
-                    </TextView>
+                        <Button
+                            android:layout_width="35dp"
+                            android:layout_height="40dp"
+                            android:background="@mipmap/limit_icon">
+                        </Button>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/si_recordLimit"
+                            android:textColorHint="#bcbcbc"
+                            android:textColor="@color/black"
+                            android:inputType="text"
+                            android:hint="@string/limit_hint"
+                            >
+                        </TextView>
+                    </LinearLayout>
                 </LinearLayout>
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="#e8e7e7"
-                    android:layout_below="@+id/si_region_layer"
-
+                    android:layout_below="@+id/si_region_and_limit_layer"
                     android:id="@+id/layer2_2_0"/>
                 <View
                     android:layout_width="match_parent"
@@ -191,6 +220,16 @@
         </RelativeLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <com.wang.avi.AVLoadingIndicatorView
+        android:id="@+id/avi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/AVLoadingIndicatorView"
+        android:visibility="invisible"
+        app:indicatorName="BallPulseIndicator"
+        app:indicatorColor="@color/gray"
+        android:layout_centerInParent="true"
+    />
 
     <com.next.easynavigation.view.EasyNavigationBar
         android:id="@+id/si_navigationBar"

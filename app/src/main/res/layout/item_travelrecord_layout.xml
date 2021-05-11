@@ -20,7 +20,6 @@
         android:scaleType="fitXY"
         android:adjustViewBounds="true"
         >
-
     </ImageView>
 
     <LinearLayout
@@ -56,6 +55,9 @@
             android:text="这是一个好地方"
             android:textColor="@color/text_color"
             android:textSize="15sp"
+            android:maxEms="14"
+            android:lines="1"
+            android:ellipsize="end"
             >
 
         </TextView>
@@ -97,7 +99,7 @@
                 android:layout_marginRight="5dp"
                 android:scaleType="fitXY"
                 android:id="@+id/travelNote_like"
-                android:background="@mipmap/like_icon"
+                android:background="@mipmap/unlike_icon"
                 >
             </ImageView>
             <TextView

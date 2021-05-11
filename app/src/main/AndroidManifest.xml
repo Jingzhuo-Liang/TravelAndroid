@@ -10,7 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <application
         android:name=".TravelApplication"
         android:allowBackup="true"
@@ -53,13 +54,19 @@
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="FTOGNGrla2fCu5h00f82IAb04XtHTxsM" />
+            android:value="F8PtLhwY93LOtTPdWZr6Top6vW7IFOLy" />
         <meta-data
             android:name="design_width_in_dp"
             android:value="360" />
         <meta-data
             android:name="design_height_in_dp"
             android:value="640" />
+
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote">
+        </service>
     </application>
 
 </manifest>

@@ -29,6 +29,7 @@ android {
     sourceSets {
         main {
             jniLibs.srcDir 'libs'
+            jni.srcDirs = []
         }
     }
 }
@@ -52,9 +53,14 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.flyco.tablayout:FlycoTabLayout_Lib:2.1.2@aar'
     implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.3'
-    implementation files('libs\\BaiduLBS_Android.jar')
+    implementation files('libs/BaiduLBS_Android.jar')
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.50'
     implementation 'com.makeramen:roundedimageview:2.3.0'
     implementation 'me.jessyan:autosize:1.1.2'
-    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.wang.avi:library:2.1.3'
+    compile fileTree(dir:  'libs' , include: ['*.jar'])
+    androidTestCompile ('com.android.support.test.espresso: espresso-core: 2.2.2', {
+        exclude group: 'com.android.support',  module: 'support-annotations'
+    })
+    implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
 }

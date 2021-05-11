@@ -79,6 +79,9 @@
                             android:text="作者昵称"
                             android:textColor="@color/text_color"
                             android:textSize="20dp"
+                            android:maxEms="10"
+                            android:lines="1"
+                            android:ellipsize="end"
                             >
                         </TextView>
                         <TextView
@@ -89,6 +92,9 @@
                             android:text="个性签名"
                             android:textColor="@color/text_color"
                             android:textSize="10dp"
+                            android:maxEms="10"
+                            android:lines="1"
+                            android:ellipsize="end"
                             >
                         </TextView>
                     </LinearLayout>
@@ -184,6 +190,30 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/record_detail_focusNum"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/text_color"
+                android:textSize="12sp"
+                android:text="000"
+                >
+            </TextView>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            >
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/record_detail_browse"
+                android:src="@mipmap/browse_icon"
+                >
+            </ImageView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/record_detail_browseNum"
                 android:layout_marginLeft="5dp"
                 android:textColor="@color/text_color"
                 android:textSize="12sp"
