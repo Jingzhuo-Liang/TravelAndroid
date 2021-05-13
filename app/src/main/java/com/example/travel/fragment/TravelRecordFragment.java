@@ -200,7 +200,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<TravelRecordEntity> list = tr.getData();
                     if (list != null && list.size() > 0) {
-
+                        /*
                         for (int i = 0;i < list.size();i++) {
                             if (categoryId == ApiConfig.HOMEPAGE_RECOMMEND) {
                                 if (i == 2) {
@@ -212,7 +212,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                                 }
                             }
                         }
-
+                        */
                         if (isRefresh) {
                             datas = list;
                         }
@@ -254,12 +254,18 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
     @Override
     public void onItemChildClick(int position) {
         //Log.e("TravelNoteFragment-onItemChildClick", String.valueOf(categoryId) + " " + String.valueOf(position));
-        //进入游记详情界面
+        //进入游记详情界面  或跳转广告链接
         //navigateTo(TravelRecordDetailActivity.class);
-        HashMap<String, String> params = new HashMap<>();
-        params.put("recordId", String.valueOf(datas.get(position).getRecordId()));
-        params.put("authorId", String.valueOf(datas.get(position).getAuthorId()));
-        navigateToWithPara(TravelRecordDetailActivity.class,params);
+        if (datas.get(position).getType() == 0) { //record
+            HashMap<String, String> params = new HashMap<>();
+            params.put("recordId", String.valueOf(datas.get(position).getRecordId()));
+            params.put("authorId", String.valueOf(datas.get(position).getAuthorId()));
+            params.put("isApproved", "True");
+            navigateToWithPara(TravelRecordDetailActivity.class, params);
+        } else { //ad
+
+            navigateToBrowserWithUrl(datas.get(position).getAdUrl());
+        }
     }
 
     public void searchRecord(String keyWord) {
@@ -324,5 +330,17 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
             }
         });
         popupMenu.show();
+    }
+
+    private void clickAdLink() {
+
+    }
+
+    private void clickAdInterest() {
+
+    }
+
+    private void clickAdUnInterest() {
+
     }
 }

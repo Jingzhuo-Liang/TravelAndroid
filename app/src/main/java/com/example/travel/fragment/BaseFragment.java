@@ -2,6 +2,7 @@ package com.example.travel.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -77,6 +78,12 @@ public abstract class BaseFragment extends Fragment {
         }
         intentSimple.putExtras(bundle);
         startActivity(intentSimple);
+    }
+
+    public void navigateToBrowserWithUrl(String s) {
+        Uri uri = Uri.parse(s);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
     }
 
     protected void saveStringToSp(String key, String value) {

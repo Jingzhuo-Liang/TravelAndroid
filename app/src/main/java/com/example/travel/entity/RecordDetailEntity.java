@@ -23,6 +23,7 @@ public class RecordDetailEntity {
     private int isLike;
     private int likeNum;
     private int commentNum;
+    private int browseNum;
     private ArrayList<FirstLevelEntity> f1LevelComments;
 
 
@@ -136,5 +137,13 @@ public class RecordDetailEntity {
 
     public void setF1LevelComments(ArrayList<FirstLevelEntity> f1LevelComments) {
         this.f1LevelComments = f1LevelComments;
+    }
+
+    public int getBrowseNum() {
+        return browseNum;
+    }
+
+    public void setBrowseNum(int browseNum) {
+        this.browseNum = browseNum;
     }
 }

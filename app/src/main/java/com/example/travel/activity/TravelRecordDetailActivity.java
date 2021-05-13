@@ -65,6 +65,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     private TextView focusNum;
     private ImageView commitIcon;
     private TextView commentNum;
+    private TextView browseNum;
 
     private RecyclerView recordDetailImageRecycleView;
     private RecordDetailImageAdapter recordDetailAdapter;
@@ -95,6 +96,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
     private int likeTempNum;
     private int focusTempNum;
+    private boolean isApproved;//查看自己待审核的游记或者被驳回的游记 false；发布的游记为true
 
     private String recordId;
     private String authorId;
@@ -108,6 +110,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                 case 0:{
                     //在主线程中执行
                     setData(recordDetailEntity);
+                    browseTravelRecord();
                     break;
                 }
                 case 1: {
@@ -164,6 +167,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         focusTempNum = Integer.parseInt(focusNum.getText().toString());
         commitIcon = findViewById(R.id.record_detail_commentIcon);
         commentNum = findViewById(R.id.record_detail_commentNum);
+        browseNum = findViewById(R.id.record_detail_browseNum);
         initDrawable();
         recordDetailImageRecycleView = findViewById(R.id.record_detail_image);
         recordDetailImageRecycleView.setLayoutManager(new GridLayoutManager(this, 3));
@@ -187,6 +191,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         Bundle bundle = this.getIntent().getExtras();
         this.recordId = bundle.getString("recordId");
         this.authorId = bundle.getString("authorId");
+        this.isApproved = Boolean.parseBoolean(bundle.getString("isApproved"));
         getTravelRecordDetail(recordId,authorId);
     }
 
@@ -278,6 +283,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             @Override
             public void onSuccess(String res) {
                 Gson gson = new Gson();
+                //Log.e("focus",res);
                 CommonResponse cr = gson.fromJson(res, CommonResponse.class);
                 if (cr.getCode() == 200) {
                     //Log.e("clickFocus",res);
@@ -344,6 +350,26 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
     }
 
+    private void browseTravelRecord() {
+        if (!isApproved) {
+            return;
+        }
+        HashMap<String , Object> params = new HashMap<>();
+        params.put("userId",LoginUser.getInstance().getUser().getId());
+        params.put("recordId", this.recordId);
+        Api.config(ApiConfig.BROWSE_TRAVEL_RECORD, params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                //Log.e("browseRecord",res);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+    }
+
     private void setData(RecordDetailEntity rde){
         authorName.setText(rde.getAuthorName());
         authorSignature.setText(rde.getAuthorSignature());
@@ -354,6 +380,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         likeNum.setText(String.valueOf(rde.getLikeNum()));
         focusNum.setText(String.valueOf(rde.getFocusNum()));
         commentNum.setText(String.valueOf(rde.getCommentNum()));
+        browseNum.setText(String.valueOf(rde.getBrowseNum()));
 
         isLike = rde.getIsLike() == 1;
         isFocus = rde.getIsFocus() == 1;
@@ -379,7 +406,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
     private void notExist() {
         showToast("获取游记失败");
-        onDestroy();
+        finish();
     }
 
     //原始数据 一般是从服务器接口请求过来的

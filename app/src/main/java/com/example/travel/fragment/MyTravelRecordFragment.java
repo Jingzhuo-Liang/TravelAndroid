@@ -208,6 +208,12 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
         //进入我的游记详情界面
         HashMap<String, String> params = new HashMap<>();
         params.put("recordId", datas.get(position).getRecordId());
+        params.put("authorId", LoginUser.getInstance().getUser().getId());
+        if (datas.get(position).getRecordState() == 0) { //审核通过
+            params.put("isApproved","True");
+        } else {
+            params.put("isApproved","False");
+        }
         navigateToWithPara(TravelRecordDetailActivity.class, params);
     }
     @Override

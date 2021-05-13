@@ -86,19 +86,19 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
         } else { //ad
             Advertisement ad = (Advertisement) holder;
-            ad.adName.setText(travelNoteEntity.getRecordName());
+            ad.adName.setText(travelNoteEntity.getAdName());
             ad.position = position;
 
             // Picasso: 异步加载
-            if (!StringUtils.isEmpty(travelNoteEntity.getAuthorPortrait())) {
+            if (!StringUtils.isEmpty(travelNoteEntity.getAdCoverImage())) {
                 Picasso.with(mContext)
-                        .load(travelNoteEntity.getAuthorPortrait())
+                        .load(travelNoteEntity.getAdCoverImage())
                         .transform(new CircleTransform())
                         .into(ad.adPortrait);
             }
-            if (!StringUtils.isEmpty(travelNoteEntity.getRecordCoverImage())) {
+            if (!StringUtils.isEmpty(travelNoteEntity.getAdPortrait())) {
                 Picasso.with(mContext)
-                        .load(travelNoteEntity.getRecordCoverImage())
+                        .load(travelNoteEntity.getAdPortrait())
                         .into(ad.adImage);
             }
         }

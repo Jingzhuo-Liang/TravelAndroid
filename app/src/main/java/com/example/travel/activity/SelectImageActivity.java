@@ -59,6 +59,8 @@ import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.CommonResponse;
+import com.example.travel.entity.ModifyTravelRecordEntity;
+import com.example.travel.entity.ModifyTravelRecordResponse;
 import com.example.travel.util.CityBean;
 import com.example.travel.util.LoginUser;
 import com.example.travel.util.MyLocationListener;
@@ -68,6 +70,7 @@ import com.example.travel.util.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.next.easynavigation.view.EasyNavigationBar;
+import com.siberiadante.customdialoglib.CustomDialog;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.File;
@@ -109,6 +112,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private ArrayList<ArrayList<String>> options2Items = new ArrayList<>();
     private ArrayList<String> optionsLimit = new ArrayList<>();
     private Location userLocation;
+    private ModifyTravelRecordEntity modifyTravelRecordEntity;
 
     private Button selectImage_btn;
     private Button arrowBack_btn;
@@ -125,6 +129,9 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private MyLocationListener myListener = new MyLocationListener();
 
     private MaterialDialog mLoadingDialog;
+    private CustomDialog customDialog;
+    private Boolean locDifButCon = false; //location is different but continue
+    private String selectRegion = "";
 
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
@@ -136,6 +143,10 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                     //在主线程中执行
                     dismissLoadingDialog();
                     finish();
+                    break;
+                }
+                case 1: {
+                    setModifyData();
                     break;
                 }
                 default:{
@@ -180,6 +191,28 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
         mAdapter = new ImageAdapter(this);
         rvImage.setAdapter(mAdapter);
+
+        customDialog = new CustomDialog(context,
+                R.layout.confirm_dialog_layout,
+                new int[]{R.id.dialog_sure, R.id.dialog_cancel},
+                true);
+        customDialog.setOnDialogItemClickListener(new CustomDialog.OnCustomDialogItemClickListener() {
+            @Override
+            public void OnCustomDialogItemClick(CustomDialog dialog, View view) {
+                switch (view.getId()) {
+                    case R.id.dialog_sure: { //确认
+                        recordRegion.setText(selectRegion);
+                        break;
+                    }
+                    case R.id.dialog_cancel: {
+                        locDifButCon = false;
+                        break;
+                    }
+                    default: {
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -189,31 +222,27 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         Bundle bundle = this.getIntent().getExtras();
         recordId = bundle.getString("recordId");
         if (recordId != null && recordId.length() > 0) {
-            Log.e("recordId",recordId);
-            setModifyData(recordId);
+            getModifyData(recordId);
         } else {
-            Log.e("recordId", "is null");
+            //Log.e("recordId", "is null");
         }
     }
 
-    private void setModifyData(String recordId) {
-        ArrayList<String> images = new ArrayList<>();
-        for (int i = 0;i < 9;i++) {
-            images.add(ApiConfig.DEFAULT_PORTRAIT_URL);
-        }
-        mAdapter.refresh(images);
-        recordRegion.setText("北京市-北京市");
-        recordLimit.setText(optionsLimit.get(0));
-        recordName.setText("test");
-        recordMain.setText("test");
-        /*
+    private void getModifyData(String recordId) {
         HashMap<String , Object> params = new HashMap<>();
         params.put("userId",LoginUser.getInstance().getUser().getId());
         params.put("recordId",recordId);
         Api.config(ApiConfig.MODIFY_MY_TRAVEL_RECORD_STEP1,params).getRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-
+                ModifyTravelRecordResponse mtr = new Gson().fromJson(res,ModifyTravelRecordResponse.class);
+                if (mtr.getCode() == 200) {
+                    modifyTravelRecordEntity = mtr.getData();
+                    handler.sendEmptyMessage(1);
+                } else {
+                    showToastSync("获取游记失败");
+                }
+                //Log.e("modifyRecord_get",res);
             }
 
             @Override
@@ -221,7 +250,24 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
             }
         });
-         */
+    }
+
+    private void setModifyData() {
+        if (modifyTravelRecordEntity == null) {
+            return;
+        }
+        mAdapter.refresh(modifyTravelRecordEntity.getRecordImages());
+        recordName.setText(modifyTravelRecordEntity.getRecordName());
+        recordMain.setText(modifyTravelRecordEntity.getRecordMain());
+        recordRegion.setText(modifyTravelRecordEntity.getRecordRegion());
+        recordLimit.setText(optionsLimit.get(modifyTravelRecordEntity.getRecordLimit()));
+        recordLimitCode = modifyTravelRecordEntity.getRecordLimit();
+        myListener.setRegion(modifyTravelRecordEntity.getRecordRegion());
+        if (modifyTravelRecordEntity.getLatitude() != 0 && modifyTravelRecordEntity.getLongitude() != 0) {
+            recordLocation.setText("获取位置成功");
+            myListener.setLongitude(modifyTravelRecordEntity.getLongitude());
+            myListener.setLatitude(modifyTravelRecordEntity.getLatitude());
+        }
     }
 
     @Override
@@ -250,11 +296,15 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                     @Override
                     public void onOptionsSelect(int options1, int options2, int options3, View v) {
                         //选择了则显示并暂存LoginUser，退出时在保存至数据库
-                        String tx = options1Items.get(options1).getPickerViewText() + "-"
+                        selectRegion = options1Items.get(options1).getPickerViewText() + "-"
                                 + (options2Items.get(options1).size() == 0 ?
                                 options1Items.get(options1).getPickerViewText() :
                                 options2Items.get(options1).get(options2));
-                        recordRegion.setText(tx);
+                        if (!StringUtils.isEmpty(myListener.getRegion()) &&!myListener.getRegion().equals("null-null") && !myListener.getRegion().equals(selectRegion)) {
+                            customDialog.show();
+                        } else {
+                            recordRegion.setText(selectRegion);
+                        }
                     }
                 }).setCancelColor(Color.GRAY).build();
                 pvOptions.setPicker(options1Items, options2Items);//二级选择器
@@ -265,10 +315,11 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 //userLocation = getLocation();
                 getLocation();
                 if (myListener.getLocation() != null) {
+                    mLocationClient.stop();
                     recordLocation.setText("获取位置成功");
-                    recordRegion.setText(myListener.getRegion());
-                    //Log.e("latitude",String.valueOf(userLocation.getLatitude()));
-                    //Log.e("longitude",String.valueOf(userLocation.getLongitude()));
+                    if (!myListener.getRegion().equals("null-null")) {
+                        recordRegion.setText(myListener.getRegion());
+                    }
                 } else {
                     recordLocation.setText("获取位置失败");
                 }
@@ -295,14 +346,68 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
-    private void modifyTravelRecord() {
-        if (recordImagesDirty) { //修改了图片
 
+    private void modifyTravelRecord() {
+        if (StringUtils.isEmpty(recordRegion.getText().toString())) {
+            showToast("请选择城市");
+            return;
+        } else if (StringUtils.isEmpty(myListener.getRegion()) && !myListener.getRegion().equals(recordRegion.getText().toString())) {
+            customDialog.show();
         }
+        else if (StringUtils.isEmpty(recordName.getText().toString())) {
+            showToast("请输入游记名字");
+            return;
+        } else if (recordLimitCode == -1) {
+            showToast("请选择权限");
+            return;
+        }
+        ArrayList<String> imagePaths = mAdapter.getImages();
+        ArrayList<String> images = new ArrayList<>();
+        if (imagePaths.size() == 0) {
+            showToast("请至少选择一张图片");
+            return;
+        }
+        showLoadingDialog();
+        //avi.show();
+        //根据图片路径获取图片并转成base64字符串
+        if (recordImagesDirty) { //修改了图片
+            for (int i = 0;i < imagePaths.size();i++) {
+                Uri uri = UriUtils.getImageContentUri(this, imagePaths.get(i));
+                Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri);
+                images.add(PhotoUtils.bitmapToString(bitmap));
+            }
+        }
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId", LoginUser.getInstance().getUser().getId());
+        params.put("recordId",this.recordId);
+        params.put("recordName", recordName.getText().toString());
+        params.put("recordMain", recordMain.getText().toString());
+        params.put("recordRegion", recordRegion.getText().toString());
+        params.put("recordLimit", recordLimitCode);
+        params.put("recordImages", images);
+        if (myListener.getLatitude() != 0 && myListener.getLongitude() != 0) {
+            //params.put("latitude", userLocation.getLatitude());
+            //params.put("longitude", userLocation.getLongitude());
+            params.put("latitude",myListener.getLatitude());
+            params.put("longitude", myListener.getLongitude());
+        }
+        Api.config(ApiConfig.MODIFY_MY_TRAVEL_RECORD_STEP2, params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                handler.sendEmptyMessage(0);
+                showToastSync("游记修改成功");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
     }
 
     private void releaseTravelRecord() throws FileNotFoundException {
-        //progressDialog = ProgressDialog.show(this, "请稍等...", "游记发布中...", true);//显示加载框
+        Log.e("region",recordRegion.getText().toString());
+        Log.e("location", myListener.getRegion());
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
             showToast("请选择城市");
             return;
@@ -335,11 +440,11 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         params.put("recordRegion", recordRegion.getText().toString());
         params.put("recordLimit", recordLimitCode);
         params.put("recordImages", images);
-        if (userLocation != null) {
+        if (myListener.getLatitude() != 0 && myListener.getLongitude() != 0) {
             //params.put("latitude", userLocation.getLatitude());
             //params.put("longitude", userLocation.getLongitude());
-            params.put("latitude",myListener.getLocation().getLatitude());
-            params.put("longitude", myListener.getLocation().getLongitude());
+            params.put("latitude",myListener.getLatitude());
+            params.put("longitude", myListener.getLongitude());
         }
 
         //Log.e("images",String.valueOf(images.size()));

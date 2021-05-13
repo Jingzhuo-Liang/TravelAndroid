@@ -1,5 +1,7 @@
 package com.example.travel.api;
 
+import java.util.DoubleSummaryStatistics;
+
 /**
  * @@author:ljz
  * @@date:2021/4/14,10:46
@@ -37,6 +39,9 @@ public class ApiConfig {
     public static final String BROWSE_TRAVEL_RECORD = "/travel/browseTravelRecord";
     public static final String MODIFY_MY_TRAVEL_RECORD_STEP1 = "/travel/modifyTravelRecord/getRecord";
     public static final String MODIFY_MY_TRAVEL_RECORD_STEP2 = "/travel/modifyTravelRecord/postRecord";
+    public static final String USER_ACCESS_AD_LINK = "/travel/advertisement/access";
+    public static final String USER_INTEREST_AD = "/travel/advertisement/interest";
+    public static final String USER_UNINTEREST_AD = "/travel/advertisement/unInterest";
 
 
     //常量
