@@ -1,2 +1,3 @@
+include ':ljzPopUpWindowlibrary'
 include ':app'
 rootProject.name = "Travel"

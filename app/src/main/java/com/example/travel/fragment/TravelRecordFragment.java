@@ -3,21 +3,21 @@ package com.example.travel.fragment;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 
+import com.example.ljzpopupwindowlibrary.MyPopWindow;
+import com.example.ljzpopupwindowlibrary.PopUpWindowItem;
 import com.example.travel.R;
 import com.example.travel.activity.TravelRecordDetailActivity;
 import com.example.travel.adapter.TravelRecordAdapter;
@@ -36,6 +36,7 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -54,25 +55,8 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
     private LinearLayoutManager linearLayoutManager;
     private RefreshLayout refreshLayout;
     private int pageNum = 0;
-
-    private Handler handler = new Handler() {
-        @SuppressLint("HandlerLeak")
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 0:{
-                    //在主线程中执行
-                    recyclerView.setAdapter(noteAdapter);
-                    noteAdapter.notifyDataSetChanged();
-                    break;
-                }
-                default:{
-
-                }
-            }
-        }
-    };
+    private MyPopWindow popupWindow;
+    private List<PopUpWindowItem> mList = new ArrayList<>();
 
     public TravelRecordFragment() {
         // Required empty public constructor
@@ -140,23 +124,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
         noteAdapter.setOnAdJudgeClickListener(this);
         getTravelNoteList(true);
         recyclerView.setAdapter(noteAdapter);
-    }
-
-    private void getTravelNoteList() {
-        for (int i = 0; i< 8;i++) {
-            TravelRecordEntity te = new TravelRecordEntity();
-            te.setRecordId(String.valueOf(i));
-            te.setAuthorId(String.valueOf(i));
-            te.setRecordCoverImage("");
-            te.setRecordName("travel");
-            te.setAuthorPortrait("");
-            te.setLikeNum(i * 100 + i + 50);
-            te.setRecordRegion("吉林长春");
-            te.setAuthorName("海绵宝宝");
-            datas.add(te);
-        }
-        noteAdapter.setDatas(datas);
-        handler.sendEmptyMessage(0);
+        initPopUpWindow();
     }
 
     private void getTravelNoteList(boolean isRefresh) {
@@ -263,7 +231,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
             params.put("isApproved", "True");
             navigateToWithPara(TravelRecordDetailActivity.class, params);
         } else { //ad
-
+            clickAdLink(position);
             navigateToBrowserWithUrl(datas.get(position).getAdUrl());
         }
     }
@@ -303,13 +271,147 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
         });
     }
 
-    @Override
-    public void onAdJudgeClick(View view, int position) {
-        //Log.e("click an ad", String.valueOf(position));
-        showPopupMenu(view);
+    public void initPopUpWindow() {
+        int color = 0;
+        PopUpWindowItem item = new PopUpWindowItem(R.mipmap.interest_icon, "感兴趣",color);
+        mList.add(item);
+        item = new PopUpWindowItem(R.mipmap.uninterest_icon, "不感兴趣", color);
+        mList.add(item);
+        popupWindow = new MyPopWindow(getContext(), mList,2);
     }
 
-    private void showPopupMenu(View view) {
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
+    public void onAdJudgeClick(View view, int position) {
+        showPopupMenu(view, position);
+        //popupWindow.showAsDropDown(view, -45, 0);
+    }
+
+    private void showPopupMenu(View view, int position) {
+        popupWindow.setOnItemClickListener(new MyPopWindow.OnItemClickListener() {
+            @Override
+            public void OnClick(int i) {
+                //Log.e("new PopUpWindow", String.valueOf(i) + " " + String.valueOf(position));
+                switch (i) {
+                    case 0: {
+                        clickAdInterest(position);
+                        break;
+                    }
+                    case 1: {
+                        clickAdUnInterest(position);
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+            }
+        });
+        popupWindow.showAsDropDown(view,-45,0);
+    }
+
+    private void clickAdLink(int position) {
+        Log.e("clickAdLink", String.valueOf(position));
+        /*
+        HashMap<String , Object> params = new HashMap<>();
+        params.put("userId", LoginUser.getInstance().getUser().getId());
+        params.put("adId", datas.get(position).getAdId());
+        Api.config(ApiConfig.USER_ACCESS_AD_LINK, params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                Log.e("clickAdLink", res);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+         */
+    }
+
+    private void clickAdInterest(int position) {
+        Log.e("clickAdInterest", String.valueOf(position));
+        /*
+        HashMap<String , Object> params = new HashMap<>();
+        params.put("userId", LoginUser.getInstance().getUser().getId());
+        params.put("adId", datas.get(position).getAdId());
+        Api.config(ApiConfig.USER_INTEREST_AD, params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                Log.e("clickAdInterest", res);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+         */
+    }
+
+    private void clickAdUnInterest(int position) {
+        Log.e("clickAdUnInterest", String.valueOf(position));
+        /*
+        HashMap<String , Object> params = new HashMap<>();
+        params.put("userId", LoginUser.getInstance().getUser().getId());
+        params.put("adId", datas.get(position).getAdId());
+        Api.config(ApiConfig.USER_UNINTEREST_AD, params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                Log.e("clickAdUnInterest", res);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+         */
+    }
+
+    private Handler handler = new Handler() {
+        @SuppressLint("HandlerLeak")
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:{
+                    //在主线程中执行
+                    recyclerView.setAdapter(noteAdapter);
+                    noteAdapter.notifyDataSetChanged();
+                    break;
+                }
+                default:{
+
+                }
+            }
+        }
+    };
+
+
+    private void getTravelNoteList() {
+        for (int i = 0; i< 8;i++) {
+            TravelRecordEntity te = new TravelRecordEntity();
+            te.setRecordId(String.valueOf(i));
+            te.setAuthorId(String.valueOf(i));
+            te.setRecordCoverImage("");
+            te.setRecordName("travel");
+            te.setAuthorPortrait("");
+            te.setLikeNum(i * 100 + i + 50);
+            te.setRecordRegion("吉林长春");
+            te.setAuthorName("海绵宝宝");
+            datas.add(te);
+        }
+        noteAdapter.setDatas(datas);
+        handler.sendEmptyMessage(0);
+    }
+
+
+    //简易版 popUpWindow
+    /*
+    @SuppressLint("RestrictedApi")
+    private void showPopupMenu(View view, int position) {
         // View当前PopupMenu显示的相对View的位置
         PopupMenu popupMenu = new PopupMenu(getContext(), view);
         // menu布局
@@ -318,7 +420,20 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                Log.e("menu", item.getTitle().toString());
+                //Log.e("menu", item.getTitle().toString());
+                switch (item.getItemId()) {
+                    case R.id.interest : {
+                        clickAdInterest(position);
+                        break;
+                    }
+                    case R.id.unInterest: {
+                        clickAdUnInterest(position);
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
                 return false;
             }
         });
@@ -331,16 +446,5 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
         });
         popupMenu.show();
     }
-
-    private void clickAdLink() {
-
-    }
-
-    private void clickAdInterest() {
-
-    }
-
-    private void clickAdUnInterest() {
-
-    }
+     */
 }
