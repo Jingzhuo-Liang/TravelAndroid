@@ -311,15 +311,14 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
     }
 
     private void clickAdLink(int position) {
-        Log.e("clickAdLink", String.valueOf(position));
-        /*
+        //Log.e("clickAdLink", String.valueOf(position));
         HashMap<String , Object> params = new HashMap<>();
         params.put("userId", LoginUser.getInstance().getUser().getId());
         params.put("adId", datas.get(position).getAdId());
         Api.config(ApiConfig.USER_ACCESS_AD_LINK, params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                Log.e("clickAdLink", res);
+                //Log.e("clickAdLink", res);
             }
 
             @Override
@@ -327,19 +326,17 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
             }
         });
-         */
     }
 
     private void clickAdInterest(int position) {
-        Log.e("clickAdInterest", String.valueOf(position));
-        /*
+        //Log.e("clickAdInterest", String.valueOf(position));
         HashMap<String , Object> params = new HashMap<>();
         params.put("userId", LoginUser.getInstance().getUser().getId());
         params.put("adId", datas.get(position).getAdId());
         Api.config(ApiConfig.USER_INTEREST_AD, params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                Log.e("clickAdInterest", res);
+                //Log.e("clickAdInterest", res);
             }
 
             @Override
@@ -347,19 +344,17 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
             }
         });
-         */
     }
 
     private void clickAdUnInterest(int position) {
-        Log.e("clickAdUnInterest", String.valueOf(position));
-        /*
+        //Log.e("clickAdUnInterest", String.valueOf(position));
         HashMap<String , Object> params = new HashMap<>();
         params.put("userId", LoginUser.getInstance().getUser().getId());
         params.put("adId", datas.get(position).getAdId());
         Api.config(ApiConfig.USER_UNINTEREST_AD, params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                Log.e("clickAdUnInterest", res);
+                //Log.e("clickAdUnInterest", res);
             }
 
             @Override
@@ -367,7 +362,6 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
 
             }
         });
-         */
     }
 
     private Handler handler = new Handler() {

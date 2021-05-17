@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.example.travel.R;
 import com.example.travel.activity.EditName;
+import com.example.travel.activity.MessageCenterActivity;
 import com.example.travel.activity.UserInfoActivity;
 import com.example.travel.adapter.HomeAdapter;
 import com.example.travel.api.Api;
@@ -93,7 +94,7 @@ public class UserInfoFragment extends BaseFragment {
         drawable.setBounds(40,0,110,70);
         titleLayout.getTextView_forward().setCompoundDrawables(drawable,null,null,null);
         titleLayout.getTextView_forward().setText("");
-        titleLayout.getTextView_backward().setImageBitmap(null);
+        titleLayout.getTv_myImage().setVisibility(View.VISIBLE);
         my_username = mRootView.findViewById(R.id.my_username);
         my_signature = mRootView.findViewById(R.id.my_signature);
         my_portrait = mRootView.findViewById(R.id.my_portrait);
@@ -106,6 +107,12 @@ public class UserInfoFragment extends BaseFragment {
                 Intent intent = new Intent(getActivity(), UserInfoActivity.class);
                 startActivityForResult(intent, 0);
                 //navigateTo(UserInfoActivity.class);
+            }
+        });
+        titleLayout.getTv_myImage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navigateTo(MessageCenterActivity.class);
             }
         });
 

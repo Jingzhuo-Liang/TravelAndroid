@@ -7,10 +7,14 @@
     android:background="@color/white"
     tools:context=".fragment.MyTravelRecordFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/my_record_recyclerView"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </androidx.recyclerview.widget.RecyclerView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/my_record_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </androidx.recyclerview.widget.RecyclerView>
+    </androidx.core.widget.NestedScrollView>
 
 </com.scwang.smartrefresh.layout.SmartRefreshLayout>

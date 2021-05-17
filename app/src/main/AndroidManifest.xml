@@ -4,14 +4,15 @@
     package="com.example.travel">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
     <application
         android:name=".TravelApplication"
         android:allowBackup="true"
@@ -23,6 +24,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
+        <activity android:name=".activity.MessageCenterActivity"></activity>
         <activity
             android:name="com.donkingliang.imageselector.ImageSelectorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -43,7 +45,7 @@
         <activity android:name=".activity.OtherUserInfoActivity" />
         <activity android:name=".activity.TravelRecordDetailActivity" />
         <activity android:name=".activity.Login2Activity" /> <!-- <activity android:name=".activity.Login"></activity> -->
-        <activity android:name=".activity.Login1Activity"/>
+        <activity android:name=".activity.Login1Activity" />
         <activity android:name=".activity.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -65,8 +67,7 @@
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
-            android:process=":remote">
-        </service>
+            android:process=":remote"></service>
     </application>
 
 </manifest>

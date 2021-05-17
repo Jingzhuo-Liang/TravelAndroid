@@ -2,6 +2,7 @@ package com.example.travel.widget;
 
 import android.app.Activity;
 import android.content.Context;
+import android.media.Image;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import com.example.travel.util.ActivityCollector;
 public class TitleLayout extends LinearLayout {
     private ImageView iv_backward;
     private TextView tv_title, tv_forward;
+    private ImageView tv_myImage;
 
     public TitleLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -25,6 +27,7 @@ public class TitleLayout extends LinearLayout {
         iv_backward = (ImageView) bar_title.findViewById(R.id.iv_backward);
         tv_title = (TextView) bar_title.findViewById(R.id.tv_title);
         tv_forward = (TextView) bar_title.findViewById(R.id.tv_forward);
+        tv_myImage = bar_title.findViewById(R.id.tv_my_image);
         /*
         if(ActivityCollector.getCurrentActivity().getClass().equals(PersonInfo.class)){
             tv_forward.setText("保存");
@@ -49,5 +52,9 @@ public class TitleLayout extends LinearLayout {
 
     public void setTitle(String title) {
         this.tv_title.setText(title);
+    }
+
+    public ImageView getTv_myImage() {
+        return this.tv_myImage;
     }
 }

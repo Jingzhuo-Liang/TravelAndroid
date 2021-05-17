@@ -26,6 +26,15 @@
         android:textColor="@android:color/black"
         android:textSize="20dp" />
 
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="match_parent"
+        android:id="@+id/tv_my_image"
+        android:src="@mipmap/message_icon"
+        android:visibility="invisible"
+        >
+    </ImageView>
+
     <TextView
         android:id="@+id/tv_forward"
         android:layout_width="60dp"
