@@ -101,6 +101,7 @@ public class UserInfoFragment extends BaseFragment {
         my_focusNum = mRootView.findViewById(R.id.my_focusNum);
         my_beFocusNum = mRootView.findViewById(R.id.my_beFocusedNum);
 
+        titleLayout.getTextView_backward().setVisibility(View.INVISIBLE);
         titleLayout.getTextView_forward().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

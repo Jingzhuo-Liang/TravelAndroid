@@ -10,6 +10,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.travel.R;
 import com.example.travel.adapter.HomeAdapter;
+import com.example.travel.api.ApiConfig;
 import com.flyco.tablayout.SlidingTabLayout;
 
 import java.util.ArrayList;
@@ -61,12 +62,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
         mTitles = new String[2];
         mTitles[0] = "关注";
         mTitles[1] = "推荐";
-        mFragments.add(TravelRecordFragment.newInstance(0));
-        mFragments.add(TravelRecordFragment.newInstance(1));
+        mFragments.add(TravelRecordFragment.newInstance(ApiConfig.HOME_FOCUS));
+        mFragments.add(TravelRecordFragment.newInstance(ApiConfig.HOMEPAGE_RECOMMEND));
         viewPager.setOffscreenPageLimit(mFragments.size());
         viewPager.setAdapter(new HomeAdapter(getFragmentManager(), mTitles, mFragments));
         slidingTabLayout.setViewPager(viewPager);
-        slidingTabLayout.setCurrentTab(1);
+        slidingTabLayout.setCurrentTab(ApiConfig.HOMEPAGE_RECOMMEND);
     }
 
     @Override

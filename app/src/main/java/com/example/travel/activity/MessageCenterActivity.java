@@ -95,7 +95,7 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
     }
 
     public void getSystemMessage() {
-
+        /*
         ArrayList<SystemMessageEntity> smEntities = new ArrayList<>();
         for (int i = 0;i < 10;i++) {
             SystemMessageEntity smEntity = new SystemMessageEntity();
@@ -109,13 +109,15 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
         }
         datas = smEntities;
         handler.sendEmptyMessage(0);
-         /*
+
+         */
+
         HashMap<String, Object> params = new HashMap<>();
         params.put("userId", LoginUser.getInstance().getUser().getId());
         Api.config(ApiConfig.GET_ALL_SYSTEM_MESSAGE, params).getRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                Log.e("getAllMessage", res);
+                //Log.e("getAllMessage", res);
                 SystemMessageResponse smRes = new Gson().fromJson(res, SystemMessageResponse.class);
                 if (smRes.getCode() == 200) {
                     datas = smRes.getData();
@@ -130,8 +132,6 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
 
             }
         });
-
-          */
     }
 
     public void deleteAllMessage() {
@@ -143,9 +143,9 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
             public void onSuccess(String res) {
                 CommonResponse commonResponse = new Gson().fromJson(res, CommonResponse.class);
                 if (commonResponse.getCode() == 200) {
-                    showToastSync("全部删除成功");
                     datas.clear();
                     handler.sendEmptyMessage(0);
+                    showToastSync("全部删除成功");
                 } else {
                     showToastSync("全部删除失败");
                 }
@@ -200,9 +200,9 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
             public void onSuccess(String res) {
                 CommonResponse commonResponse = new Gson().fromJson(res, CommonResponse.class);
                 if (commonResponse.getCode() == 200) {
-                    showToastSync("删除成功");
                     datas.remove(position);
                     handler.sendEmptyMessage(0);
+                    showToastSync("删除成功");
                 } else {
                     showToastSync("删除失败");
                 }

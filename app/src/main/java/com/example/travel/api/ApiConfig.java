@@ -44,7 +44,7 @@ public class ApiConfig {
     public static final String USER_UNINTEREST_AD = "/travel/advertisement/unInterest";
     public static final String GET_ALL_SYSTEM_MESSAGE = "/travel/systemMessage/getAll";
     public static final String DELETE_SINGLE_SYSTEM_MESSAGE = "/travel/systemMessage/deleteSingle";
-    public static final String DELETE_ALL_SYSTEM_MESSAGE = "travel/systemMessage/deleteAll";
+    public static final String DELETE_ALL_SYSTEM_MESSAGE = "/travel/systemMessage/deleteAll";
     public static final String READ_SYSTEM_MESSAGE = "/travel/systemMessage/readMessage";
 
     //常量
