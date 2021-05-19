@@ -11,14 +11,11 @@
     android:layout_marginRight="15dp"
     >
 
-
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="187dp"
         android:id="@+id/travelNote_cover_image"
-        android:src="@mipmap/welcome"
         android:scaleType="fitXY"
-        android:adjustViewBounds="true"
         >
     </ImageView>
 
@@ -31,31 +28,22 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/travelNote_region"
-            android:text="长春"
+            android:text=""
             android:textColor="@color/text_color"
             android:textSize="15sp"
             >
         </TextView>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="|"
-            android:textColor="@color/text_color"
-            android:textSize="15sp"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            >
-        </TextView>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="right"
             android:id="@+id/travelNote_name"
-            android:text="这是一个好地方"
+            android:text=""
             android:textColor="@color/text_color"
             android:textSize="15sp"
-            android:maxEms="14"
+            android:maxEms="12"
             android:lines="1"
             android:ellipsize="end"
             >
@@ -74,7 +62,6 @@
             android:scaleType="fitXY"
             android:adjustViewBounds="true"
             android:id="@+id/travelNote_portrait"
-            android:src="@mipmap/default_portrait"
             >
         </ImageView>
         <TextView
@@ -82,9 +69,12 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:id="@+id/travelNote_userName"
-            android:text="海绵宝宝"
+            android:text=""
             android:textColor="@color/text_color"
             android:textSize="15sp"
+            android:maxEms="8"
+            android:lines="1"
+            android:ellipsize="end"
             >
         </TextView>
         <LinearLayout
@@ -106,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:id="@+id/travelNote_likeNum"
-                android:text="1202"
+                android:text="0"
                 android:textColor="@color/text_color"
                 android:textSize="15sp"
                 >

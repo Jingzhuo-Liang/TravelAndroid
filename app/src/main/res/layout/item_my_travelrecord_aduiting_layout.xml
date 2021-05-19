@@ -73,7 +73,11 @@
                 android:id="@+id/my_recordName_auditing"
                 android:text="recordName"
                 android:textColor="@color/text_color"
-                android:textSize="17sp">
+                android:textSize="17sp"
+                android:maxEms="16"
+                android:lines="2"
+                android:ellipsize="end"
+                >
             </TextView>
             <LinearLayout
                 android:layout_width="match_parent"

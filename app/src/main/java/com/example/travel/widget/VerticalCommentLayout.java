@@ -241,6 +241,7 @@ public class VerticalCommentLayout extends LinearLayout implements
 
     private View makeMoreView(boolean isMore) {
         View view = View.inflate(getContext(), R.layout.item_comment_new_more, null);
+        /*
         LinearLayout ll_group = view.findViewById(R.id.ll_group);
         if (isMore) {
 
@@ -253,9 +254,10 @@ public class VerticalCommentLayout extends LinearLayout implements
             });
 
         }
-        view.findViewById(R.id.iv_more).setVisibility(isMore ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.iv_more).setVisibility(isMore ? View.INVISIBLE : View.GONE);
         TextView tvMore = view.findViewById(R.id.tv_more);
         tvMore.setText(isMore ? "展开更多回复" : "没有更多回复了");
+         */
         return view;
     }
 

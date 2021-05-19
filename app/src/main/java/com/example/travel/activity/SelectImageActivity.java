@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -184,10 +185,13 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
         rvImage.setLayoutManager(new GridLayoutManager(this, 3));
         recordName.setHorizontallyScrolling(false);
+        recordName.setSingleLine(false);
+        recordName.setFilters(new InputFilter[]{new InputFilter.LengthFilter(30)});
         recordMain.setSingleLine(false);
         recordMain.setHorizontallyScrolling(false);
         recordMain.setMinLines(5);
-        recordMain.setMaxEms(255);
+        recordMain.setFilters(new InputFilter[]{new InputFilter.LengthFilter(255)});
+
 
         mAdapter = new ImageAdapter(this);
         rvImage.setAdapter(mAdapter);
@@ -315,8 +319,9 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 //userLocation = getLocation();
                 getLocation();
                 if (myListener.getLocation() != null) {
-                    mLocationClient.stop();
+                    //mLocationClient.stop();
                     recordLocation.setText("获取位置成功");
+                    //Log.e("region:", myListener.getRegion() + "1111");
                     if (!myListener.getRegion().equals("null-null")) {
                         recordRegion.setText(myListener.getRegion());
                     }

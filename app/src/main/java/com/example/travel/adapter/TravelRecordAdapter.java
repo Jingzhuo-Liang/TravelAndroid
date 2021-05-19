@@ -101,6 +101,7 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                         .load(travelNoteEntity.getAdPortrait())
                         .into(ad.adImage);
             }
+
         }
     }
 

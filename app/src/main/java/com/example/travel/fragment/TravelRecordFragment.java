@@ -122,7 +122,7 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
         noteAdapter = new TravelRecordAdapter(getActivity());
         noteAdapter.setOnItemChildClickListener(this);
         noteAdapter.setOnAdJudgeClickListener(this);
-        getTravelNoteList(true);
+        getTravelNoteList(false);
         recyclerView.setAdapter(noteAdapter);
         initPopUpWindow();
     }
@@ -168,34 +168,30 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<TravelRecordEntity> list = tr.getData();
                     if (list != null && list.size() > 0) {
-                        /*
-                        for (int i = 0;i < list.size();i++) {
-                            if (categoryId == ApiConfig.HOMEPAGE_RECOMMEND) {
-                                if (i == 2) {
-                                    list.get(i).setType(1);
-                                    list.get(i).setAdUrl("www.baidu.com");
-                                    list.get(i).setRecordName("这是广告!!!!!!!!");
-                                } else {
-                                    list.get(i).setType(0);
-                                }
-                            }
-                        }
-                        */
                         if (isRefresh) {
                             datas = list;
                         }
                         else {
+                            /*
+                            for (int i = 0;i < list.size();i++) {
+                                if (list.get(i).getType() == 0) {
+                                    datas.add(list.get(i));
+                                }
+                            }
+                             */
                             datas.addAll(list);
                         }
                         noteAdapter.setDatas(datas);
                         handler.sendEmptyMessage(0);
                     }
                     else {
+                        if (datas.size() == 0) {
+                            return;
+                        }
                         if (isRefresh) {
                             showToastSync("暂时加载无数据");
                         }
-                        else {
-                            Log.e("getTravel","no more");
+                        else{
                             showToastSync("没有更多数据");
                         }
                     }

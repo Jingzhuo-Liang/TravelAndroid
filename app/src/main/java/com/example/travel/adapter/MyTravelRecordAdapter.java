@@ -53,9 +53,13 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ViewHolderReleased viewHolder = new ViewHolderReleased(view, isUser);
             return  viewHolder;
         }
-        else {
+        else if (viewType == 1) {
             View view = LayoutInflater.from(mContext).inflate(R.layout.item_my_travelrecord_aduiting_layout,parent,false);
             ViewHolderAuditing viewHolder = new ViewHolderAuditing(view, isUser);
+            return viewHolder;
+        } else {
+            View view = LayoutInflater.from(mContext).inflate(R.layout.item_my_treavelrecord_rejected_layout,parent,false);
+            ViewHolderRejected viewHolder = new ViewHolderRejected(view, isUser);
             return viewHolder;
         }
     }
@@ -65,7 +69,7 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         //渲染数据
         int type = getItemViewType(position);
         MyTravelRecordEntity ne = datas.get(position);
-        if (type == 0) {
+        if (type == 0) { //审核通过
             ViewHolderReleased vh = (ViewHolderReleased) holder;
             //Log.e("holder",ne.getTitle());
             vh.recordName.setText(ne.getRecordName());
@@ -81,9 +85,21 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     .load(ne.getRecordCoverImage())
                     .into(vh.coverImage);
             vh.position = position;
-        }
-        else if (type == 1) {
+        } else if (type == 1) { //待审核
             ViewHolderAuditing vh = (ViewHolderAuditing) holder;
+            vh.recordName.setText(ne.getRecordName());
+            vh.releasedTime.setText(ne.getRecordReleasedTime().split(" ")[0]);
+            vh.recordRegion.setText(ne.getRecordRegion());
+            vh.recordLimit.setText(ne.getRecordLimit() == 0 ? "所有可见":
+                    ne.getRecordLimit() == 1 ? "仅关注可见": "仅自己可见");
+            //vh.releasedTime.setText(ne.getRecordReleasedTime());
+            Picasso.with(mContext)
+                    .load(ne.getRecordCoverImage())
+                    .into(vh.coverImage);
+
+            vh.position = position;
+        } else if (type == 2) { //驳回
+            ViewHolderRejected vh = (ViewHolderRejected) holder;
             vh.recordName.setText(ne.getRecordName());
             vh.releasedTime.setText(ne.getRecordReleasedTime().split(" ")[0]);
             vh.recordRegion.setText(ne.getRecordRegion());
@@ -110,8 +126,7 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public int getItemViewType(int position) {
-        int type = datas.get(position).getRecordState();
-        return type;
+        return datas.get(position).getRecordState();
     }
 
 
@@ -222,6 +237,68 @@ public class MyTravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     break;
                 }
                 case R.id.my_travel_record_auditing_modify: {
+                    if (onItemModifyClickListener != null) {
+                        onItemModifyClickListener.onItemModifyListener(position);
+                    }
+                    break;
+                }
+                default:{
+
+                }
+            }
+        }
+    }
+
+    public class ViewHolderRejected extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private ImageView coverImage;
+        private TextView recordName;
+        private TextView releasedTime;
+        private TextView recordRegion;
+        private TextView recordLimit;
+        private ImageView deleteBtn;
+        private ImageView modifyBtn;
+        public int position;
+
+        public ViewHolderRejected(@NonNull View view, boolean isUser) {
+            super(view);
+            coverImage = view.findViewById(R.id.my_travelNote_cover_image_rejected);
+            recordName = view.findViewById(R.id.my_recordName_rejected);
+            releasedTime = view.findViewById(R.id.my_record_releasedTime_rejected);
+            recordRegion = view.findViewById(R.id.my_travelRecordRegion_rejected);
+            recordLimit = view.findViewById(R.id.my_travelRecord_limit_rejected);
+            deleteBtn = view.findViewById(R.id.my_travel_record_rejected_delete);
+            modifyBtn = view.findViewById(R.id.my_travel_record_rejected_modify);
+            if (isUser) {
+                if (onItemDeleteListener != null) {
+                    deleteBtn.setOnClickListener(this);
+                }
+            } else {
+                deleteBtn.setVisibility(View.INVISIBLE);
+            }
+            if (onItemChildClickListener != null) {
+                coverImage.setOnClickListener(this);
+            }
+            if (onItemModifyClickListener != null) {
+                modifyBtn.setOnClickListener(this);
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.my_travel_record_rejected_delete: {
+                    if (onItemDeleteListener != null) {
+                        onItemDeleteListener.onItemDeleteListener(position);
+                    }
+                    break;
+                }
+                case R.id.my_travelNote_cover_image_rejected: {
+                    if (onItemChildClickListener != null) {
+                        onItemChildClickListener.onItemChildClick(position);
+                    }
+                    break;
+                }
+                case R.id.my_travel_record_rejected_modify: {
                     if (onItemModifyClickListener != null) {
                         onItemModifyClickListener.onItemModifyListener(position);
                     }

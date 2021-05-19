@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -100,6 +101,9 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         registerRegion.setOnClickListener(this);
         registerBirthday.setOnClickListener(this);
         registerGender.setOnClickListener(this);
+
+        registerUsername.setFilters(new InputFilter[]{new InputFilter.LengthFilter(15)});
+        registerSignature.setFilters(new InputFilter[]{new InputFilter.LengthFilter(30)});
     }
 
     @Override
@@ -120,7 +124,10 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         String birthday = registerBirthday.getText().toString();
         birthday = birthday.equals("") ? "2020-01-01": birthday;
         if (StringUtils.isEmpty(account)) {
-            showToast("请输入手机号或邮箱");
+            showToast("请输入账号");
+            return;
+        } else if (!StringUtils.judgeAccount(account)) {
+            showToast("请输入正确格式的手机号或邮箱");
             return;
         } else if (StringUtils.isEmpty(pwd)) {
             showToast("请输入密码");

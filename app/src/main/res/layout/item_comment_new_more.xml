@@ -10,7 +10,7 @@
     android:paddingBottom="15dp"
     android:paddingLeft="57dp"
     >
-
+    <!--
     <View
         android:layout_width="20dp"
         android:layout_height="1dp"
@@ -34,5 +34,6 @@
         android:src="@mipmap/ic_triangle"
         android:layout_marginLeft="4dp"
         />
+        -->
 
 </LinearLayout>

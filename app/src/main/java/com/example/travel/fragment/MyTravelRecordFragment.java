@@ -128,7 +128,7 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
         myTravelRecordAdapter.setOnItemChildClickListener(this);
         myTravelRecordAdapter.setOnItemDeleteListener(this);
         myTravelRecordAdapter.setOnItemModifyClickListener(this);
-        getTravelRecordList(true);
+        getTravelRecordList(false);
         myRecordRecyclerView.setAdapter(myTravelRecordAdapter);
     }
 
@@ -179,7 +179,7 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
                         if (isRefresh) {
                             showToastSync("暂时加载无数据");
                         }
-                        else {
+                        else if (datas.size() > 0){
                             //Log.e("getMyTravel","no more");
                             showToastSync("没有更多数据");
                         }

@@ -5,8 +5,8 @@
     <string name="account_hint">请输入手机号/电子邮箱地址</string>
     <string name="pwd_hint">请输入密码</string>
     <string name="confirmPwd_hint">请确认密码</string>
-    <string name="username_hint">请输入昵称</string>
-    <string name="signature_hint">请输入个性签名</string>
+    <string name="username_hint">请输入昵称（长度不超过15）</string>
+    <string name="signature_hint">请输入个性签名（长度不超过30）</string>
     <string name="gender_hint">请选择性别</string>
     <string name="birthday_hint">请选择生日</string>
     <string name="region_hint">请选择城市</string>
@@ -27,8 +27,8 @@
     <string name="defaultGender">性别</string>
     <string name="exitLogin">退出登录</string>
     <string name="my_travelNotes">我的游记</string>
-    <string name="travelName_hint">给你的游记取个好名字吧……</string>
-    <string name="travel_main_hint">撰写游记正文</string>
+    <string name="travelName_hint">给你的游记取个好名字吧……（长度不超过30）</string>
+    <string name="travel_main_hint">撰写游记正文（长度超过255）</string>
     <string name="state_released">已发布</string>
     <string name="state_auditing">待审核</string>
     <string name="state_rejected">被驳回</string>

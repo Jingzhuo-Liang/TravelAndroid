@@ -17,7 +17,7 @@
         android:layout_height="wrap_content">
 
         <LinearLayout
-            android:layout_width="40dp"
+            android:layout_width="match_parent"
             android:layout_height="20dp"
             android:background="@color/gray4"
             android:gravity="center_vertical"
@@ -48,7 +48,6 @@
             android:layout_width="match_parent"
             android:layout_height="187dp"
             android:id="@+id/ad_image"
-            android:src="@mipmap/welcome"
             android:scaleType="fitXY"
             android:adjustViewBounds="true"
             />
@@ -67,7 +66,6 @@
             android:scaleType="fitXY"
             android:adjustViewBounds="true"
             android:id="@+id/ad_portrait"
-            android:src="@mipmap/default_portrait"
             >
         </ImageView>
         <TextView
@@ -75,7 +73,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:id="@+id/ad_name"
-            android:text="广告名称"
+            android:text=""
             android:textColor="@color/text_color"
             android:textSize="15sp"
             />

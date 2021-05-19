@@ -52,6 +52,8 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
         switchLogin = findViewById(R.id.login1_id_switchLogin);
         goRegister = findViewById(R.id.login1_id_goRegister);
         loginBtn = findViewById(R.id.login1_id_login);
+
+        switchLogin.setVisibility(View.INVISIBLE);
     }
 
     @Override
