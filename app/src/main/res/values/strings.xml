@@ -34,4 +34,5 @@
     <string name="state_rejected">被驳回</string>
     <string name="state_limit">这里是权限</string>
     <string name="location_diff">检测到您选择的位置与定位不一致，是否继续</string>
+    <string name="bind_phoneNum_and_email">手机号和邮箱已绑定</string>
 </resources>

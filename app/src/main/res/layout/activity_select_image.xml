@@ -220,17 +220,6 @@
         </RelativeLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <com.wang.avi.AVLoadingIndicatorView
-        android:id="@+id/avi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/AVLoadingIndicatorView"
-        android:visibility="invisible"
-        app:indicatorName="BallPulseIndicator"
-        app:indicatorColor="@color/gray"
-        android:layout_centerInParent="true"
-    />
-
     <com.next.easynavigation.view.EasyNavigationBar
         android:id="@+id/si_navigationBar"
         android:layout_width="match_parent"

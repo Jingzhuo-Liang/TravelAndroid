@@ -74,6 +74,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.home_fragment_search_icon: {
+                slidingTabLayout.setCurrentTab(ApiConfig.HOMEPAGE_RECOMMEND); //搜索游记时转到推荐列表
                 ((TravelRecordFragment)((HomeAdapter)viewPager.getAdapter()).getItem(1)).searchRecord(search_text.getText().toString());
             }
             default:

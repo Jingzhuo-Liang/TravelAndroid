@@ -102,8 +102,8 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         registerBirthday.setOnClickListener(this);
         registerGender.setOnClickListener(this);
 
-        registerUsername.setFilters(new InputFilter[]{new InputFilter.LengthFilter(15)});
-        registerSignature.setFilters(new InputFilter[]{new InputFilter.LengthFilter(30)});
+        registerUsername.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ApiConfig.USER_NAME_MAX_LENGTH)});
+        registerSignature.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ApiConfig.USER_SIGNATURE_MAX_LENGTH)});
     }
 
     @Override
@@ -120,9 +120,10 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         String signature = registerSignature.getText().toString();
         String region = registerRegion.getText().toString();
         String gender = registerGender.getText().toString();
-        gender = gender.equals("男")?"male":gender.equals("女")?"female":"unknown";
         String birthday = registerBirthday.getText().toString();
-        birthday = birthday.equals("") ? "2020-01-01": birthday;
+        gender = gender.equals("男")?"male":gender.equals("女")?"female":"unknown";
+        birthday = birthday.equals("") ? "2020-05-20": birthday;
+
         if (StringUtils.isEmpty(account)) {
             showToast("请输入账号");
             return;
@@ -168,7 +169,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
 
             @Override
             public void onFailure(Exception e) {
-                showToast(e.getMessage());
+                showToastSync("网络不佳，注册失败");
                 //Log.e("register failure",e.getMessage());
             }
         });

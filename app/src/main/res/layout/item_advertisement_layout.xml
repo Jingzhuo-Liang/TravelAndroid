@@ -49,7 +49,6 @@
             android:layout_height="187dp"
             android:id="@+id/ad_image"
             android:scaleType="fitXY"
-            android:adjustViewBounds="true"
             />
     </LinearLayout>
 

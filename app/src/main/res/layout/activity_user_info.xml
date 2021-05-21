@@ -60,18 +60,11 @@
                 app:title="ID号" />
               -->
             <com.example.travel.widget.ItemGroup
-                android:id="@+id/ig_name"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                app:edt_hint_content="修改昵称"
-                app:paddingLeft="@dimen/padding_left_and_right"
-                app:title="@string/defaultName" />
-
-            <com.example.travel.widget.ItemGroup
                 android:id="@+id/ig_phoneNum"
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
-                app:edt_hint_content="修改手机号"
+                app:edt_hint_content="@string/bind_phoneNum_and_email"
+                app:edt_text_color="@color/text_color"
                 app:paddingLeft="@dimen/padding_left_and_right"
                 app:title="@string/defaultPhoneNum" />
 
@@ -79,9 +72,18 @@
                 android:id="@+id/ig_email"
                 android:layout_width="match_parent"
                 android:layout_height="46dp"
-                app:edt_hint_content="修改邮箱"
+                app:edt_hint_content="@string/bind_phoneNum_and_email"
+                app:edt_text_color="@color/text_color"
                 app:paddingLeft="@dimen/padding_left_and_right"
                 app:title="@string/defaultEmail" />
+
+            <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_name"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:edt_hint_content="修改昵称"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="@string/defaultName" />
 
             <com.example.travel.widget.ItemGroup
                 android:id="@+id/ig_gender"

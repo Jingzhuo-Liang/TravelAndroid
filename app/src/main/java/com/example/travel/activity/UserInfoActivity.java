@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -113,7 +114,9 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         ig_region = (ItemGroup)findViewById(R.id.ig_region);
         ig_birthday = (ItemGroup)findViewById(R.id.ig_birthday);
         ig_phoneNum = findViewById(R.id.ig_phoneNum);
+        ig_phoneNum.setJtRightIvIsVisible(false);
         ig_email = findViewById(R.id.ig_email);
+        ig_email.setJtRightIvIsVisible(false);
         ig_signature = findViewById(R.id.ig_signature);
         ig_exitLoginBtn = findViewById(R.id.ig_exitLogin);
 
@@ -224,7 +227,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             params.put("phoneNum", ig_phoneNum.getContentEdt().getText().toString());
             params.put("email", ig_email.getContentEdt().getText().toString());
             params.put("username", ig_name.getContentEdt().getText().toString());
-            params.put("gender", ig_gender.getContentEdt().getText().toString());
+            String gender = ig_gender.getContentEdt().getText().toString();
+            params.put("gender", gender.equals("男")?"male":gender.equals("女")?"female":"unknown");
             params.put("birthday", ig_birthday.getContentEdt().getText().toString());
             params.put("region", ig_region.getContentEdt().getText().toString());
             params.put("signature", ig_signature.getContentEdt().getText().toString());
@@ -232,21 +236,21 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 @Override
                 public void onSuccess(String res) {
                     //Log.e("updateUserInfo", res);
+                    loginUser.setUsername(ig_name.getContentEdt().getText().toString());
+                    loginUser.setRegion(ig_region.getContentEdt().getText().toString());
+                    loginUser.setGender(ig_gender.getContentEdt().getText().toString());
+                    loginUser.setBirthday(ig_birthday.getContentEdt().getText().toString());
+                    loginUser.setSignature(ig_signature.getContentEdt().getText().toString());
+                    loginUser.update();
+                    updateSp(loginUser.getUser());
                     showToastSync("保存成功");
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-                    showToastSync("保存失败");
+                    showToastSync("网络不佳，保存失败");
                 }
             });
-            loginUser.setUsername(ig_name.getContentEdt().getText().toString());
-            loginUser.setRegion(ig_region.getContentEdt().getText().toString());
-            loginUser.setGender(ig_gender.getContentEdt().getText().toString());
-            loginUser.setBirthday(ig_birthday.getContentEdt().getText().toString());
-            loginUser.setSignature(ig_signature.getContentEdt().getText().toString());
-            loginUser.update();
-            updateSp(loginUser.getUser());
         }
     }
 
@@ -427,8 +431,12 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         LoginUser loginUser = LoginUser.getInstance();
         //ig_id.getContentEdt().setText(String.valueOf(loginUser.getUser().getId()));  //ID是int，转string
         ig_name.getContentEdt().setText(loginUser.getUser().getUsername());
-        ig_phoneNum.getContentEdt().setText(loginUser.getUser().getPhoneNum());
-        ig_email.getContentEdt().setText(loginUser.getUser().getEmail());
+        if (!StringUtils.isEmpty(loginUser.getUser().getPhoneNum())) {
+            ig_phoneNum.getContentEdt().setText(loginUser.getUser().getPhoneNum());
+        }
+        if (!StringUtils.isEmpty(loginUser.getUser().getEmail())) {
+            ig_email.getContentEdt().setText(loginUser.getUser().getEmail());
+        }
         ig_signature.getContentEdt().setText(loginUser.getUser().getSignature());
         if (loginUser.getUser() != null &&
             !loginUser.getUser().getHeadPortraitPath().equals("default") &&

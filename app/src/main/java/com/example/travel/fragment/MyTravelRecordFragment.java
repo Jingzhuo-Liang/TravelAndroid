@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,7 @@ import com.google.gson.Gson;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.siberiadante.customdialoglib.EnsureDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -141,7 +143,8 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
             params.put("limit",ApiConfig.PAGE_SIZE);
             getMyTravelRecordList(isRefresh, ApiConfig.GET_MY_TRAVEL_RECORD, params);
         } else { //其他用户的游记
-            //Log.e("getMyTravel",userId);
+            //Log.e("getMyTravel",userId);\
+            params.put("userId",LoginUser.getInstance().getUser().getId());
             params.put("otherUserId", userId);
             params.put("page",pageNum);
             params.put("limit",ApiConfig.PAGE_SIZE);
@@ -208,45 +211,86 @@ public class MyTravelRecordFragment extends BaseFragment implements OnItemChildC
         //进入我的游记详情界面
         HashMap<String, String> params = new HashMap<>();
         params.put("recordId", datas.get(position).getRecordId());
-        params.put("authorId", LoginUser.getInstance().getUser().getId());
+        params.put("authorId", userId);
         if (datas.get(position).getRecordState() == 0) { //审核通过
             params.put("isApproved","True");
         } else {
             params.put("isApproved","False");
         }
+        if (userId.equals(LoginUser.getInstance().getUser().getId())) {
+            params.put("inWhoseHome",String.valueOf(ApiConfig.IN_MY_HOME));
+        } else {
+            params.put("inWhoseHome",String.valueOf(ApiConfig.IN_OTHER_HOME));
+        }
         navigateToWithPara(TravelRecordDetailActivity.class, params);
     }
     @Override
     public void onItemModifyListener(int position) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("recordId", datas.get(position).getRecordId());
-        navigateToWithPara(SelectImageActivity.class, params);
+        EnsureDialog ensureDialog = new EnsureDialog(getContext()).builder()
+                .setGravity(Gravity.CENTER)//默认居中，可以不设置
+                .setTitle("您想要修改游记", getResources().getColor(R.color.black))//可以不设置标题颜色，默认系统颜色
+                .setCancelable(false)
+                .setSubTitle("是否继续",getResources().getColor(R.color.yellow0));
+        ensureDialog.setNegativeButton("取消", getResources().getColor(R.color.red0), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ensureDialog.dismiss();
+            }
+        });
+        ensureDialog.show();
+        ensureDialog.setPositiveButton("确认", getResources().getColor(R.color.red0), new View.OnClickListener() {//可以选择设置颜色和不设置颜色两个方法
+            @Override
+            public void onClick(View view) {
+                ensureDialog.dismiss();
+                HashMap<String, String> params = new HashMap<>();
+                params.put("recordId", datas.get(position).getRecordId());
+                navigateToWithPara(SelectImageActivity.class, params);
+            }
+        });
     }
 
     @Override
     public void onItemDeleteListener(int position) {
         //删除我的游记
-        HashMap<String , Object> params = new HashMap<>();
-        params.put("userId",LoginUser.getInstance().getUser().getId());
-        params.put("recordId",datas.get(position).getRecordId());
-        Api.config(ApiConfig.DELETE_MY_TRAVEL_RECORD,params).postRequest(new TtitCallback() {
+        EnsureDialog ensureDialog = new EnsureDialog(getContext()).builder()
+                .setGravity(Gravity.CENTER)//默认居中，可以不设置
+                .setTitle("您想要删除游记", getResources().getColor(R.color.black))//可以不设置标题颜色，默认系统颜色
+                .setCancelable(false)
+                .setSubTitle("是否继续",getResources().getColor(R.color.yellow0));
+        ensureDialog.show();
+        ensureDialog.setNegativeButton("取消", getResources().getColor(R.color.red0), new View.OnClickListener() {
             @Override
-            public void onSuccess(String res) {
-                //Log.e("deleteMyRecord",res);
-                Gson gson = new Gson();
-                CommonResponse commonResponse = gson.fromJson(res, CommonResponse.class);
-                if (commonResponse.getCode() == 200) {
-                    datas.remove(position);
-                    handler.sendEmptyMessage(0);
-                    showToastSync("删除成功");
-                } else {
-                    showToastSync(commonResponse.getMsg());
-                }
+            public void onClick(View v) {
+                ensureDialog.dismiss();
             }
-
+        });
+        ensureDialog.setPositiveButton("确认", getResources().getColor(R.color.red0), new View.OnClickListener() {//可以选择设置颜色和不设置颜色两个方法
             @Override
-            public void onFailure(Exception e) {
+            public void onClick(View view) {
+                ensureDialog.dismiss();
+                HashMap<String , Object> params = new HashMap<>();
+                params.put("userId",LoginUser.getInstance().getUser().getId());
+                params.put("recordId",datas.get(position).getRecordId());
+                Api.config(ApiConfig.DELETE_MY_TRAVEL_RECORD,params).postRequest(new TtitCallback() {
+                    @Override
+                    public void onSuccess(String res) {
+                        //Log.e("deleteMyRecord",res);
+                        Gson gson = new Gson();
+                        CommonResponse commonResponse = gson.fromJson(res, CommonResponse.class);
+                        if (commonResponse.getCode() == 200) {
+                            datas.remove(position);
+                            handler.sendEmptyMessage(0);
+                            showToastSync("删除成功");
+                        } else {
+                            showToastSync(commonResponse.getMsg());
+                        }
+                    }
 
+                    @Override
+                    public void onFailure(Exception e) {
+
+                    }
+                });
             }
         });
     }

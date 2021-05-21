@@ -105,4 +105,12 @@ public class ItemGroup extends FrameLayout{
 //        contentEdt.setKeyListener(null);
         jtRightIv.setVisibility(showJtIcon ? View.VISIBLE : View.GONE);  //设置向右的箭头图标是否可见
     }
+
+    public void setJtRightIvIsVisible(Boolean isVisible) {
+        if (isVisible) {
+            jtRightIv.setVisibility(VISIBLE);
+        } else {
+            jtRightIv.setVisibility(INVISIBLE);
+        }
+    }
 }

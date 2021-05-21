@@ -27,6 +27,7 @@ public class TimeUtils {
     }
 
     private static long lastClickTime = 0;
+
     public static boolean isFastDoubleClick() {
         long time = System.currentTimeMillis();
         if ( time - lastClickTime < 500) {
@@ -36,4 +37,12 @@ public class TimeUtils {
         return false;
     }
 
+    public static boolean isFastDoubleClickWithin2Second() {
+        long time = System.currentTimeMillis();
+        if ( time - lastClickTime < 2000) {
+            return true;
+        }
+        lastClickTime = time;
+        return false;
+    }
 }

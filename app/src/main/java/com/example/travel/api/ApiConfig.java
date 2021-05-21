@@ -50,4 +50,11 @@ public class ApiConfig {
     //常量
     public static final int HOMEPAGE_RECOMMEND = 1;
     public static final int HOME_FOCUS = 0;
+    public static final int USER_NAME_MAX_LENGTH = 15;
+    public static final int USER_SIGNATURE_MAX_LENGTH = 30;
+
+    //处于主页状态
+    public static final int IN_NO_HOME = 0;
+    public static final int IN_MY_HOME = 1;
+    public static final int IN_OTHER_HOME = 2;
 }

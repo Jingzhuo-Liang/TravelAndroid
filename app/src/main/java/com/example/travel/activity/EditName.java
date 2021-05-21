@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.opengl.ETC1;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.example.travel.R;
+import com.example.travel.api.ApiConfig;
 import com.example.travel.util.LoginUser;
 import com.example.travel.util.ActivityCollector;
 import com.example.travel.widget.TitleLayout;
@@ -71,6 +73,7 @@ public class EditName extends BaseActivity {
         edit_name = (EditText) findViewById(R.id.et_edit_name);
         switch (loginUser.getType()) {
             case EDIT_NAME: {
+                edit_name.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ApiConfig.USER_NAME_MAX_LENGTH)});
                 edit_name.setText(loginUser.getUsername());
                 break;
             }
@@ -83,6 +86,7 @@ public class EditName extends BaseActivity {
                 break;
             }
             case EDIT_SIGNATURE:{
+                edit_name.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ApiConfig.USER_SIGNATURE_MAX_LENGTH)});
                 edit_name.setText(loginUser.getSignature());
                 break;
             }

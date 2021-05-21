@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -157,5 +158,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
         String data =  newstringBuilder.toString();
         return data;
+    }
+
+    protected void dismissSoftKeyBoard() {
+        //有问题，软键盘出现时可让它消失；但是当软键盘不存在时却会出现
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
     }
 }

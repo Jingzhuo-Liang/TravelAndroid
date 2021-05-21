@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -29,10 +30,12 @@ import com.example.travel.entity.TravelRecordResponse;
 import com.example.travel.listener.OnAdJudgeClickListener;
 import com.example.travel.listener.OnItemChildClickListener;
 import com.example.travel.util.LoginUser;
+import com.example.travel.util.StringUtils;
 import com.google.gson.Gson;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.siberiadante.customdialoglib.EnsureDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,9 +142,12 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                 getTravelNoteListGETMETHOD(ApiConfig.GET_TRAVEL_RECORD_FOCUS,params,isRefresh);
             }
         } else { //推荐
-            if (isRefresh) { //将搜索栏情况
+            if (!StringUtils.isEmpty(((EditText)Objects.requireNonNull(getActivity()).findViewById(R.id.home_fragment_search_text)).getText().toString())) {
+                //搜索栏不为空说明有搜索->将搜索栏置空、数据清空
                 ((EditText)Objects.requireNonNull(getActivity()).findViewById(R.id.home_fragment_search_text)).setText("");
+                datas.clear();
             }
+
             if (LoginUser.getInstance().getUser() == null) { //用户未登录
                 getTravelNoteListGETMETHOD(ApiConfig.GET_TRAVEL_RECORD_NO_RECOMMEND,params,isRefresh);
             } else {    //用户登录
@@ -167,18 +173,15 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                 //Log.e("getTravel",res);
                 if (tr != null && tr.getCode() == 200 ) {
                     ArrayList<TravelRecordEntity> list = tr.getData();
-                    if (list != null && list.size() > 0) {
+                    if (list == null) {
+                        showToastSync("加载失败");
+                        return;
+                    }
+                    if (list.size() > 0) {
                         if (isRefresh) {
                             datas = list;
                         }
                         else {
-                            /*
-                            for (int i = 0;i < list.size();i++) {
-                                if (list.get(i).getType() == 0) {
-                                    datas.add(list.get(i));
-                                }
-                            }
-                             */
                             datas.addAll(list);
                         }
                         noteAdapter.setDatas(datas);
@@ -189,6 +192,9 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
                             return;
                         }
                         if (isRefresh) {
+                            datas = list;
+                            noteAdapter.setDatas(datas);
+                            handler.sendEmptyMessage(0);
                             showToastSync("暂时加载无数据");
                         }
                         else{
@@ -225,10 +231,29 @@ public class TravelRecordFragment extends BaseFragment implements OnItemChildCli
             params.put("recordId", String.valueOf(datas.get(position).getRecordId()));
             params.put("authorId", String.valueOf(datas.get(position).getAuthorId()));
             params.put("isApproved", "True");
+            params.put("inWhoseHome",String.valueOf(ApiConfig.IN_NO_HOME));
             navigateToWithPara(TravelRecordDetailActivity.class, params);
         } else { //ad
-            clickAdLink(position);
-            navigateToBrowserWithUrl(datas.get(position).getAdUrl());
+            EnsureDialog ensureDialog = new EnsureDialog(getContext()).builder()
+                    .setGravity(Gravity.CENTER)//默认居中，可以不设置
+                    .setTitle("即将跳转至浏览器", getResources().getColor(R.color.black))//可以不设置标题颜色，默认系统颜色
+                    .setCancelable(false)
+                    .setSubTitle("是否继续",getResources().getColor(R.color.yellow0));
+            ensureDialog.show();
+            ensureDialog.setNegativeButton("取消", getResources().getColor(R.color.red0), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ensureDialog.dismiss();
+                }
+            });
+            ensureDialog.setPositiveButton("确认", getResources().getColor(R.color.red0), new View.OnClickListener() {//可以选择设置颜色和不设置颜色两个方法
+                @Override
+                public void onClick(View view) {
+                    ensureDialog.dismiss();
+                    clickAdLink(position);
+                    navigateToBrowserWithUrl(datas.get(position).getAdUrl());
+                }
+            });
         }
     }
 

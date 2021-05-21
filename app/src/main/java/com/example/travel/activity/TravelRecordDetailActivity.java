@@ -97,6 +97,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     private int likeTempNum;
     private int focusTempNum;
     private boolean isApproved;//查看自己待审核的游记或者被驳回的游记 false；发布的游记为true
+    private int inWhoseHome; //处于谁的主页 0：无 1：自己主页 2：他人主页
 
     private String recordId;
     private String authorId;
@@ -192,6 +193,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         this.recordId = bundle.getString("recordId");
         this.authorId = bundle.getString("authorId");
         this.isApproved = Boolean.parseBoolean(bundle.getString("isApproved"));
+        this.inWhoseHome = Integer.parseInt(bundle.getString("inWhoseHome"));
         getTravelRecordDetail(recordId,authorId);
     }
 
@@ -199,6 +201,13 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     public boolean onLongClick(View v) {
         switch (v.getId()) {
             case R.id.record_detail_authorPortrait: {
+                if (inWhoseHome == ApiConfig.IN_OTHER_HOME) {
+                    showToast("您已在他人主页中");
+                    return false;
+                } else if (inWhoseHome == ApiConfig.IN_MY_HOME) {
+                    showToast("您已在自己主页中");
+                    return false;
+                }
                 // 进入他人主页
                 //Log.e("onLongClick","here");
                 HashMap<String , String> params = new HashMap<>();
@@ -228,15 +237,29 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                 break;
             }
             case R.id.record_detail_authorPortrait: {
+                if (inWhoseHome == ApiConfig.IN_OTHER_HOME) {
+                    showToast("您已在他人主页中");
+                    break;
+                } else if (inWhoseHome == ApiConfig.IN_MY_HOME) {
+                    showToast("您已在自己主页中");
+                    break;
+                }
                 showToast("长按可进入主页");
                 break;
             }
-            default:
+            default: {
+
+            }
         }
     }
 
     private void showLike() {
         if (TimeUtils.isFastDoubleClick()) {
+            //连续点击
+            return;
+        } else if (!isApproved) {
+            //游记未通过审核
+            showToast("游记尚未通过审核");
             return;
         }
         isLike = !isLike;
@@ -259,7 +282,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                     }
                     handler.sendEmptyMessage(2);
                 } else {
-                    showToast(cr.getMsg());
+                    showToastSync("网络不佳，点赞失败");
                 }
 
             }
@@ -272,6 +295,11 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
     private void showFocus() {
         if (TimeUtils.isFastDoubleClick()) {
+            //连续点击
+            return;
+        } else if (!isApproved) {
+            //游记未通过审核
+            showToast("游记尚未通过审核");
             return;
         }
         isFocus = !isFocus;
@@ -301,7 +329,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
             @Override
             public void onFailure(Exception e) {
-                showToast("操作失败");
+                showToastSync("网络不佳，关注失败");
             }
         });
     }
@@ -409,40 +437,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         finish();
     }
 
-    //原始数据 一般是从服务器接口请求过来的
-    private void initDialogData() {
-        int size = 10;
-        for (int i = 0; i < size; i++) {
-            FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
-            firstLevelEntity.setF1LevelContent("第" + (i + 1) + "人评论内容" + (i % 3 == 0 ? content + (i + 1) + "次" : ""));
-            firstLevelEntity.setF1LevelCreateTime(System.currentTimeMillis());
-            firstLevelEntity.setF1LevelMessengerPortrait("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3370302115,85956606&fm=26&gp=0.jpg");
-            firstLevelEntity.setF1LevelMessengerId(i + "");
-            //firstLevelEntity.setIsLike(0);
-            //firstLevelEntity.setLikeCount(i);
-            firstLevelEntity.setF1LevelMessengerName("星梦缘" + (i + 1));
-            //firstLevelEntity.setTotalCount(i + size);
-
-            List<SecondLevelEntity> beans = new ArrayList<>();
-            for (int j = 0; j < 10; j++) {
-                SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
-                secondLevelEntity.setS2LevelContent("一级第" + (i + 1) + "人 二级第" + (j + 1) + "人评论内容" + (j % 3 == 0 ? content + (j + 1) + "次" : ""));
-                secondLevelEntity.setS2LevelCreateTime(System.currentTimeMillis());
-                secondLevelEntity.setS2LevelReplierPortrait("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
-                secondLevelEntity.setS2LevelCommentId(j + "");
-                //secondLevelEntity.setIsLike(0);
-                //secondLevelEntity.setLikeCount(j);
-                secondLevelEntity.setS2LevelReplierName("星梦缘" + (i + 1) + "  " + (j + 1));
-                //secondLevelBean.setIsReply(j % 5 == 0 ? 1 : 0);
-                //secondLevelEntity.setReplyUserName("");
-                //secondLevelEntity.setS2LevelTotalCount(firstLevelEntity.getF1LevelTotalCount());
-                beans.add(secondLevelEntity);
-                firstLevelEntity.setS2LevelComments(beans);
-            }
-            datas.add(firstLevelEntity);
-        }
-    }
-
     private void dataSort(int position) {
         if (datas.isEmpty()) {
             data.add(new MultiItemEntity() {
@@ -497,6 +491,11 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     }
 
     public void showCommit() {
+        if (!isApproved) {
+            //游记未通过审核
+            showToast("游记尚未通过审核");
+            return;
+        }
         bottomSheetAdapter.notifyDataSetChanged();
         slideOffset = 0;
         bottomSheetDialog.show();
@@ -594,7 +593,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                             bottomSheetAdapter.notifyDataSetChanged();
                         }
                         break;
-
                      */
                     case CommentEntity.TYPE_COMMENT_MORE:
                         /*
@@ -638,30 +636,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                 dismissInputDialog();
             }
         });
-    }
-
-    private void initInputTextMsgDialog(View view, final boolean isReply, final MultiItemEntity item, final int position) {
-        dismissInputDialog();
-        if (view != null) {
-            offsetY = view.getTop();
-            scrollLocation(offsetY);
-        }
-        if (inputTextMsgDialog == null) {
-            inputTextMsgDialog = new InputTextMsgDialog(this, R.style.dialog);
-            inputTextMsgDialog.setmOnTextSendListener(new InputTextMsgDialog.OnTextSendListener() {
-                @Override
-                public void onTextSend(String msg) {
-                    addComment(isReply, item, position, msg);
-                }
-
-                @Override
-                public void dismiss() {
-                    //item滑动到原位
-                    scrollLocation(-offsetY);
-                }
-            });
-        }
-        showInputTextMsgDialog();
     }
 
     //添加评论
@@ -725,7 +699,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             Api.config(ApiConfig.ADD_FIRST_LEVEL_COMMENT,params).postRequest(new TtitCallback() {
                 @Override
                 public void onSuccess(String res) {
-                    //Log.e("addF1Comment",res);
                     Gson gson = new Gson();
                     CommonResponse addF1Comment = gson.fromJson(res, CommonResponse.class);
                     if (addF1Comment.getCode() == 200) {
@@ -754,6 +727,17 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             });
         }
     }
+    public static String stringToUnicode(String s) {
+        String str = "";
+        for (int i = 0; i < s.length(); i++) {
+            int ch = (int) s.charAt(i);
+            if (ch > 255)
+                str += "\\u" + Integer.toHexString(ch);
+            else
+                str += String.valueOf(s.charAt(i));
+        }
+        return str;
+    }
 
     private void dismissInputDialog() {
         if (inputTextMsgDialog != null) {
@@ -773,50 +757,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         return displayMetrics.heightPixels;
     }
 
-    @Override
-    public void onLoadMoreRequested() {
-        bottomSheetAdapter.loadMoreEnd(false);
-        // 加载更多评论
-        /*
-        if (datas.size() >= totalCount) {
-            bottomSheetAdapter.loadMoreEnd(false);
-            return;
-        }
-        FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
-        firstLevelEntity.setUserName("hui");
-        firstLevelEntity.setId((datas.size() + 1) + "");
-        firstLevelEntity.setHeadImg("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
-        firstLevelEntity.setCreateTime(System.currentTimeMillis());
-        firstLevelEntity.setContent("add loadmore comment");
-        firstLevelEntity.setLikeCount(0);
-        firstLevelEntity.setSecondLevelEntities(new ArrayList<SecondLevelEntity>());
-        datas.add(firstLevelEntity);
-        dataSort(datas.size() - 1);
-        bottomSheetAdapter.notifyDataSetChanged();
-        bottomSheetAdapter.loadMoreComplete();
-        */
-    }
-
-    // item滑动
-    public void scrollLocation(int offsetY) {
-        try {
-            rv_dialog_lists.smoothScrollBy(0, offsetY);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 关闭默认局部刷新动画
-     */
-    public void closeDefaultAnimator(RecyclerView mRvCustomer) {
-        if (null == mRvCustomer) return;
-        mRvCustomer.getItemAnimator().setAddDuration(0);
-        mRvCustomer.getItemAnimator().setChangeDuration(0);
-        mRvCustomer.getItemAnimator().setMoveDuration(0);
-        mRvCustomer.getItemAnimator().setRemoveDuration(0);
-        ((SimpleItemAnimator) mRvCustomer.getItemAnimator()).setSupportsChangeAnimations(false);
-    }
 
     @Override
     protected void onDestroy() {
@@ -851,5 +791,110 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             }
         });
     }
+
+    // item滑动
+    public void scrollLocation(int offsetY) {
+        try {
+            rv_dialog_lists.smoothScrollBy(0, offsetY);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 关闭默认局部刷新动画
+     */
+    public void closeDefaultAnimator(RecyclerView mRvCustomer) {
+        if (null == mRvCustomer) return;
+        mRvCustomer.getItemAnimator().setAddDuration(0);
+        mRvCustomer.getItemAnimator().setChangeDuration(0);
+        mRvCustomer.getItemAnimator().setMoveDuration(0);
+        mRvCustomer.getItemAnimator().setRemoveDuration(0);
+        ((SimpleItemAnimator) mRvCustomer.getItemAnimator()).setSupportsChangeAnimations(false);
+    }
+
+    private void initInputTextMsgDialog(View view, final boolean isReply, final MultiItemEntity item, final int position) {
+        dismissInputDialog();
+        if (view != null) {
+            offsetY = view.getTop();
+            scrollLocation(offsetY);
+        }
+        if (inputTextMsgDialog == null) {
+            inputTextMsgDialog = new InputTextMsgDialog(this, R.style.dialog);
+            inputTextMsgDialog.setmOnTextSendListener(new InputTextMsgDialog.OnTextSendListener() {
+                @Override
+                public void onTextSend(String msg) {
+                    addComment(isReply, item, position, msg);
+                }
+
+                @Override
+                public void dismiss() {
+                    //item滑动到原位
+                    scrollLocation(-offsetY);
+                }
+            });
+        }
+        showInputTextMsgDialog();
+    }
+
+
+    //原始数据 一般是从服务器接口请求过来的
+    private void initDialogData() {
+        int size = 10;
+        for (int i = 0; i < size; i++) {
+            FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
+            firstLevelEntity.setF1LevelContent("第" + (i + 1) + "人评论内容" + (i % 3 == 0 ? content + (i + 1) + "次" : ""));
+            firstLevelEntity.setF1LevelCreateTime(System.currentTimeMillis());
+            firstLevelEntity.setF1LevelMessengerPortrait("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3370302115,85956606&fm=26&gp=0.jpg");
+            firstLevelEntity.setF1LevelMessengerId(i + "");
+            //firstLevelEntity.setIsLike(0);
+            //firstLevelEntity.setLikeCount(i);
+            firstLevelEntity.setF1LevelMessengerName("星梦缘" + (i + 1));
+            //firstLevelEntity.setTotalCount(i + size);
+
+            List<SecondLevelEntity> beans = new ArrayList<>();
+            for (int j = 0; j < 10; j++) {
+                SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
+                secondLevelEntity.setS2LevelContent("一级第" + (i + 1) + "人 二级第" + (j + 1) + "人评论内容" + (j % 3 == 0 ? content + (j + 1) + "次" : ""));
+                secondLevelEntity.setS2LevelCreateTime(System.currentTimeMillis());
+                secondLevelEntity.setS2LevelReplierPortrait("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
+                secondLevelEntity.setS2LevelCommentId(j + "");
+                //secondLevelEntity.setIsLike(0);
+                //secondLevelEntity.setLikeCount(j);
+                secondLevelEntity.setS2LevelReplierName("星梦缘" + (i + 1) + "  " + (j + 1));
+                //secondLevelBean.setIsReply(j % 5 == 0 ? 1 : 0);
+                //secondLevelEntity.setReplyUserName("");
+                //secondLevelEntity.setS2LevelTotalCount(firstLevelEntity.getF1LevelTotalCount());
+                beans.add(secondLevelEntity);
+                firstLevelEntity.setS2LevelComments(beans);
+            }
+            datas.add(firstLevelEntity);
+        }
+    }
+
+    @Override
+    public void onLoadMoreRequested() {
+        bottomSheetAdapter.loadMoreEnd(false);
+        // 加载更多评论
+        /*
+        if (datas.size() >= totalCount) {
+            bottomSheetAdapter.loadMoreEnd(false);
+            return;
+        }
+        FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
+        firstLevelEntity.setUserName("hui");
+        firstLevelEntity.setId((datas.size() + 1) + "");
+        firstLevelEntity.setHeadImg("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
+        firstLevelEntity.setCreateTime(System.currentTimeMillis());
+        firstLevelEntity.setContent("add loadmore comment");
+        firstLevelEntity.setLikeCount(0);
+        firstLevelEntity.setSecondLevelEntities(new ArrayList<SecondLevelEntity>());
+        datas.add(firstLevelEntity);
+        dataSort(datas.size() - 1);
+        bottomSheetAdapter.notifyDataSetChanged();
+        bottomSheetAdapter.loadMoreComplete();
+        */
+    }
+
 
 }

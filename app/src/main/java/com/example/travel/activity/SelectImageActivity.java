@@ -37,6 +37,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -68,10 +69,12 @@ import com.example.travel.util.MyLocationListener;
 import com.example.travel.util.PhotoUtils;
 import com.example.travel.util.ProvinceBean;
 import com.example.travel.util.StringUtils;
+import com.example.travel.util.TimeUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.next.easynavigation.view.EasyNavigationBar;
 import com.siberiadante.customdialoglib.CustomDialog;
+import com.siberiadante.customdialoglib.EnsureDialog;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import java.io.File;
@@ -130,7 +133,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private MyLocationListener myListener = new MyLocationListener();
 
     private MaterialDialog mLoadingDialog;
-    private CustomDialog customDialog;
+    EnsureDialog ensureDialog;
     private Boolean locDifButCon = false; //location is different but continue
     private String selectRegion = "";
 
@@ -196,25 +199,24 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         mAdapter = new ImageAdapter(this);
         rvImage.setAdapter(mAdapter);
 
-        customDialog = new CustomDialog(context,
-                R.layout.confirm_dialog_layout,
-                new int[]{R.id.dialog_sure, R.id.dialog_cancel},
-                true);
-        customDialog.setOnDialogItemClickListener(new CustomDialog.OnCustomDialogItemClickListener() {
-            @Override
-            public void OnCustomDialogItemClick(CustomDialog dialog, View view) {
-                switch (view.getId()) {
-                    case R.id.dialog_sure: { //确认
-                        recordRegion.setText(selectRegion);
-                        break;
-                    }
-                    case R.id.dialog_cancel: {
-                        locDifButCon = false;
-                        break;
-                    }
-                    default: {
-                    }
+        ensureDialog = new EnsureDialog(this).builder()
+                .setGravity(Gravity.CENTER)//默认居中，可以不设置
+                .setTitle("检测到您选择的位置与所在位置不一致", getResources().getColor(R.color.black))//可以不设置标题颜色，默认系统颜色
+                .setCancelable(false)
+                .setSubTitle("是否继续",getResources().getColor(R.color.yellow0));
+        ensureDialog.setNegativeButton("取消", getResources().getColor(R.color.red0), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    locDifButCon = false;
+                    ensureDialog.dismiss();
                 }
+        });
+        ensureDialog.setPositiveButton("确认", getResources().getColor(R.color.red0), new View.OnClickListener() {//可以选择设置颜色和不设置颜色两个方法
+            @Override
+            public void onClick(View view) {
+                recordRegion.setText(selectRegion);
+                ensureDialog.dismiss();
+
             }
         });
     }
@@ -296,6 +298,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 break;
             }
             case R.id.si_recordRegion: {
+                //dismissSoftKeyBoard();
                 pvOptions = new OptionsPickerBuilder(this, new OnOptionsSelectListener() {
                     @Override
                     public void onOptionsSelect(int options1, int options2, int options3, View v) {
@@ -305,7 +308,8 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                                 options1Items.get(options1).getPickerViewText() :
                                 options2Items.get(options1).get(options2));
                         if (!StringUtils.isEmpty(myListener.getRegion()) &&!myListener.getRegion().equals("null-null") && !myListener.getRegion().equals(selectRegion)) {
-                            customDialog.show();
+                            //customDialog.show();
+                            ensureDialog.show();
                         } else {
                             recordRegion.setText(selectRegion);
                         }
@@ -321,7 +325,6 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 if (myListener.getLocation() != null) {
                     //mLocationClient.stop();
                     recordLocation.setText("获取位置成功");
-                    //Log.e("region:", myListener.getRegion() + "1111");
                     if (!myListener.getRegion().equals("null-null")) {
                         recordRegion.setText(myListener.getRegion());
                     }
@@ -331,6 +334,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 break;
             }
             case R.id.si_recordLimit : {
+                dismissSoftKeyBoard();
                 pvOptions = new OptionsPickerBuilder(this, new OnOptionsSelectListener() {
                     @Override
                     public void onOptionsSelect(int options1, int options2, int options3, View v) {
@@ -356,8 +360,6 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
             showToast("请选择城市");
             return;
-        } else if (StringUtils.isEmpty(myListener.getRegion()) && !myListener.getRegion().equals(recordRegion.getText().toString())) {
-            customDialog.show();
         }
         else if (StringUtils.isEmpty(recordName.getText().toString())) {
             showToast("请输入游记名字");
@@ -405,14 +407,13 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
             @Override
             public void onFailure(Exception e) {
-
+                handler.sendEmptyMessage(0);
+                showToastSync("网络不佳，游记修改失败");
             }
         });
     }
 
     private void releaseTravelRecord() throws FileNotFoundException {
-        Log.e("region",recordRegion.getText().toString());
-        Log.e("location", myListener.getRegion());
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
             showToast("请选择城市");
             return;
@@ -464,7 +465,8 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
             @Override
             public void onFailure(Exception e) {
-
+                handler.sendEmptyMessage(0);
+                showToastSync("网络不佳，游记发布失败");
             }
         });
         //finish();
@@ -534,6 +536,9 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                             public void run() {
                                 //showNormalDialog();
                                 try {
+                                    if (TimeUtils.isFastDoubleClickWithin2Second()) {
+                                        return;
+                                    }
                                     if (recordId != null && recordId.length() > 0) {
                                         modifyTravelRecord();
                                     } else {
