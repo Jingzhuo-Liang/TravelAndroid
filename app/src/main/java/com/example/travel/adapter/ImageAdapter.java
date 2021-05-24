@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.donkingliang.imageselector.utils.ImageUtil;
 import com.donkingliang.imageselector.utils.UriUtils;
 import com.donkingliang.imageselector.utils.VersionUtils;
@@ -44,20 +45,33 @@ public class ImageAdapter  extends RecyclerView.Adapter<ImageAdapter.ViewHolder>
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
+
         final String image = mImages.get(position);
         // 是否是剪切返回的图片
         boolean isCutImage = ImageUtil.isCutImage(mContext, image);
         if (isAndroidQ && !isCutImage) {
             if (image.contains("http:")) {
-                Picasso.with(mContext).load(image).into(holder.ivImage);
+                Picasso.with(mContext)
+                        .load(image)
+                        .into(holder.ivImage);
             } else {
-                Glide.with(mContext).load(UriUtils.getImageContentUri(mContext, image)).into(holder.ivImage);
+                Glide.with(mContext)
+                        .load(UriUtils.getImageContentUri(mContext, image))
+                        .skipMemoryCache(true)                      //禁止Glide内存缓存
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)  //不缓存资源
+                        .into(holder.ivImage);
             }
         } else {
             if (image.contains("http:")) {
-                Picasso.with(mContext).load(image).into(holder.ivImage);
+                Picasso.with(mContext)
+                        .load(image)
+                        .into(holder.ivImage);
             } else {
-                Glide.with(mContext).load(image).into(holder.ivImage);
+                Glide.with(mContext)
+                        .load(image)
+                        .skipMemoryCache(true)                      //禁止Glide内存缓存
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)  //不缓存资源
+                        .into(holder.ivImage);
             }
         }
 

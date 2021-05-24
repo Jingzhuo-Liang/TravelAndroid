@@ -93,6 +93,34 @@
             />
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#e8e7e7"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@mipmap/required_icon"
+                >
+            </ImageView>
+            <EditText
+                android:id="@+id/register_id_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/username_hint"
+                android:textColorHint="#bcbcbc"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:background="@null"
+                android:layout_gravity="left"/>
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -150,35 +178,6 @@
                 android:textColor="@color/black"
                 android:textSize="18sp"
                 android:inputType="textPassword"
-                android:background="@null"
-                android:layout_gravity="left"/>
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#e8e7e7"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@mipmap/required_icon"
-                >
-            </ImageView>
-            <EditText
-                android:id="@+id/register_id_username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="@string/username_hint"
-                android:textColorHint="#bcbcbc"
-                android:textColor="@color/black"
-                android:textSize="18sp"
                 android:background="@null"
                 android:layout_gravity="left"/>
         </LinearLayout>

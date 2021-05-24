@@ -103,6 +103,10 @@ public class EditName extends BaseActivity {
             @Override
             public void onClick(View v) {
                 //Log.e("type:",String.valueOf(loginUser.getType()));
+                if (loginUser.getType() == EDIT_NAME &&  edit_name.getText().toString().length() == 0) {
+                    showToast("用户名不可为空");
+                    return;
+                }
                 loginUser.setTempString(edit_name.getText().toString());
                 setResult(RESULT_OK);
                 finish();

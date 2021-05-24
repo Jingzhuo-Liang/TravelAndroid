@@ -122,7 +122,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         String gender = registerGender.getText().toString();
         String birthday = registerBirthday.getText().toString();
         gender = gender.equals("男")?"male":gender.equals("女")?"female":"unknown";
-        birthday = birthday.equals("") ? "2020-05-20": birthday;
+        birthday = birthday.equals("") ? "": birthday;
 
         if (StringUtils.isEmpty(account)) {
             showToast("请输入账号");
@@ -157,6 +157,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onSuccess(String res) {
                 Gson gson = new Gson();
+                Log.e("register",res);
                 RegisterResponse rg = gson.fromJson(res,RegisterResponse.class);
                 if (rg.getCode() == 200) {
                     finish();
@@ -334,7 +335,6 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
             }
         });
     }
-
      */
 
 }

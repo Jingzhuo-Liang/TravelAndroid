@@ -52,6 +52,7 @@ import com.baidu.mapapi.BMapManager;
 import com.baidu.mapapi.SDKInitializer;
 import com.bigkoo.pickerview.builder.OptionsPickerBuilder;
 import com.bigkoo.pickerview.listener.OnOptionsSelectListener;
+import com.bumptech.glide.Glide;
 import com.donkingliang.imageselector.utils.ImageSelector;
 import com.donkingliang.imageselector.utils.ImageUtil;
 import com.donkingliang.imageselector.utils.UriUtils;
@@ -195,7 +196,6 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         recordMain.setMinLines(5);
         recordMain.setFilters(new InputFilter[]{new InputFilter.LengthFilter(255)});
 
-
         mAdapter = new ImageAdapter(this);
         rvImage.setAdapter(mAdapter);
 
@@ -219,6 +219,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
             }
         });
+        ImageSelector.preload(context);
     }
 
     @Override
@@ -292,9 +293,6 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                         .canPreview(true) //是否点击放大图片查看,，默认为true
                         .setMaxSelectCount(9) // 图片的最大选择数量，小于等于0时，不限数量。
                         .start(this, REQUEST_CODE); // 打开相册
-                if (mAdapter.getImages().size() > 0) {
-                    selectImageHint.setText("");
-                }
                 break;
             }
             case R.id.si_recordRegion: {
@@ -334,7 +332,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 break;
             }
             case R.id.si_recordLimit : {
-                dismissSoftKeyBoard();
+                //dismissSoftKeyBoard();
                 pvOptions = new OptionsPickerBuilder(this, new OnOptionsSelectListener() {
                     @Override
                     public void onOptionsSelect(int options1, int options2, int options3, View v) {
@@ -673,6 +671,8 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             //移除监听器
             locationManager.removeUpdates(locationListener);
         }
+        Glide.with(context).clear(rvImage);
+        ImageSelector.clearCache(context);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
