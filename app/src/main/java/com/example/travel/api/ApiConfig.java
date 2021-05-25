@@ -46,6 +46,7 @@ public class ApiConfig {
     public static final String DELETE_SINGLE_SYSTEM_MESSAGE = "/travel/systemMessage/deleteSingle";
     public static final String DELETE_ALL_SYSTEM_MESSAGE = "/travel/systemMessage/deleteAll";
     public static final String READ_SYSTEM_MESSAGE = "/travel/systemMessage/readMessage";
+    public static final String READ_ALL_SYSTEM_MESSAGE = "/travel/systemMessage/readAllMessage";
 
     //常量
     public static final int HOMEPAGE_RECOMMEND = 1;
@@ -57,4 +58,9 @@ public class ApiConfig {
     public static final int IN_NO_HOME = 0;
     public static final int IN_MY_HOME = 1;
     public static final int IN_OTHER_HOME = 2;
+
+    //图片大小上限
+    public static final int IMAGE_MAX_LIMIT = 100000000; // 2M
+
+    public static final int HANDLE_FAILURE_CODE = 2147483647;
 }

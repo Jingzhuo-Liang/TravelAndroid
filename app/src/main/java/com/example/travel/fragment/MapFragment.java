@@ -120,13 +120,13 @@ public class MapFragment extends BaseFragment {
                     //Log.e("mapPoints",String.valueOf(list.size()));
                     handler.sendEmptyMessage(0);
                 } else {
-
+                    //showToastSync("");
                 }
             }
 
             @Override
             public void onFailure(Exception e) {
-
+                //showToastSync("");
             }
         });
 

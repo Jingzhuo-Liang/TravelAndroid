@@ -138,6 +138,11 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                     notExist();
                     break;
                 }
+                case 5: {
+                    showToast("网络不佳");
+                    finish();
+                    break;
+                }
                 default:{
 
                 }
@@ -433,7 +438,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     }
 
     private void notExist() {
-        showToast("获取游记失败");
+        showToast("获取游记失败，该游记已被删除");
         finish();
     }
 
@@ -722,21 +727,10 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
                 @Override
                 public void onFailure(Exception e) {
-
+                    handler.sendEmptyMessage(5);
                 }
             });
         }
-    }
-    public static String stringToUnicode(String s) {
-        String str = "";
-        for (int i = 0; i < s.length(); i++) {
-            int ch = (int) s.charAt(i);
-            if (ch > 255)
-                str += "\\u" + Integer.toHexString(ch);
-            else
-                str += String.valueOf(s.charAt(i));
-        }
-        return str;
     }
 
     private void dismissInputDialog() {

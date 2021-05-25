@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import com.example.travel.listener.OnItemChildClickListener;
 import com.example.travel.listener.OnItemLongClickListener;
 import com.example.travel.util.ActivityCollector;
 import com.example.travel.util.LoginUser;
+import com.example.travel.util.TimeUtils;
 import com.example.travel.widget.TitleLayout;
 import com.google.gson.Gson;
 
@@ -52,6 +54,11 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
         recyclerView = findViewById(R.id.message_center_recyclerView);
         titleLayout = findViewById(R.id.message_center_title);
         titleLayout.setTitle("消息中心");
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.read_all_icon);
+        titleLayout.getTv_myImage().setVisibility(View.VISIBLE);
+        titleLayout.getTv_myImage().setImageBitmap(bitmap);
+
         Drawable drawable = getResources().getDrawable(R.mipmap.delete_all_icon);
         drawable.setBounds(40,0,110,70);
         titleLayout.getTextView_forward().setCompoundDrawables(drawable,null,null,null);
@@ -70,6 +77,12 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+        titleLayout.getTv_myImage().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                readAllMessage();
             }
         });
         linearLayoutManager = new LinearLayoutManager(this);
@@ -123,13 +136,13 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
                     datas = smRes.getData();
                     handler.sendEmptyMessage(0);
                 } else {
-
+                    showToastSync("获取系统消息失败");
                 }
             }
 
             @Override
             public void onFailure(Exception e) {
-
+                showToastSync("网络不佳，获取系统消息失败");
             }
         });
     }
@@ -153,7 +166,36 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
 
             @Override
             public void onFailure(Exception e) {
+                showToastSync("网络不佳，全部删除失败");
+            }
+        });
+    }
 
+    private void readAllMessage()  {
+        if (TimeUtils.isFastDoubleClick()) {
+            return;
+        }
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId", LoginUser.getInstance().getUser().getId());
+        Api.config(ApiConfig.READ_ALL_SYSTEM_MESSAGE, params).postRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                CommonResponse commonResponse = new Gson().fromJson(res, CommonResponse.class);
+                if (commonResponse.getCode() == 200) {
+                    //Log.e("readAllMessage",res);
+                    for (int i = 0;i < datas.size();i++) {
+                        datas.get(i).setMessageState(1);
+                    }
+                    handler.sendEmptyMessage(0);
+                    showToastSync("读取所有消息成功");
+                } else {
+                    showToastSync("读取所有消息失败");
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                showToastSync("网络不佳，读取所有消息失败");
             }
         });
     }
@@ -183,7 +225,7 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
 
             @Override
             public void onFailure(Exception e) {
-
+                showToastSync("网络不佳，读取失败");
             }
         });
     }
@@ -210,7 +252,7 @@ public class MessageCenterActivity extends BaseActivity implements OnItemChildCl
 
             @Override
             public void onFailure(Exception e) {
-
+                showToastSync("网络不佳，删除失败");
             }
         });
     }

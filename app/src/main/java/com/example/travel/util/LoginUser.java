@@ -1,6 +1,7 @@
 package com.example.travel.util;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.example.travel.api.Api;
@@ -66,6 +67,32 @@ public class LoginUser extends Application {
     }
 
     public User getUser(){
+        /*
+        if (user == null) {
+            String userId = getStringFromSp("id");
+            String username = getStringFromSp("username");
+            String phoneNum = getStringFromSp("phoneNum");
+            String email = getStringFromSp("email");
+            String gender = getStringFromSp("gender");
+            String signature = getStringFromSp("signature");
+            String headPortraitPath = getStringFromSp("headPortraitPath");
+            String backgroundPath = getStringFromSp("backgroundPath");
+            String birthday = getStringFromSp("birthday");
+            String region = getStringFromSp("region");
+            User loginUser = new User();
+            loginUser.setId(userId);
+            loginUser.setUsername(username);
+            loginUser.setPhoneNum(phoneNum);
+            loginUser.setEmail(email);
+            loginUser.setHeadPortraitPath(headPortraitPath);
+            loginUser.setBackgroundPath(backgroundPath);
+            loginUser.setGender(gender);
+            loginUser.setSignature(signature);
+            loginUser.setBirthday(birthday);
+            loginUser.setRegion(region);
+            LoginUser.getInstance().setUser(loginUser);
+        }
+         */
         return user;
     }
 
@@ -182,5 +209,11 @@ public class LoginUser extends Application {
 
     public void setTempString(String tempString) {
         this.tempString = tempString;
+    }
+
+    public String getStringFromSp(String key) {
+        SharedPreferences sp = getSharedPreferences("sp_travel",MODE_PRIVATE);
+        //Log.e(sp.getString(key,""),sp.getString(key,""));
+        return sp.getString(key,"");
     }
 }

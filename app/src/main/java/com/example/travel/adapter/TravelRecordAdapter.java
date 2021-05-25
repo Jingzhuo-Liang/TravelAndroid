@@ -50,13 +50,11 @@ public class TravelRecordAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == 0) { //record
-            View view = LayoutInflater.from(mContext).inflate(R.layout.item_travelrecord_layout,parent,false);
-            TravelRecord travelRecord = new TravelRecord(view);
-            return travelRecord;
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_travelrecord_layout,parent,false);
+            return new TravelRecord(view);
         } else  { //ad
-            View view = LayoutInflater.from(mContext).inflate(R.layout.item_advertisement_layout,parent,false);
-            Advertisement advertisement = new Advertisement(view);
-            return advertisement;
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_advertisement_layout,parent,false);
+            return new Advertisement(view);
         }
     }
 

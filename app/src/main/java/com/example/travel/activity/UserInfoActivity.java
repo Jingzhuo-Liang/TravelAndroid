@@ -229,26 +229,31 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             params.put("username", ig_name.getContentEdt().getText().toString());
             String gender = ig_gender.getContentEdt().getText().toString();
             params.put("gender", gender.equals("男")?"male":gender.equals("女")?"female":"unknown");
-            params.put("birthday", ig_birthday.getContentEdt().getText().toString());
+            params.put("birthday", ig_birthday.getContentEdt().getText().toString().equals("保密")?"":ig_birthday.getContentEdt().getText().toString());
             params.put("region", ig_region.getContentEdt().getText().toString());
             params.put("signature", ig_signature.getContentEdt().getText().toString());
             Api.config(ApiConfig.UPDATE_USER, params).postRequest(new TtitCallback() {
                 @Override
                 public void onSuccess(String res) {
                     //Log.e("updateUserInfo", res);
-                    loginUser.setUsername(ig_name.getContentEdt().getText().toString());
-                    loginUser.setRegion(ig_region.getContentEdt().getText().toString());
-                    loginUser.setGender(ig_gender.getContentEdt().getText().toString());
-                    loginUser.setBirthday(ig_birthday.getContentEdt().getText().toString());
-                    loginUser.setSignature(ig_signature.getContentEdt().getText().toString());
-                    loginUser.update();
-                    updateSp(loginUser.getUser());
-                    showToastSync("保存成功");
+                    CommonResponse commonResponse = new Gson().fromJson(res, CommonResponse.class);
+                    if (commonResponse.getCode() == 200) {
+                        loginUser.setUsername(ig_name.getContentEdt().getText().toString());
+                        loginUser.setRegion(ig_region.getContentEdt().getText().toString());
+                        loginUser.setGender(ig_gender.getContentEdt().getText().toString());
+                        loginUser.setBirthday(ig_birthday.getContentEdt().getText().toString());
+                        loginUser.setSignature(ig_signature.getContentEdt().getText().toString());
+                        loginUser.update();
+                        updateSp(loginUser.getUser());
+                        showToastSync("修改个人信息成功");
+                    } else {
+                        showToastSync("修改个人信息失败");
+                    }
                 }
 
                 @Override
                 public void onFailure(Exception e) {
-                    showToastSync("网络不佳，保存失败");
+                    showToastSync("网络不佳，修改失败");
                 }
             });
         }

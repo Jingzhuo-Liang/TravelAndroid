@@ -103,7 +103,7 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
         Api.config(ApiConfig.LOGIN,params).postRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                Log.e("login",res);
+                //Log.e("login",res);
                 Gson gson = new Gson();
                 LoginResponse loginResponse = gson.fromJson(res,LoginResponse.class);
                 if (loginResponse.getCode() == 200) {
@@ -115,7 +115,7 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
                     } else if (loginResponse.getData().getGender().equals("female")) {
                         loginResponse.getData().setGender("女");
                     } else if (loginResponse.getData().getGender().equals("unknown")) {
-                        loginResponse.getData().setGender("未知");
+                        loginResponse.getData().setGender("保密");
                     }
                     loginResponse.getData().setBirthday(loginResponse.getData().getBirthday().split("T")[0]);
                     LoginUser.getInstance().setUser(loginResponse.getData());
@@ -133,12 +133,15 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
                     saveStringToSp("region",loginResponse.getData().getRegion());
                     navigateTo(HomeActivity.class);
                 }
-                showToastSync(loginResponse.getMsg());
+                 else {
+                    showToastSync("登录失败，请输入正确的用户名或密码");
+                }
+
             }
 
             @Override
             public void onFailure(Exception e) {
-
+                showToastSync("网络不佳，登录失败");
             }
         });
     }

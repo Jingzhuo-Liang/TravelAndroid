@@ -355,31 +355,44 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
 
     private void modifyTravelRecord() {
+        disableBottomBarCenterButton();
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
+            enableBottomBarCenterButton();
             showToast("请选择城市");
             return;
         }
         else if (StringUtils.isEmpty(recordName.getText().toString())) {
+            enableBottomBarCenterButton();
             showToast("请输入游记名字");
             return;
         } else if (recordLimitCode == -1) {
+            enableBottomBarCenterButton();
             showToast("请选择权限");
             return;
         }
+        showLoadingDialog();
         ArrayList<String> imagePaths = mAdapter.getImages();
         ArrayList<String> images = new ArrayList<>();
         if (imagePaths.size() == 0) {
+            enableBottomBarCenterButton();
+            dismissLoadingDialog();
             showToast("请至少选择一张图片");
             return;
         }
-        showLoadingDialog();
-        //avi.show();
         //根据图片路径获取图片并转成base64字符串
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inSampleSize = 4;
         if (recordImagesDirty) { //修改了图片
             for (int i = 0;i < imagePaths.size();i++) {
                 Uri uri = UriUtils.getImageContentUri(this, imagePaths.get(i));
-                Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri);
+                Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri,opts);
                 images.add(PhotoUtils.bitmapToString(bitmap));
+                if (bitmap.getByteCount() > ApiConfig.IMAGE_MAX_LIMIT) {
+                    enableBottomBarCenterButton();
+                    showToast("上传图片过大");
+                    dismissLoadingDialog();
+                    return;
+                }
             }
         }
         HashMap<String, Object> params = new HashMap<>();
@@ -409,34 +422,49 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 showToastSync("网络不佳，游记修改失败");
             }
         });
+        enableBottomBarCenterButton();
     }
 
-    private void releaseTravelRecord() throws FileNotFoundException {
+    private void releaseTravelRecord() {
+        disableBottomBarCenterButton();
+        //Log.d("clickRelease",recordRegion.getText().toString());
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
+            enableBottomBarCenterButton();
             showToast("请选择城市");
             return;
         } else if (StringUtils.isEmpty(recordName.getText().toString())) {
+            enableBottomBarCenterButton();
             showToast("请输入游记名字");
             return;
         } else if (recordLimitCode == -1) {
+            enableBottomBarCenterButton();
             showToast("请选择权限");
             return;
         }
+        showLoadingDialog();
         ArrayList<String> imagePaths = mAdapter.getImages();
         ArrayList<String> images = new ArrayList<>();
         if (imagePaths.size() == 0) {
+            enableBottomBarCenterButton();
+            dismissLoadingDialog();
             showToast("请至少选择一张图片");
             return;
         }
-        showLoadingDialog();
-        //avi.show();
         //根据图片路径获取图片并转成base64字符串
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inSampleSize = 4;
         for (int i = 0;i < imagePaths.size();i++) {
             Uri uri = UriUtils.getImageContentUri(this, imagePaths.get(i));
-            Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri);
+            Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri, opts);
+            //Log.e("bitmapByteCount",String.valueOf(bitmap.getByteCount()));
+            if (bitmap.getByteCount() > ApiConfig.IMAGE_MAX_LIMIT) {
+                enableBottomBarCenterButton();
+                showToast("上传图片过大");
+                dismissLoadingDialog();
+                return;
+            }
             images.add(PhotoUtils.bitmapToString(bitmap));
         }
-
         HashMap<String, Object> params = new HashMap<>();
         params.put("userId", LoginUser.getInstance().getUser().getId());
         params.put("recordName", recordName.getText().toString());
@@ -468,6 +496,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             }
         });
         //finish();
+        enableBottomBarCenterButton();
     }
 
 
@@ -525,10 +554,26 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                         return false;
                     }
 
-                })
-                .setOnCenterTabClickListener(new EasyNavigationBar.OnCenterTabSelectListener() {
-                    @Override
-                    public boolean onCenterTabSelectEvent(View view) {
+                });
+        enableBottomBarCenterButton();
+    }
+
+    private void enableBottomBarCenterButton() {
+        navigationBar.setOnCenterTabClickListener(new EasyNavigationBar.OnCenterTabSelectListener() {
+            @Override
+            public boolean onCenterTabSelectEvent(View view) {
+                if (TimeUtils.isFastDoubleClickWithin2Second()) {
+                    Log.e("click quickly","here");
+                    return false;
+                }
+                Log.e("click not quickly","here");
+                if (!StringUtils.isEmpty(recordId)) {
+                    modifyTravelRecord();
+                } else {
+                    releaseTravelRecord();
+                }
+                return true;
+                        /*
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -540,6 +585,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                                     if (recordId != null && recordId.length() > 0) {
                                         modifyTravelRecord();
                                     } else {
+                                        Log.i("clickRelease","here");
                                         releaseTravelRecord();
                                     }
                                 } catch (FileNotFoundException e) {
@@ -548,12 +594,19 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                             }
                         });
                         return false;
+                         */
                     }
                 })
                 .canScroll(true)
                 .mode(EasyNavigationBar.NavigationMode.MODE_ADD)
                 .build();
     }
+
+    private void disableBottomBarCenterButton() {
+        navigationBar.setOnCenterTabClickListener(null);
+    }
+
+
 
     /**
      * 处理权限申请的回调。
@@ -671,7 +724,6 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             //移除监听器
             locationManager.removeUpdates(locationListener);
         }
-        Glide.with(context).clear(rvImage);
         ImageSelector.clearCache(context);
     }
     @Override

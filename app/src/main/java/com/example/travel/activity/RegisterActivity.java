@@ -157,14 +157,14 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onSuccess(String res) {
                 Gson gson = new Gson();
-                Log.e("register",res);
+                //Log.e("register",res);
                 RegisterResponse rg = gson.fromJson(res,RegisterResponse.class);
                 if (rg.getCode() == 200) {
                     finish();
                     //Log.e("register success",res);
-                    showToastSync(rg.getMsg());
+                    showToastSync("注册成功，请登录");
                 } else {
-                    showToastSync(rg.getMsg());
+                    showToastSync("注册失败");
                 }
             }
 

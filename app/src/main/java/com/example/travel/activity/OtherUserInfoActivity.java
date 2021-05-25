@@ -60,7 +60,8 @@ public class OtherUserInfoActivity extends BaseActivity{
                     break;
                 }
                 default:{
-
+                    finish();
+                    break;
                 }
             }
         }
@@ -119,13 +120,15 @@ public class OtherUserInfoActivity extends BaseActivity{
                     otherInfo = otherUserRes.getData();
                     handler.sendEmptyMessage(0);
                 } else {
-                    showToast(otherUserRes.getMsg());
+                    handler.sendEmptyMessage(ApiConfig.HANDLE_FAILURE_CODE);//fail back
+                    showToastSync("获取该用户信息失败");
                 }
             }
 
             @Override
             public void onFailure(Exception e) {
-
+                handler.sendEmptyMessage(ApiConfig.HANDLE_FAILURE_CODE);//fail back
+                showToastSync("网络不佳，获取该用户信息失败");
             }
         });
     }
