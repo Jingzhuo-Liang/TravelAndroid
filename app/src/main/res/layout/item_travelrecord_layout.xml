@@ -13,6 +13,8 @@
         android:layout_height="187dp"
         android:id="@+id/travelNote_cover_image"
         android:scaleType="fitXY"
+        android:src="@mipmap/full_white"
+        android:background="@mipmap/full_white"
         >
     </ImageView>
 

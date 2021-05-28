@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Travel</string>
+    <string name="app_name">游迹</string>
     <string name="travel">游迹</string>
     <string name="slogan">游你在 迹我行</string>
     <string name="account_hint">请输入手机号/电子邮箱地址</string>

@@ -135,7 +135,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
     private MaterialDialog mLoadingDialog;
     EnsureDialog ensureDialog;
-    private Boolean locDifButCon = false; //location is different but continue
+    //private Boolean locDifButCon = false; //location is different but continue
     private String selectRegion = "";
 
     private Handler handler = new Handler() {
@@ -198,28 +198,8 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
         mAdapter = new ImageAdapter(this);
         rvImage.setAdapter(mAdapter);
-
-        ensureDialog = new EnsureDialog(this).builder()
-                .setGravity(Gravity.CENTER)//默认居中，可以不设置
-                .setTitle("检测到您选择的位置与所在位置不一致", getResources().getColor(R.color.black))//可以不设置标题颜色，默认系统颜色
-                .setCancelable(false)
-                .setSubTitle("是否继续",getResources().getColor(R.color.yellow0));
-        ensureDialog.setNegativeButton("取消", getResources().getColor(R.color.red0), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    locDifButCon = false;
-                    ensureDialog.dismiss();
-                }
-        });
-        ensureDialog.setPositiveButton("确认", getResources().getColor(R.color.red0), new View.OnClickListener() {//可以选择设置颜色和不设置颜色两个方法
-            @Override
-            public void onClick(View view) {
-                recordRegion.setText(selectRegion);
-                ensureDialog.dismiss();
-
-            }
-        });
         ImageSelector.preload(context);
+        getLocation();
     }
 
     @Override
@@ -297,6 +277,26 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             }
             case R.id.si_recordRegion: {
                 //dismissSoftKeyBoard();
+                ensureDialog = new EnsureDialog(this).builder()
+                        .setGravity(Gravity.CENTER)//默认居中，可以不设置
+                        .setTitle("检测到您选择的位置与所在位置不一致", getResources().getColor(R.color.black))//可以不设置标题颜色，默认系统颜色
+                        .setCancelable(false)
+                        .setSubTitle("是否继续",getResources().getColor(R.color.yellow0));
+                ensureDialog.setNegativeButton("取消", getResources().getColor(R.color.red0), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //locDifButCon = false;
+                        ensureDialog.dismiss();
+                    }
+                });
+                ensureDialog.setPositiveButton("确认", getResources().getColor(R.color.red0), new View.OnClickListener() {//可以选择设置颜色和不设置颜色两个方法
+                    @Override
+                    public void onClick(View view) {
+                        recordRegion.setText(selectRegion);
+                        ensureDialog.dismiss();
+
+                    }
+                });
                 pvOptions = new OptionsPickerBuilder(this, new OnOptionsSelectListener() {
                     @Override
                     public void onOptionsSelect(int options1, int options2, int options3, View v) {
@@ -319,15 +319,29 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             }
             case R.id.si_recordLocation: {
                 //userLocation = getLocation();
-                getLocation();
+                //getLocation();
                 if (myListener.getLocation() != null) {
                     //mLocationClient.stop();
                     recordLocation.setText("获取位置成功");
                     if (!myListener.getRegion().equals("null-null")) {
                         recordRegion.setText(myListener.getRegion());
+                    } else {
+                        getLocation();
+                        if (!myListener.getRegion().equals("null-null")) {
+                            recordRegion.setText(myListener.getRegion());
+                        }
                     }
                 } else {
-                    recordLocation.setText("获取位置失败");
+                    getLocation();
+                    if (myListener.getLocation() != null) {
+                        //mLocationClient.stop();
+                        recordLocation.setText("获取位置成功");
+                        if (!myListener.getRegion().equals("null-null")) {
+                            recordRegion.setText(myListener.getRegion());
+                        }
+                    } else {
+                        recordLocation.setText("获取位置失败");
+                    }
                 }
                 break;
             }
@@ -563,10 +577,10 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             @Override
             public boolean onCenterTabSelectEvent(View view) {
                 if (TimeUtils.isFastDoubleClickWithin2Second()) {
-                    Log.e("click quickly","here");
+                    //Log.e("click quickly","here");
                     return false;
                 }
-                Log.e("click not quickly","here");
+                //Log.e("click not quickly","here");
                 if (!StringUtils.isEmpty(recordId)) {
                     modifyTravelRecord();
                 } else {
