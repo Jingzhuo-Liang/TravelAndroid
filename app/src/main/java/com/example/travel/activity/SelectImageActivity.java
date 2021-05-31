@@ -61,6 +61,7 @@ import com.example.travel.adapter.ImageAdapter;
 import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
+import com.example.travel.entity.CommonNoDataResponse;
 import com.example.travel.entity.CommonResponse;
 import com.example.travel.entity.ModifyTravelRecordEntity;
 import com.example.travel.entity.ModifyTravelRecordResponse;
@@ -499,8 +500,19 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             @Override
             public void onSuccess(String res) {
                 //Log.e("releaseRecord",res);
-                handler.sendEmptyMessage(0);
-                showToastSync("游记发布成功");
+                try {
+                    CommonNoDataResponse commonResponse = new Gson().fromJson(res, CommonNoDataResponse.class);
+                    if (commonResponse.getCode() == 200) {
+                        handler.sendEmptyMessage(0);
+                        showToastSync("游记发布成功");
+                     } else {
+                        handler.sendEmptyMessage(0);
+                        showToastSync("游记发布失败");
+                    }
+                } catch (Exception e) {
+                    handler.sendEmptyMessage(0);
+                    showToastSync("游记发布失败");
+                }
             }
 
             @Override
