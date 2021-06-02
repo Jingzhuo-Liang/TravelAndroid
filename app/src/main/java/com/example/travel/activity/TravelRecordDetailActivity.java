@@ -3,6 +3,7 @@ package com.example.travel.activity;
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.icu.text.AlphabeticIndex;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,8 +33,11 @@ import com.example.travel.entity.CommentEntity;
 import com.example.travel.entity.CommentMoreEntity;
 import com.example.travel.entity.FirstLevelEntity;
 import com.example.travel.entity.RecordDetailEntity;
+import com.example.travel.entity.RecordDetailRelatedInfoEntity;
+import com.example.travel.entity.RecordDetailRelatedInfoResponse;
 import com.example.travel.entity.RecordDetailResponse;
 import com.example.travel.entity.SecondLevelEntity;
+import com.example.travel.fragment.UserInfoFragment;
 import com.example.travel.listener.SoftKeyBoardListener;
 import com.example.travel.util.LoginUser;
 import com.example.travel.util.RecyclerViewUtil;
@@ -102,6 +106,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     private String recordId;
     private String authorId;
     private RecordDetailEntity recordDetailEntity = new RecordDetailEntity();
+    private RecordDetailRelatedInfoEntity recordDetailRelatedInfoEntity = new RecordDetailRelatedInfoEntity();
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
         @Override
@@ -110,7 +115,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
             switch (msg.what) {
                 case 0:{
                     //在主线程中执行
-                    setData(recordDetailEntity);
+                    setRecordDetailData(recordDetailEntity);
                     browseTravelRecord();
                     break;
                 }
@@ -132,15 +137,23 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                     focusIcon.setImageDrawable(isFocus ? focusDrawable : unFocusDrawable);
                     focusNum.setText(String.valueOf(focusTempNum));
                     showToast(isFocus ? "关注成功":"取消关注");
+                    UserInfoFragment.getUserInfoFragment().refreshUserInfo();
                     break;
                 }
                 case 4: {
-                    notExist();
+                    //游记不存在
+                    showToast("获取游记失败，该游记已被删除");
+                    finish();
                     break;
                 }
                 case 5: {
                     showToast("网络不佳");
                     finish();
+                    break;
+                }
+                case 6: {
+                    // 设置游记相关数据
+                    setRecordDetailRelatedInfoData(recordDetailRelatedInfoEntity);
                     break;
                 }
                 default:{
@@ -200,6 +213,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         this.isApproved = Boolean.parseBoolean(bundle.getString("isApproved"));
         this.inWhoseHome = Integer.parseInt(bundle.getString("inWhoseHome"));
         getTravelRecordDetail(recordId,authorId);
+        //getTravelRecordDetailRelatedInfo(recordId, authorId);
     }
 
     @Override
@@ -344,10 +358,10 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         params.put("userId", LoginUser.getInstance().getUser().getId());
         params.put("recordId",recordId);
         params.put("authorId",authorId);
-        Api.config(ApiConfig.GET_RECORD_DETAIL,params).postRequest(new TtitCallback() {
+        Api.config(ApiConfig.GET_RECORD_DETAIL,params).getRequest(new TtitCallback() {
             @Override
             public void onSuccess(String res) {
-                //Log.e("getDetailSuccess",res);
+                //Log.e("getDetailSuccess1",res);
                 Gson gson = new Gson();
                 RecordDetailResponse rdr = new RecordDetailResponse();
                 rdr = gson.fromJson(res, RecordDetailResponse.class);
@@ -362,25 +376,34 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
 
             @Override
             public void onFailure(Exception e) {
-
+                handler.sendEmptyMessage(5);
             }
         });
+    }
 
-        /*
-        ArrayList<String> images = new ArrayList<>();
-        images.add("http://114.115.173.237:8000/static/picture/picture_9ad18b83451d4fe38918b81565d424d5_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_4d10391eb55a425882211d1952782ce4_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_f8978682184642719ea69886f340cd71_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_a914aeac119e4e389c69f1dc7567ab2d_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_11048a38b7e645838ffab44f23981dd1_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_9ad18b83451d4fe38918b81565d424d5_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_4d10391eb55a425882211d1952782ce4_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_f8978682184642719ea69886f340cd71_0.png");
-        images.add("http://114.115.173.237:8000/static/picture/picture_a914aeac119e4e389c69f1dc7567ab2d_0.png");
-        recordDetailAdapter.refresh(images);
-        recordDetailImageRecycleView.setAdapter(recordDetailAdapter);
-         */
+    private void getTravelRecordDetailRelatedInfo(String recordId, String authorId) {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId", LoginUser.getInstance().getUser().getId());
+        params.put("recordId",recordId);
+        params.put("authorId",authorId);
+        Api.config(ApiConfig.GET_RECORD_DETAIL_RELATED_INFO, params).getRequest(new TtitCallback() {
+            @Override
+            public void onSuccess(String res) {
+                //Log.e("getDetailSuccess2",res + "111");
+                RecordDetailRelatedInfoResponse rdrie = new Gson().fromJson(res, RecordDetailRelatedInfoResponse.class);
+                if (rdrie.getCode() == 200) {
+                    recordDetailRelatedInfoEntity = rdrie.getData();
+                    handler.sendEmptyMessage(6);
+                } else {
+                    handler.sendEmptyMessage(4);
+                }
+            }
 
+            @Override
+            public void onFailure(Exception e) {
+                handler.sendEmptyMessage(5);
+            }
+        });
     }
 
     private void browseTravelRecord() {
@@ -403,25 +426,28 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         });
     }
 
-    private void setData(RecordDetailEntity rde){
+    private void setRecordDetailRelatedInfoData(RecordDetailRelatedInfoEntity rdr) {
+        likeNum.setText(String.valueOf(rdr.getLikeNum()));
+        focusNum.setText(String.valueOf(rdr.getFocusNum()));
+        commentNum.setText(String.valueOf(rdr.getCommentNum()));
+        browseNum.setText(String.valueOf(rdr.getBrowseNum()));
+
+        isLike = rdr.getIsLike() == 1;
+        isFocus = rdr.getIsFocus() == 1;
+        likeIcon.setImageDrawable(isLike ? likeDrawable : unLikeDrawable);
+        focusIcon.setImageDrawable(isFocus ? focusDrawable : unFocusDrawable);
+        datas = rdr.getF1LevelComments();
+        dataSort(0);
+        bottomSheetAdapter.setNewData(data);
+    }
+
+    private void setRecordDetailData(RecordDetailEntity rde){
         authorName.setText(rde.getAuthorName());
         authorSignature.setText(rde.getAuthorSignature());
         releaseTime.setText(rde.getRecordReleasedTime().split(" ")[0]);
         releaseRegion.setText(rde.getRecordRegion());
         recordName.setText(rde.getRecordName());
         recordMain.setText(rde.getRecordMain());
-        likeNum.setText(String.valueOf(rde.getLikeNum()));
-        focusNum.setText(String.valueOf(rde.getFocusNum()));
-        commentNum.setText(String.valueOf(rde.getCommentNum()));
-        browseNum.setText(String.valueOf(rde.getBrowseNum()));
-
-        isLike = rde.getIsLike() == 1;
-        isFocus = rde.getIsFocus() == 1;
-        likeIcon.setImageDrawable(isLike ? likeDrawable : unLikeDrawable);
-        focusIcon.setImageDrawable(isFocus ? focusDrawable : unFocusDrawable);
-        datas = rde.getF1LevelComments();
-        dataSort(0);
-        bottomSheetAdapter.setNewData(data);
 
         Picasso.with(this)
                 .load(rde.getAuthorPortrait())
@@ -436,12 +462,6 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
         dataSort(0);
         bottomSheetAdapter.setNewData(data);
     }
-
-    private void notExist() {
-        showToast("获取游记失败，该游记已被删除");
-        finish();
-    }
-
     private void dataSort(int position) {
         if (datas.isEmpty()) {
             data.add(new MultiItemEntity() {
@@ -580,45 +600,7 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                             bottomSheetAdapter.notifyDataSetChanged();
                         }
                         break;
-                    /* 关闭回复二级评论
-                    case CommentEntity.TYPE_COMMENT_CHILD:
-
-                        if (view1.getId() == R.id.rl_group) {
-                            //添加二级评论（回复）
-                            TravelRecordDetailActivity.this.initInputTextMsgDialog(view1, true, bottomSheetAdapter.getData().get(position), position);
-                        } else if (view1.getId() == R.id.ll_like) {
-                            //二级评论点赞 项目中还得通知服务器 成功才可以修改
-                            SecondLevelBean bean = (SecondLevelBean) bottomSheetAdapter.getData().get(position);
-                            bean.setLikeCount(bean.getLikeCount() + (bean.getIsLike() == 0 ? 1 : -1));
-                            bean.setIsLike(bean.getIsLike() == 0 ? 1 : 0);
-
-                            List<SecondLevelBean> secondLevelBeans = datas.get((int) bean.getPosition()).getSecondLevelBeans();
-                            secondLevelBeans.set(bean.getChildPosition(), bean);
-//                            CommentMultiActivity.this.dataSort(0);
-                            bottomSheetAdapter.notifyDataSetChanged();
-                        }
-                        break;
-                     */
                     case CommentEntity.TYPE_COMMENT_MORE:
-                        /*
-                        //在项目中是从服务器获取数据，其实就是二级评论分页获取
-                        CommentMoreEntity moreBean = (CommentMoreEntity) bottomSheetAdapter.getData().get(position);
-                        SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
-                        secondLevelEntity.setS2LevelContent("more comment" + 1);
-                        secondLevelEntity.setS2LevelCreateTime(System.currentTimeMillis());
-                        secondLevelEntity.setS2LevelReplierPortrait("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
-                        secondLevelEntity.setS2LevelCommentId(1 + "");
-                        //secondLevelEntity.setIsLike(0);
-                        //secondLevelEntity.setLikeCount(0);
-                        secondLevelEntity.setS2LevelReplierName("星梦缘" + 1);
-                        //secondLevelEntity.setIsReply(0);
-                        //secondLevelEntity.setReplyUserName("闭嘴家族" + 1);
-                        //secondLevelEntity.setS2LevelTotalCount(moreBean.getTotalCount() + 1);
-
-                        datas.get((int) moreBean.getPosition()).getS2LevelComments().add(secondLevelEntity);
-                        TravelRecordDetailActivity.this.dataSort(0);
-                        bottomSheetAdapter.notifyDataSetChanged();
-                        */
                         break;
                     case CommentEntity.TYPE_COMMENT_EMPTY:
                         TravelRecordDetailActivity.this.initRefresh();
@@ -832,63 +814,16 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
     }
 
 
-    //原始数据 一般是从服务器接口请求过来的
-    private void initDialogData() {
-        int size = 10;
-        for (int i = 0; i < size; i++) {
-            FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
-            firstLevelEntity.setF1LevelContent("第" + (i + 1) + "人评论内容" + (i % 3 == 0 ? content + (i + 1) + "次" : ""));
-            firstLevelEntity.setF1LevelCreateTime(System.currentTimeMillis());
-            firstLevelEntity.setF1LevelMessengerPortrait("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3370302115,85956606&fm=26&gp=0.jpg");
-            firstLevelEntity.setF1LevelMessengerId(i + "");
-            //firstLevelEntity.setIsLike(0);
-            //firstLevelEntity.setLikeCount(i);
-            firstLevelEntity.setF1LevelMessengerName("星梦缘" + (i + 1));
-            //firstLevelEntity.setTotalCount(i + size);
-
-            List<SecondLevelEntity> beans = new ArrayList<>();
-            for (int j = 0; j < 10; j++) {
-                SecondLevelEntity secondLevelEntity = new SecondLevelEntity();
-                secondLevelEntity.setS2LevelContent("一级第" + (i + 1) + "人 二级第" + (j + 1) + "人评论内容" + (j % 3 == 0 ? content + (j + 1) + "次" : ""));
-                secondLevelEntity.setS2LevelCreateTime(System.currentTimeMillis());
-                secondLevelEntity.setS2LevelReplierPortrait("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
-                secondLevelEntity.setS2LevelCommentId(j + "");
-                //secondLevelEntity.setIsLike(0);
-                //secondLevelEntity.setLikeCount(j);
-                secondLevelEntity.setS2LevelReplierName("星梦缘" + (i + 1) + "  " + (j + 1));
-                //secondLevelBean.setIsReply(j % 5 == 0 ? 1 : 0);
-                //secondLevelEntity.setReplyUserName("");
-                //secondLevelEntity.setS2LevelTotalCount(firstLevelEntity.getF1LevelTotalCount());
-                beans.add(secondLevelEntity);
-                firstLevelEntity.setS2LevelComments(beans);
-            }
-            datas.add(firstLevelEntity);
-        }
-    }
-
     @Override
     public void onLoadMoreRequested() {
         bottomSheetAdapter.loadMoreEnd(false);
-        // 加载更多评论
-        /*
-        if (datas.size() >= totalCount) {
-            bottomSheetAdapter.loadMoreEnd(false);
-            return;
-        }
-        FirstLevelEntity firstLevelEntity = new FirstLevelEntity();
-        firstLevelEntity.setUserName("hui");
-        firstLevelEntity.setId((datas.size() + 1) + "");
-        firstLevelEntity.setHeadImg("https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1918451189,3095768332&fm=26&gp=0.jpg");
-        firstLevelEntity.setCreateTime(System.currentTimeMillis());
-        firstLevelEntity.setContent("add loadmore comment");
-        firstLevelEntity.setLikeCount(0);
-        firstLevelEntity.setSecondLevelEntities(new ArrayList<SecondLevelEntity>());
-        datas.add(firstLevelEntity);
-        dataSort(datas.size() - 1);
-        bottomSheetAdapter.notifyDataSetChanged();
-        bottomSheetAdapter.loadMoreComplete();
-        */
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //Log.e("travelDetail", " i am back");
+        getTravelRecordDetailRelatedInfo(recordId, authorId);
+    }
 
 }

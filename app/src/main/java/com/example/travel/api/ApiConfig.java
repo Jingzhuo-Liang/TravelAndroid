@@ -26,7 +26,8 @@ public class ApiConfig {
     public static final String GET_TRAVEL_RECORD_NO_FOCUS = "/travel/getTravelRecordNoFocus";
     public static final String GET_TRAVEL_RECORD_FOCUS = "/travel/getTravelRecordFocus";
     public static final String GET_MY_TRAVEL_RECORD = "/travel/getMyTravelRecord";
-    public static final String GET_RECORD_DETAIL =  "/travel/getRecordDetail";
+    public static final String GET_RECORD_DETAIL =  "/travel/getRecordDetail/getRecordDetail";
+    public static final String GET_RECORD_DETAIL_RELATED_INFO = "/travel/getRecordDetail/getRecordRelatedInfo";
     public static final String ADD_FIRST_LEVEL_COMMENT = "/travel/addFirstLevelComment";
     public static final String ADD_SECOND_LEVEL_COMMENT = "/travel/addSecondLevelComment";
     public static final String FOCUS_AUTHOR = "/travel/focusAuthor";

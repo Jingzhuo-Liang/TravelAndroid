@@ -175,22 +175,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         loginUser.clear(); //清除本地变量
         clearSp();
         navigateTo(Login1Activity.class);
-        /*
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("userId", loginUser.getUser().getId());
-        Api.config(ApiConfig.EXIT_LOGIN,params).postRequest(new TtitCallback() {
-            @Override
-            public void onSuccess(String res) {
-                showToast("登出成功");
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                showToast("登出失败");
-            }
-        });
-
-         */
     }
 
     //更新用户信息
@@ -273,7 +257,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             //Log.e("old", LoginUser.getInstance().getOldPwd());
             //Log.e("new", LoginUser.getInstance().getNewPwd());
             handler.sendEmptyMessage(0);
-            /*
             Api.config(ApiConfig.UPDATE_USER_PASSWORD, params).postRequest(new TtitCallback() {
                 @Override
                 public void onSuccess(String res) {
@@ -293,7 +276,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     handler.sendEmptyMessage(0);
                 }
             });
-             */
         }
     }
 
@@ -305,6 +287,9 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             case R.id.ig_name: {
                 loginUser.setType(1);
                 Intent intent = new Intent(UserInfoActivity.this, EditName.class);
+                Bundle bundle=new Bundle();
+                bundle.putString("tempString", ig_name.getContentEdt().getText().toString());
+                intent.putExtras(bundle);
                 startActivityForResult(intent, EDIT_NAME);
                 break;
             }
@@ -319,6 +304,9 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             case R.id.ig_signature:{
                 loginUser.setType(4);
                 Intent intent = new Intent(UserInfoActivity.this, EditName.class);
+                Bundle bundle=new Bundle();
+                bundle.putString("tempString", ig_signature.getContentEdt().getText().toString());
+                intent.putExtras(bundle);
                 startActivityForResult(intent, EDIT_SIGNATURE);
                 break;
             }

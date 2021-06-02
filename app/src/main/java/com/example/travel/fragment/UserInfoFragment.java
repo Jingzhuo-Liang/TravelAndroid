@@ -50,6 +50,8 @@ import java.util.HashMap;
  **/
 public class UserInfoFragment extends BaseFragment {
 
+    private static UserInfoFragment userInfoFragment = null;
+
     private TitleLayout titleLayout;
     private TextView my_username;
     private TextView my_signature;
@@ -198,5 +200,28 @@ public class UserInfoFragment extends BaseFragment {
         super.onActivityResult(requestCode, resultCode,data);
         //Log.e("userInfoBack","here???");
         getUserInfo();
+    }
+
+    public static UserInfoFragment newStance () {
+        if (userInfoFragment == null) {
+            userInfoFragment = new UserInfoFragment();
+        }
+        return userInfoFragment;
+    }
+
+    public static UserInfoFragment getUserInfoFragment() {
+        if (userInfoFragment == null) {
+            userInfoFragment = new UserInfoFragment();
+        }
+        return userInfoFragment;
+    }
+
+    public UserInfoFragment() {
+        userInfoFragment = this;
+    }
+
+    public void refreshUserInfo() {
+        //Log.e("refresh" , "related UserInfo");
+        getUserRelatedInfo();
     }
 }

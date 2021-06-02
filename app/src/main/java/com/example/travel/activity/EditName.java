@@ -89,7 +89,8 @@ public class EditName extends BaseActivity {
         switch (loginUser.getType()) {
             case EDIT_NAME: {
                 edit_name.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ApiConfig.USER_NAME_MAX_LENGTH)});
-                edit_name.setText(loginUser.getUsername());
+                Bundle bundle = this.getIntent().getExtras();
+                edit_name.setText(bundle.get("tempString").toString());
                 break;
             }
             case EDIT_PHONENUM: {
@@ -102,7 +103,8 @@ public class EditName extends BaseActivity {
             }
             case EDIT_SIGNATURE:{
                 edit_name.setFilters(new InputFilter[]{new InputFilter.LengthFilter(ApiConfig.USER_SIGNATURE_MAX_LENGTH)});
-                edit_name.setText(loginUser.getSignature());
+                Bundle bundle = this.getIntent().getExtras();
+                edit_name.setText(bundle.get("tempString").toString());
                 break;
             }
             case EDIT_PASSWORD: {
