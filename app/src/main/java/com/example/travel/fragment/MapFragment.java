@@ -3,6 +3,9 @@ package com.example.travel.fragment;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,8 +18,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ZoomControls;
 
 import com.baidu.location.BDLocation;
 import com.baidu.mapapi.SDKInitializer;
@@ -24,6 +29,7 @@ import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.InfoWindow;
+import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
@@ -35,6 +41,8 @@ import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.MapPointEntity;
 import com.example.travel.entity.MapPointResponse;
 import com.example.travel.util.LoginUser;
+import com.example.travel.util.TimeUtils;
+import com.example.travel.widget.BaiduZoomControl;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -42,12 +50,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapFragment extends BaseFragment {
+public class MapFragment extends BaseFragment implements View.OnClickListener {
 
     private MapView mMapView;
     private BaiduMap mBaiduMap;
     List<MapPointEntity> list;
     private String userId;
+    private BaiduZoomControl baiduZoomControl;
 
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
@@ -84,14 +93,37 @@ public class MapFragment extends BaseFragment {
     @Override
     protected void initView() {
         mMapView = (MapView) mRootView.findViewById(R.id.map_view);
+        mMapView.showZoomControls(false);
+        baiduZoomControl = mRootView.findViewById(R.id.baidu_zoom_control);
     }
+
 
     @Override
     protected void initData() {
         mBaiduMap = mMapView.getMap();
         mBaiduMap.setMapType(BaiduMap.MAP_TYPE_NORMAL);
         getMapPoints();
-        //showData();
+        baiduZoomControl.getRefresh_icon().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (TimeUtils.isFastDoubleClick()) {
+                    return;
+                }
+                getMapPoints();
+            }
+        });
+        baiduZoomControl.getZoomIn_icon().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBaiduMap.animateMapStatus(MapStatusUpdateFactory.zoomIn());
+            }
+        });
+        baiduZoomControl.getZoomOut_icon().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBaiduMap.animateMapStatus(MapStatusUpdateFactory.zoomOut());
+            }
+        });
     }
 
     private void showData(){
@@ -99,6 +131,7 @@ public class MapFragment extends BaseFragment {
         //create_map_point(39.91923, 116.387428);
         //create_map_point(49.91923, 110.387428);
         //create_map_point(19.91923, 16.387428);
+        mBaiduMap.clear();
         for (MapPointEntity mpe: list) {
             //Log.e("mapPoints",mpe.getRecordId());
             create_map_point(mpe.getLongitude(),mpe.getLatitude());
@@ -289,4 +322,12 @@ public class MapFragment extends BaseFragment {
         return index;
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            default: {
+                break;
+            }
+        }
+    }
 }

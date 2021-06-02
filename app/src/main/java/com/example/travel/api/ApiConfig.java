@@ -18,6 +18,7 @@ public class ApiConfig {
     public static final String REGISTER = "/travel/register";
     public static final String UPDATE_USER = "/travel/updateUserInfo";
     public static final String UPDATE_USER_PORTRAIT = "/travel/updateUserPortrait";
+    public static final String UPDATE_USER_PASSWORD = "/travel/updateUserPassword";
     public static final String EXIT_LOGIN = "/travel/exitLogin";
     public static final String RELEASE_TRAVEL_RECORD = "/travel/releaseTravelRecord";
     public static final String GET_TRAVEL_RECORD_NO_RECOMMEND = "/travel/getTravelRecordNoRecommend";
@@ -47,6 +48,8 @@ public class ApiConfig {
     public static final String DELETE_ALL_SYSTEM_MESSAGE = "/travel/systemMessage/deleteAll";
     public static final String READ_SYSTEM_MESSAGE = "/travel/systemMessage/readMessage";
     public static final String READ_ALL_SYSTEM_MESSAGE = "/travel/systemMessage/readAllMessage";
+    public static final String GET_ALL_MY_FOCUS = "/travel/getAllMyFocus";
+    public static final String GET_ALL_MY_LIKE = "/travel/getAllMyLike";
 
     //常量
     public static final int HOMEPAGE_RECOMMEND = 1;

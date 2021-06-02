@@ -20,6 +20,8 @@ public class LoginUser extends Application {
     private static User user;
     private int type; // 1-username 2-phoneNum 3-email  4-signature
     private String tempString;
+    private String oldPwd;
+    private String newPwd;
 
     private String id;
     private String phoneNum;
@@ -209,6 +211,22 @@ public class LoginUser extends Application {
 
     public void setTempString(String tempString) {
         this.tempString = tempString;
+    }
+
+    public String getOldPwd() {
+        return oldPwd;
+    }
+
+    public void setOldPwd(String oldPwd) {
+        this.oldPwd = oldPwd;
+    }
+
+    public String getNewPwd() {
+        return newPwd;
+    }
+
+    public void setNewPwd(String newPwd) {
+        this.newPwd = newPwd;
     }
 
     public String getStringFromSp(String key) {

@@ -78,6 +78,15 @@
                 app:title="@string/defaultEmail" />
 
             <com.example.travel.widget.ItemGroup
+                android:id="@+id/ig_password"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                app:edt_hint_content="@string/modify_password"
+                app:edt_text_color="@color/text_color"
+                app:paddingLeft="@dimen/padding_left_and_right"
+                app:title="@string/defaultPassword" />
+
+            <com.example.travel.widget.ItemGroup
                 android:id="@+id/ig_name"
                 android:layout_width="match_parent"
                 android:layout_height="46dp"

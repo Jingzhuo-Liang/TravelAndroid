@@ -2,13 +2,10 @@ package com.example.travel.activity;
 
 import androidx.fragment.app.Fragment;
 
-import android.content.Intent;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 
 import com.example.travel.R;
-import com.example.travel.adapter.ImageAdapter;
 import com.example.travel.fragment.HomeFragment;
 import com.example.travel.fragment.UserInfoFragment;
 import com.example.travel.util.ActivityCollector;
@@ -58,7 +55,7 @@ public class HomeActivity extends BaseActivity {
                 .normalIconItems(normalIcon)
                 .selectIconItems(selectIcon)
                 .fragmentList(fragments)
-                .centerImageRes(R.mipmap.add_icon)
+                .centerImageRes(R.mipmap.add_image_icon)
                 .centerTextStr("发布")
                 //.anim(null)
                 .centerLayoutRule(EasyNavigationBar.RULE_BOTTOM)

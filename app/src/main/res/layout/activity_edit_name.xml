@@ -16,16 +16,67 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:orientation="vertical"
         android:layout_marginTop="10dp">
 
         <EditText
             android:id="@+id/et_edit_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
             android:layout_marginLeft="10dp"
             android:focusableInTouchMode="true"
             android:textColor="@color/black"
+            android:textColorHint="#bcbcbc"
             android:background="@null"/>
+
+        <View
+            android:id="@+id/et_view1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#e8e7e7"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="15dp"
+            android:visibility="gone"
+            />
+
+        <EditText
+            android:id="@+id/et_edit_name1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:focusableInTouchMode="true"
+            android:inputType="textPassword"
+            android:textColor="@color/black"
+            android:background="@null"
+            android:hint="@string/new_password"
+            android:textColorHint="#bcbcbc"
+            android:visibility="gone"
+            />
+
+        <View
+            android:id="@+id/et_view2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#e8e7e7"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="15dp"
+            android:visibility="gone"
+            />
+
+        <EditText
+            android:id="@+id/et_edit_name2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:focusableInTouchMode="true"
+            android:inputType="textPassword"
+            android:textColor="@color/black"
+            android:background="@null"
+            android:hint="@string/confirmPwd_hint"
+            android:textColorHint="#bcbcbc"
+            android:visibility="gone"
+            />
     </LinearLayout>
 
 </LinearLayout>

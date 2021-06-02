@@ -1,20 +1,39 @@
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/container"
+    android:layout_height="match_parent"
+    tools:ignore="MergeRootFrame"
+    tools:context=".fragment.MapFragment"
+    >
+
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:ignore="MergeRootFrame"
-        tools:context=".fragment.MapFragment"
-        >
+        android:clickable="true" />
 
-        <com.baidu.mapapi.map.MapView
-            android:id="@+id/map_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true" />
-    </FrameLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+<!--    <ImageView-->
+<!--        android:id="@+id/map_refresh"-->
+<!--        android:layout_width="@dimen/dp_40"-->
+<!--        android:layout_height="@dimen/dp_40"-->
+<!--        android:src="@mipmap/refresh_icon"-->
+<!--        android:background="@color/white"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:layout_marginRight="7dp"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_marginBottom="90dp"-->
+<!--        android:scaleType="matrix"-->
+<!--        >-->
+<!--    </ImageView>-->
+    <com.example.travel.widget.BaiduZoomControl
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/baidu_zoom_control"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/dp_10"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/dp_10"
+        >
+    </com.example.travel.widget.BaiduZoomControl>
+</RelativeLayout>

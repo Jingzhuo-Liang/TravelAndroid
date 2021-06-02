@@ -52,7 +52,6 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
         switchLogin = findViewById(R.id.login1_id_switchLogin);
         goRegister = findViewById(R.id.login1_id_goRegister);
         loginBtn = findViewById(R.id.login1_id_login);
-
         switchLogin.setVisibility(View.INVISIBLE);
     }
 
@@ -117,7 +116,9 @@ public class Login1Activity extends BaseActivity implements View.OnClickListener
                     } else if (loginResponse.getData().getGender().equals("unknown")) {
                         loginResponse.getData().setGender("保密");
                     }
-                    loginResponse.getData().setBirthday(loginResponse.getData().getBirthday().split("T")[0]);
+
+
+                    loginResponse.getData().setBirthday((loginResponse.getData().getBirthday().split("T")[0]).split(" ")[0]);
                     LoginUser.getInstance().setUser(loginResponse.getData());
                     clearSp();
                     saveStringToSp("id",String.valueOf(loginResponse.getId()));

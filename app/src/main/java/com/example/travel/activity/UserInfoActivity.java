@@ -1,5 +1,6 @@
 package com.example.travel.activity;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import java.text.ParseException;
@@ -21,6 +22,8 @@ import android.icu.text.MessagePattern;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -74,6 +77,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private ItemGroup ig_phoneNum;
     private ItemGroup ig_email;
     private ItemGroup ig_signature;
+    private ItemGroup ig_password;
     private Button ig_exitLoginBtn;
 
     private LoginUser loginUser;
@@ -96,9 +100,11 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private static final int EDIT_PHONENUM = 4;
     private static final int EDIT_EMAIL = 5;
     private static final int EDIT_SIGNATURE = 6;
+    private static final int EDIT_PASSWORD = 7;
     private TitleLayout titleLayout;
 
     private boolean isDirty = false; //false: not modified true:modified
+    private boolean pwdIsDirty = false; // false：not modify pwd  true: modify
 
     @Override
     protected int initLayout() {
@@ -118,6 +124,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         ig_email = findViewById(R.id.ig_email);
         ig_email.setJtRightIvIsVisible(false);
         ig_signature = findViewById(R.id.ig_signature);
+        ig_password = findViewById(R.id.ig_password);
         ig_exitLoginBtn = findViewById(R.id.ig_exitLogin);
 
         ll_portrait = (LinearLayout)findViewById(R.id.ll_portrait);
@@ -133,7 +140,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         ig_signature.setOnClickListener(this);
         ll_portrait.setOnClickListener(this);
         ig_exitLoginBtn.setOnClickListener(this);
-
+        ig_password.setOnClickListener(this);
     }
 
     @Override
@@ -257,6 +264,37 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 }
             });
         }
+        if (pwdIsDirty) {
+            pwdIsDirty = false;
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("userId", LoginUser.getInstance().getUser().getId());
+            params.put("oldPassword", LoginUser.getInstance().getOldPwd());
+            params.put("newPassword", LoginUser.getInstance().getNewPwd());
+            //Log.e("old", LoginUser.getInstance().getOldPwd());
+            //Log.e("new", LoginUser.getInstance().getNewPwd());
+            handler.sendEmptyMessage(0);
+            /*
+            Api.config(ApiConfig.UPDATE_USER_PASSWORD, params).postRequest(new TtitCallback() {
+                @Override
+                public void onSuccess(String res) {
+                    CommonResponse commonResponse = new Gson().fromJson(res, CommonResponse.class);
+                    if (commonResponse.getCode() == 200) {
+                        showToastSync("修改密码成功");
+                    } else if (commonResponse.getCode() == 400) {
+                        showToastSync("原密码不正确");
+                    } else {
+                        showToastSync("修改密码失败");
+                    }
+                    handler.sendEmptyMessage(0);
+                }
+                @Override
+                public void onFailure(Exception e) {
+                    showToastSync("网络不佳，修改密码失败");
+                    handler.sendEmptyMessage(0);
+                }
+            });
+             */
+        }
     }
 
 
@@ -270,22 +308,13 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 startActivityForResult(intent, EDIT_NAME);
                 break;
             }
-            /*
-            //修改手机号
-            case R.id.ig_phoneNum:{
-                loginUser.setType(2);
+            //修改密码
+            case R.id.ig_password: {
+                loginUser.setType(7);
                 Intent intent = new Intent(UserInfoActivity.this, EditName.class);
-                startActivityForResult(intent, EDIT_PHONENUM);
+                startActivityForResult(intent, EDIT_PASSWORD);
                 break;
             }
-            //修改邮箱
-            case R.id.ig_email:{
-                loginUser.setType(3);
-                Intent intent = new Intent(UserInfoActivity.this, EditName.class);
-                startActivityForResult(intent, EDIT_EMAIL);
-                break;
-            }
-             */
             //修改个性签名
             case R.id.ig_signature:{
                 loginUser.setType(4);
@@ -427,6 +456,13 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 }
                 break;
             }
+            case EDIT_PASSWORD: {
+                if (resultCode == RESULT_OK) {
+                    pwdIsDirty = true;
+                    ig_password.getContentEdt().setText("请确认修改密码");
+                }
+                break;
+            }
             default:
                 break;
         }
@@ -520,5 +556,23 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         });
     }
 
+    Handler handler = new Handler() {
+        @SuppressLint("HandlerLeak")
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:{
+                    //在主线程中执行
+                    ig_password.getContentEdt().setText("");
+                    break;
+                }
+                default:{
+                    finish();
+                    break;
+                }
+            }
+        }
+    };
 
 }
