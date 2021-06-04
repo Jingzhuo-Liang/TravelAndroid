@@ -62,4 +62,5 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
     implementation 'com.github.SiberiaDante:CustomDialog:v1.1.2'
     implementation project(':ljzPopUpWindowlibrary')
+    compile 'com.yuyh.imgsel:library:2.1.0'
 }

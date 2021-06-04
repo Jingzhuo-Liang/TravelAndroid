@@ -163,6 +163,10 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                     finish();
                     //Log.e("register success",res);
                     showToastSync("注册成功，请登录");
+                } else if (rg.getCode() == 401) {
+                    showToastSync("手机号重复");
+                } else if (rg.getCode() == 402) {
+                    showToastSync("邮箱重复");
                 } else {
                     showToastSync("注册失败");
                 }
@@ -267,74 +271,4 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         }
 
     }
-
-    /*
-    //传入：asset文件夹中json文件名
-    //返回：读取的String
-    private String readJsonFile(String file){
-        StringBuilder newstringBuilder = new StringBuilder();
-        try {
-            InputStream inputStream = getResources().getAssets().open(file);
-
-            InputStreamReader isr = new InputStreamReader(inputStream);
-
-            BufferedReader reader = new BufferedReader(isr);
-
-            String jsonLine;
-            while ((jsonLine = reader.readLine()) != null) {
-                newstringBuilder.append(jsonLine);
-            }
-            reader.close();
-            isr.close();
-            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String data =  newstringBuilder.toString();
-        return data;
-    }
-
-     */
-
-    /*
-    //展示修改头像的选择框，并设置选择框的监听器
-    private void show_popup_windows(){
-        RelativeLayout layout_photo_selected = (RelativeLayout) getLayoutInflater().inflate(R.layout.photo_select,null);
-        if(popupWindow==null){
-            popupWindow = new PopupWindow(layout_photo_selected, ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT, true);
-        }
-        //显示popupwindows
-        popupWindow.showAtLocation(layout_photo_selected, Gravity.CENTER, 0, 0);
-        TextView from_albums = (TextView)  layout_photo_selected.findViewById(R.id.from_albums);
-        LinearLayout cancel = (LinearLayout) layout_photo_selected.findViewById(R.id.cancel);
-        //相册按钮监听
-        from_albums.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //申请权限
-                if(ContextCompat.checkSelfPermission(UserInfoActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-                    ActivityCompat.requestPermissions(UserInfoActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
-                }else {
-                    //打开相册
-                    Intent intent = new Intent("android.intent.action.GET_CONTENT");
-                    intent.setType("image/*");
-                    startActivityForResult(intent, FROM_ALBUMS);
-                }
-                //去除选择框
-                popupWindow.dismiss();
-            }
-        });
-        //取消按钮监听
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (popupWindow != null && popupWindow.isShowing()) {
-                    popupWindow.dismiss();
-                }
-            }
-        });
-    }
-     */
-
 }

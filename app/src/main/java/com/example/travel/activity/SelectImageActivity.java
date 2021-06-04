@@ -13,15 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -30,14 +27,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -62,7 +56,6 @@ import com.example.travel.api.Api;
 import com.example.travel.api.ApiConfig;
 import com.example.travel.api.TtitCallback;
 import com.example.travel.entity.CommonNoDataResponse;
-import com.example.travel.entity.CommonResponse;
 import com.example.travel.entity.ModifyTravelRecordEntity;
 import com.example.travel.entity.ModifyTravelRecordResponse;
 import com.example.travel.util.CityBean;
@@ -78,12 +71,9 @@ import com.next.easynavigation.view.EasyNavigationBar;
 import com.siberiadante.customdialoglib.CustomDialog;
 import com.siberiadante.customdialoglib.EnsureDialog;
 import com.wang.avi.AVLoadingIndicatorView;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLEncoder;
+import com.yuyh.library.imgsel.ISNav;
+import com.yuyh.library.imgsel.common.ImageLoader;
+import com.yuyh.library.imgsel.config.ISListConfig;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -98,6 +88,8 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private static final int REQUEST_CODE = 0x00000011;
     private static final int PERMISSION_WRITE_EXTERNAL_REQUEST_CODE = 0x00000012;
     private static final int REQUEST_LOCATION = 0x00000013;
+
+    private static final int REQUEST_LIST_CODE = 0;
 
     private int recordLimitCode = -1;
     private boolean recordImagesDirty = false;
@@ -182,11 +174,13 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         selectImageHint = findViewById(R.id.si_selectImage_hint);
         recordLimit = findViewById(R.id.si_recordLimit);
 
+        /* 在enableAllButton中执行
         selectImage_btn.setOnClickListener(this);
         arrowBack_btn.setOnClickListener(this);
         recordRegion.setOnClickListener(this);
         recordLocation.setOnClickListener(this);
         recordLimit.setOnClickListener(this);
+         */
 
         rvImage.setLayoutManager(new GridLayoutManager(this, 3));
         recordName.setHorizontallyScrolling(false);
@@ -201,7 +195,14 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         rvImage.setAdapter(mAdapter);
         ImageSelector.preload(context);
         getLocation();
+        ISNav.getInstance().init(new ImageLoader() {
+            @Override
+            public void displayImage(Context context, String path, ImageView imageView) {
+                Glide.with(context).load(path).into(imageView);
+            }
+        });
     }
+
 
     @Override
     protected void initData() {
@@ -266,7 +267,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 break;
             }
             case R.id.si_selectImage_btn: {
-                //Log.e("selectImage","here???");
+                /*
                 //多选(最多9张)
                 ImageSelector.builder()
                         .useCamera(false) // 设置是否使用拍照
@@ -274,6 +275,33 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                         .canPreview(true) //是否点击放大图片查看,，默认为true
                         .setMaxSelectCount(9) // 图片的最大选择数量，小于等于0时，不限数量。
                         .start(this, REQUEST_CODE); // 打开相册
+
+                */
+                ISListConfig config = new ISListConfig.Builder()
+                        // 是否多选, 默认true
+                        .multiSelect(true)
+                        // 是否记住上次选中记录, 仅当multiSelect为true的时候配置，默认为true
+                        .rememberSelected(false)
+                        // “确定”按钮背景色
+                        .btnBgColor(Color.GRAY)
+                        // “确定”按钮文字颜色
+                        .btnTextColor(Color.BLUE)
+                        // 使用沉浸式状态栏
+                        .statusBarColor(Color.parseColor("#FF000000"))
+                        // 标题
+                        .title("选择图片")
+                        // 标题文字颜色
+                        .titleColor(Color.WHITE)
+                        // TitleBar背景色
+                        .titleBgColor(Color.parseColor("#3F51B5"))
+                        // 第一个是否显示相机，默认true
+                        .needCamera(false)
+                        // 最大选择图片数量，默认9
+                        .maxNum(9)
+                        .build();
+
+                // 跳转到图片选择器
+                ISNav.getInstance().toListActivity(this, config, REQUEST_LIST_CODE);
                 break;
             }
             case R.id.si_recordRegion: {
@@ -370,18 +398,18 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
 
 
     private void modifyTravelRecord() {
-        disableBottomBarCenterButton();
+        disableAllButton();
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
-            enableBottomBarCenterButton();
+            enableAllButton();
             showToast("请选择城市");
             return;
         }
         else if (StringUtils.isEmpty(recordName.getText().toString())) {
-            enableBottomBarCenterButton();
+            enableAllButton();
             showToast("请输入游记名字");
             return;
         } else if (recordLimitCode == -1) {
-            enableBottomBarCenterButton();
+            enableAllButton();
             showToast("请选择权限");
             return;
         }
@@ -389,7 +417,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         ArrayList<String> imagePaths = mAdapter.getImages();
         ArrayList<String> images = new ArrayList<>();
         if (imagePaths.size() == 0) {
-            enableBottomBarCenterButton();
+            enableAllButton();
             dismissLoadingDialog();
             showToast("请至少选择一张图片");
             return;
@@ -403,7 +431,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri,opts);
                 images.add(PhotoUtils.bitmapToString(bitmap));
                 if (bitmap.getByteCount() > ApiConfig.IMAGE_MAX_LIMIT) {
-                    enableBottomBarCenterButton();
+                    enableAllButton();
                     showToast("上传图片过大");
                     dismissLoadingDialog();
                     return;
@@ -437,22 +465,22 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 showToastSync("网络不佳，游记修改失败");
             }
         });
-        enableBottomBarCenterButton();
+        enableAllButton();
     }
 
     private void releaseTravelRecord() {
-        disableBottomBarCenterButton();
+        disableAllButton();
         //Log.d("clickRelease",recordRegion.getText().toString());
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
-            enableBottomBarCenterButton();
+            enableAllButton();
             showToast("请选择城市");
             return;
         } else if (StringUtils.isEmpty(recordName.getText().toString())) {
-            enableBottomBarCenterButton();
+            enableAllButton();
             showToast("请输入游记名字");
             return;
         } else if (recordLimitCode == -1) {
-            enableBottomBarCenterButton();
+            enableAllButton();
             showToast("请选择权限");
             return;
         }
@@ -460,20 +488,20 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         ArrayList<String> imagePaths = mAdapter.getImages();
         ArrayList<String> images = new ArrayList<>();
         if (imagePaths.size() == 0) {
-            enableBottomBarCenterButton();
+            enableAllButton();
             dismissLoadingDialog();
             showToast("请至少选择一张图片");
             return;
         }
         //根据图片路径获取图片并转成base64字符串
         BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inSampleSize = 4;
+        opts.inSampleSize = 8;
         for (int i = 0;i < imagePaths.size();i++) {
             Uri uri = UriUtils.getImageContentUri(this, imagePaths.get(i));
             Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri, opts);
             //Log.e("bitmapByteCount",String.valueOf(bitmap.getByteCount()));
             if (bitmap.getByteCount() > ApiConfig.IMAGE_MAX_LIMIT) {
-                enableBottomBarCenterButton();
+                enableAllButton();
                 showToast("上传图片过大");
                 dismissLoadingDialog();
                 return;
@@ -522,7 +550,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             }
         });
         //finish();
-        enableBottomBarCenterButton();
+        //enableBottomBarCenterButton();
     }
 
 
@@ -581,10 +609,10 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                     }
 
                 });
-        enableBottomBarCenterButton();
+        enableAllButton();
     }
 
-    private void enableBottomBarCenterButton() {
+    private void enableAllButton() {
         navigationBar.setOnCenterTabClickListener(new EasyNavigationBar.OnCenterTabSelectListener() {
             @Override
             public boolean onCenterTabSelectEvent(View view) {
@@ -626,10 +654,20 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 .canScroll(true)
                 .mode(EasyNavigationBar.NavigationMode.MODE_ADD)
                 .build();
+        selectImage_btn.setOnClickListener(this);
+        arrowBack_btn.setOnClickListener(this);
+        recordRegion.setOnClickListener(this);
+        recordLocation.setOnClickListener(this);
+        recordLimit.setOnClickListener(this);
     }
 
-    private void disableBottomBarCenterButton() {
+    private void disableAllButton() {
         navigationBar.setOnCenterTabClickListener(null);
+        selectImage_btn.setOnClickListener(null);
+        arrowBack_btn.setOnClickListener(null);
+        recordRegion.setOnClickListener(null);
+        recordLocation.setOnClickListener(null);
+        recordLimit.setOnClickListener(null);
     }
 
 
@@ -661,6 +699,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
+    /*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -670,6 +709,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             recordImagesDirty = true;
         }
     }
+     */
 
     private void getLocation() {
         int hasWriteExternalPermission = ContextCompat.checkSelfPermission(this,
@@ -771,6 +811,17 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     public void dismissLoadingDialog() {
         if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
             mLoadingDialog.dismiss();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // 图片选择结果回调
+        if (requestCode == REQUEST_LIST_CODE && resultCode == RESULT_OK && data != null) {
+            ArrayList<String> pathList = data.getStringArrayListExtra("result");
+            mAdapter.refresh(pathList);
+            recordImagesDirty = true;
         }
     }
 }
