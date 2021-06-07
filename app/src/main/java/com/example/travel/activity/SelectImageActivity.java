@@ -311,7 +311,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                 break;
             }
             case R.id.si_recordRegion: {
-                //dismissSoftKeyBoard();
+                hideKeyboard(recordMain);
                 ensureDialog = new EnsureDialog(this).builder()
                         .setGravity(Gravity.CENTER)//默认居中，可以不设置
                         .setTitle("检测到您选择的位置与所在位置不一致", getResources().getColor(R.color.black))//可以不设置标题颜色，默认系统颜色
@@ -382,6 +382,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             }
             case R.id.si_recordLimit : {
                 //dismissSoftKeyBoard();
+                hideKeyboard(recordName);
                 pvOptions = new OptionsPickerBuilder(this, new OnOptionsSelectListener() {
                     @Override
                     public void onOptionsSelect(int options1, int options2, int options3, View v) {
@@ -428,6 +429,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             showToast("请至少选择一张图片");
             return;
         }
+        hideKeyboard(recordMain);
         new Thread(new Runnable() {
             @SuppressLint("HandlerLeak")
             @Override
@@ -520,6 +522,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             showToast("请至少选择一张图片");
             return;
         }
+        hideKeyboard(recordMain);
         new Thread(new Runnable() {
             @SuppressLint("HandlerLeak")
             @Override

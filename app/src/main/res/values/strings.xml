@@ -29,7 +29,7 @@
     <string name="exitLogin">退出登录</string>
     <string name="my_travelNotes">我的游记</string>
     <string name="travelName_hint">给你的游记取个好名字吧……（长度不超过30）</string>
-    <string name="travel_main_hint">撰写游记正文（长度超过255）</string>
+    <string name="travel_main_hint">撰写游记正文（长度不超过255）</string>
     <string name="state_released">已发布</string>
     <string name="state_auditing">待审核</string>
     <string name="state_rejected">被驳回</string>

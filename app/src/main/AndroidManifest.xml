@@ -38,7 +38,9 @@
             android:name="com.donkingliang.imageselector.ClipImageActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".activity.SelectImageActivity" />
+        <activity android:name=".activity.SelectImageActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".activity.HomeActivity" />
         <activity android:name=".activity.RegisterActivity" />
         <activity android:name=".activity.UserInfoActivity" />

@@ -223,7 +223,7 @@
     <com.next.easynavigation.view.EasyNavigationBar
         android:id="@+id/si_navigationBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/layer1"
         app:Easy_centerIconSize="40dp">
     </com.next.easynavigation.view.EasyNavigationBar>
