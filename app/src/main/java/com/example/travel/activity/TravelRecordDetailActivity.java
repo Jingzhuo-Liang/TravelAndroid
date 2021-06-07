@@ -342,7 +342,11 @@ public class TravelRecordDetailActivity extends BaseActivity implements View.OnC
                     }
                     handler.sendEmptyMessage(3);
                 } else  {
-                    showToastSync(cr.getMsg());
+                    if (cr.getMsg().equals("Cannot follow oneself")) {
+                        showToastSync("无法关注自己");
+                    } {
+                        showToastSync(cr.getMsg());
+                    }
                 }
             }
 
