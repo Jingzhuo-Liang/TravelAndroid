@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -74,6 +75,8 @@ import com.wang.avi.AVLoadingIndicatorView;
 import com.yuyh.library.imgsel.ISNav;
 import com.yuyh.library.imgsel.common.ImageLoader;
 import com.yuyh.library.imgsel.config.ISListConfig;
+
+import java.nio.channels.SelectionKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,9 +130,11 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
     private MyLocationListener myListener = new MyLocationListener();
 
     private MaterialDialog mLoadingDialog;
-    EnsureDialog ensureDialog;
+    private EnsureDialog ensureDialog;
     //private Boolean locDifButCon = false; //location is different but continue
     private String selectRegion = "";
+    private ArrayList<String> imagePaths;
+    private ProgressDialog progressDialog;
 
     private Handler handler = new Handler() {
         @SuppressLint("HandlerLeak")
@@ -139,8 +144,9 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             switch (msg.what) {
                 case 0:{
                     //在主线程中执行
-                    dismissLoadingDialog();
-                    finish();
+                    //progressDialog.dismiss();//去掉加载框
+                    //dismissLoadingDialog();
+                    //finish();
                     break;
                 }
                 case 1: {
@@ -413,59 +419,78 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             showToast("请选择权限");
             return;
         }
-        showLoadingDialog();
+        //showLoadingDialog();
         ArrayList<String> imagePaths = mAdapter.getImages();
         ArrayList<String> images = new ArrayList<>();
         if (imagePaths.size() == 0) {
             enableAllButton();
-            dismissLoadingDialog();
+            //dismissLoadingDialog();
             showToast("请至少选择一张图片");
             return;
         }
-        //根据图片路径获取图片并转成base64字符串
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inSampleSize = 4;
-        if (recordImagesDirty) { //修改了图片
-            for (int i = 0;i < imagePaths.size();i++) {
-                Uri uri = UriUtils.getImageContentUri(this, imagePaths.get(i));
-                Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri,opts);
-                images.add(PhotoUtils.bitmapToString(bitmap));
-                if (bitmap.getByteCount() > ApiConfig.IMAGE_MAX_LIMIT) {
-                    enableAllButton();
-                    showToast("上传图片过大");
-                    dismissLoadingDialog();
-                    return;
+        new Thread(new Runnable() {
+            @SuppressLint("HandlerLeak")
+            @Override
+            public void run() {
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inSampleSize = 4;
+                if (recordImagesDirty) { //修改了图片
+                    for (int i = 0;i < imagePaths.size();i++) {
+                        Uri uri = UriUtils.getImageContentUri(SelectImageActivity.this, imagePaths.get(i));
+                        Bitmap bitmap = ImageUtil.getBitmapFromUri(SelectImageActivity.this, uri,opts);
+                        images.add(PhotoUtils.bitmapToString(bitmap));
+                        if (bitmap.getByteCount() > ApiConfig.IMAGE_MAX_LIMIT) {
+                            enableAllButton();
+                            showToast("上传图片过大，游记修改失败");
+                            //dismissLoadingDialog();
+                            return;
+                        }
+                    }
                 }
-            }
-        }
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("userId", LoginUser.getInstance().getUser().getId());
-        params.put("recordId",this.recordId);
-        params.put("recordName", recordName.getText().toString());
-        params.put("recordMain", recordMain.getText().toString());
-        params.put("recordRegion", recordRegion.getText().toString());
-        params.put("recordLimit", recordLimitCode);
-        params.put("recordImages", images);
-        if (myListener.getLatitude() != 0 && myListener.getLongitude() != 0) {
-            //params.put("latitude", userLocation.getLatitude());
-            //params.put("longitude", userLocation.getLongitude());
-            params.put("latitude",myListener.getLatitude());
-            params.put("longitude", myListener.getLongitude());
-        }
-        Api.config(ApiConfig.MODIFY_MY_TRAVEL_RECORD_STEP2, params).postRequest(new TtitCallback() {
-            @Override
-            public void onSuccess(String res) {
-                handler.sendEmptyMessage(0);
-                showToastSync("游记修改成功");
-            }
+                HashMap<String, Object> params = new HashMap<>();
+                params.put("userId", LoginUser.getInstance().getUser().getId());
+                params.put("recordId", recordId);
+                params.put("recordName", recordName.getText().toString());
+                params.put("recordMain", recordMain.getText().toString());
+                params.put("recordRegion", recordRegion.getText().toString());
+                params.put("recordLimit", recordLimitCode);
+                params.put("recordImages", images);
+                if (myListener.getLatitude() != 0 && myListener.getLongitude() != 0) {
+                    //params.put("latitude", userLocation.getLatitude());
+                    //params.put("longitude", userLocation.getLongitude());
+                    params.put("latitude",myListener.getLatitude());
+                    params.put("longitude", myListener.getLongitude());
+                }
+                //Log.e("images",String.valueOf(images.size()));
+                Api.config(ApiConfig.MODIFY_MY_TRAVEL_RECORD_STEP2, params).postRequest(new TtitCallback() {
+                    @Override
+                    public void onSuccess(String res) {
+                        //Log.e("releaseRecord",res);
+                        try {
+                            CommonNoDataResponse commonResponse = new Gson().fromJson(res, CommonNoDataResponse.class);
+                            if (commonResponse.getCode() == 200) {
+                                handler.sendEmptyMessage(0);
+                                showToastSync("游记修改成功");
+                            } else {
+                                handler.sendEmptyMessage(0);
+                                showToastSync("游记修改失败");
+                            }
+                        } catch (Exception e) {
+                            handler.sendEmptyMessage(0);
+                            showToastSync("游记修改失败");
+                        }
+                    }
 
-            @Override
-            public void onFailure(Exception e) {
-                handler.sendEmptyMessage(0);
-                showToastSync("网络不佳，游记修改失败");
+                    @Override
+                    public void onFailure(Exception e) {
+                        handler.sendEmptyMessage(0);
+                        showToastSync("网络不佳，游记修改失败");
+                    }
+                });
             }
-        });
-        enableAllButton();
+        }).start();
+        showToast("正在发送游记，请等候");
+        finish();
     }
 
     private void releaseTravelRecord() {
@@ -473,84 +498,89 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         //Log.d("clickRelease",recordRegion.getText().toString());
         if (StringUtils.isEmpty(recordRegion.getText().toString())) {
             enableAllButton();
+            //dismissLoadingDialog();
             showToast("请选择城市");
             return;
         } else if (StringUtils.isEmpty(recordName.getText().toString())) {
             enableAllButton();
+            //dismissLoadingDialog();
             showToast("请输入游记名字");
             return;
         } else if (recordLimitCode == -1) {
             enableAllButton();
+            //dismissLoadingDialog();
             showToast("请选择权限");
             return;
         }
-        showLoadingDialog();
-        ArrayList<String> imagePaths = mAdapter.getImages();
+        //showLoadingDialog();
         ArrayList<String> images = new ArrayList<>();
-        if (imagePaths.size() == 0) {
+        if (imagePaths == null || imagePaths.size() == 0) {
             enableAllButton();
-            dismissLoadingDialog();
+            //dismissLoadingDialog();
             showToast("请至少选择一张图片");
             return;
         }
-        //根据图片路径获取图片并转成base64字符串
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inSampleSize = 8;
-        for (int i = 0;i < imagePaths.size();i++) {
-            Uri uri = UriUtils.getImageContentUri(this, imagePaths.get(i));
-            Bitmap bitmap = ImageUtil.getBitmapFromUri(this, uri, opts);
-            //Log.e("bitmapByteCount",String.valueOf(bitmap.getByteCount()));
-            if (bitmap.getByteCount() > ApiConfig.IMAGE_MAX_LIMIT) {
-                enableAllButton();
-                showToast("上传图片过大");
-                dismissLoadingDialog();
-                return;
-            }
-            images.add(PhotoUtils.bitmapToString(bitmap));
-        }
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("userId", LoginUser.getInstance().getUser().getId());
-        params.put("recordName", recordName.getText().toString());
-        params.put("recordMain", recordMain.getText().toString());
-        params.put("recordRegion", recordRegion.getText().toString());
-        params.put("recordLimit", recordLimitCode);
-        params.put("recordImages", images);
-        if (myListener.getLatitude() != 0 && myListener.getLongitude() != 0) {
-            //params.put("latitude", userLocation.getLatitude());
-            //params.put("longitude", userLocation.getLongitude());
-            params.put("latitude",myListener.getLatitude());
-            params.put("longitude", myListener.getLongitude());
-        }
-
-        //Log.e("images",String.valueOf(images.size()));
-
-        Api.config(ApiConfig.RELEASE_TRAVEL_RECORD, params).postRequest(new TtitCallback() {
+        new Thread(new Runnable() {
+            @SuppressLint("HandlerLeak")
             @Override
-            public void onSuccess(String res) {
-                //Log.e("releaseRecord",res);
-                try {
-                    CommonNoDataResponse commonResponse = new Gson().fromJson(res, CommonNoDataResponse.class);
-                    if (commonResponse.getCode() == 200) {
-                        handler.sendEmptyMessage(0);
-                        showToastSync("游记发布成功");
-                     } else {
-                        handler.sendEmptyMessage(0);
-                        showToastSync("游记发布失败");
+            public void run() {
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inSampleSize = 4;
+                for (int i = 0;i < imagePaths.size();i++) {
+                    Uri uri = UriUtils.getImageContentUri(SelectImageActivity.this, imagePaths.get(i));
+                    Bitmap bitmap = ImageUtil.getBitmapFromUri(SelectImageActivity.this, uri, opts);
+                    //Log.e("bitmapByteCount",String.valueOf(bitmap.getByteCount()));
+                    if (bitmap.getByteCount() > ApiConfig.IMAGE_MAX_LIMIT) {
+                        //enableAllButton();
+                        showToastSync("上传图片过大，游记发布失败");
+                        //dismissLoadingDialog();
+                        return;
                     }
-                } catch (Exception e) {
-                    handler.sendEmptyMessage(0);
-                    showToastSync("游记发布失败");
+                    images.add(PhotoUtils.bitmapToString(bitmap));
                 }
-            }
+                HashMap<String, Object> params = new HashMap<>();
+                params.put("userId", LoginUser.getInstance().getUser().getId());
+                params.put("recordName", recordName.getText().toString());
+                params.put("recordMain", recordMain.getText().toString());
+                params.put("recordRegion", recordRegion.getText().toString());
+                params.put("recordLimit", recordLimitCode);
+                params.put("recordImages", images);
+                if (myListener.getLatitude() != 0 && myListener.getLongitude() != 0) {
+                    //params.put("latitude", userLocation.getLatitude());
+                    //params.put("longitude", userLocation.getLongitude());
+                    params.put("latitude",myListener.getLatitude());
+                    params.put("longitude", myListener.getLongitude());
+                }
+                //Log.e("images",String.valueOf(images.size()));
+                Api.config(ApiConfig.RELEASE_TRAVEL_RECORD, params).postRequest(new TtitCallback() {
+                    @Override
+                    public void onSuccess(String res) {
+                        //Log.e("releaseRecord",res);
+                        try {
+                            CommonNoDataResponse commonResponse = new Gson().fromJson(res, CommonNoDataResponse.class);
+                            if (commonResponse.getCode() == 200) {
+                                handler.sendEmptyMessage(0);
+                                showToastSync("游记发布成功");
+                            } else {
+                                handler.sendEmptyMessage(0);
+                                showToastSync("游记发布失败");
+                            }
+                        } catch (Exception e) {
+                            handler.sendEmptyMessage(0);
+                            showToastSync("游记发布失败");
+                        }
+                    }
 
-            @Override
-            public void onFailure(Exception e) {
-                handler.sendEmptyMessage(0);
-                showToastSync("网络不佳，游记发布失败");
+                    @Override
+                    public void onFailure(Exception e) {
+                        handler.sendEmptyMessage(0);
+                        showToastSync("网络不佳，游记发布失败");
+                    }
+                });
             }
-        });
-        //finish();
-        //enableBottomBarCenterButton();
+        }).start();
+        showToast("正在发送游记，请等候");
+        finish();
     }
 
 
@@ -616,41 +646,20 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         navigationBar.setOnCenterTabClickListener(new EasyNavigationBar.OnCenterTabSelectListener() {
             @Override
             public boolean onCenterTabSelectEvent(View view) {
-                if (TimeUtils.isFastDoubleClickWithin2Second()) {
-                    //Log.e("click quickly","here");
-                    return false;
-                }
-                //Log.e("click not quickly","here");
-                if (!StringUtils.isEmpty(recordId)) {
-                    modifyTravelRecord();
-                } else {
-                    releaseTravelRecord();
-                }
-                return true;
-                        /*
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //showNormalDialog();
-                                try {
-                                    if (TimeUtils.isFastDoubleClickWithin2Second()) {
-                                        return;
-                                    }
-                                    if (recordId != null && recordId.length() > 0) {
-                                        modifyTravelRecord();
-                                    } else {
-                                        Log.i("clickRelease","here");
-                                        releaseTravelRecord();
-                                    }
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
+                    if (TimeUtils.isFastDoubleClickWithin2Second()) {
+                        //Log.e("click quickly","here");
                         return false;
-                         */
                     }
-                })
+                    //Log.e("releaseRecord","1");
+                    //showLoadingDialog();
+                    //Log.e("click not quickly","here");
+                    if (!StringUtils.isEmpty(recordId)) {
+                        modifyTravelRecord();
+                    } else {
+                        releaseTravelRecord();
+                    }
+                    return true;
+                }})
                 .canScroll(true)
                 .mode(EasyNavigationBar.NavigationMode.MODE_ADD)
                 .build();
@@ -659,6 +668,8 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         recordRegion.setOnClickListener(this);
         recordLocation.setOnClickListener(this);
         recordLimit.setOnClickListener(this);
+        recordMain.setEnabled(true);
+        recordName.setEnabled(true);
     }
 
     private void disableAllButton() {
@@ -668,6 +679,8 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         recordRegion.setOnClickListener(null);
         recordLocation.setOnClickListener(null);
         recordLimit.setOnClickListener(null);
+        recordMain.setEnabled(false);
+        recordName.setEnabled(false);
     }
 
 
@@ -797,6 +810,7 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
         return true;
     }
 
+    /*
     public void showLoadingDialog() {
         if (mLoadingDialog == null) {
             mLoadingDialog = new MaterialDialog.Builder(this)
@@ -804,8 +818,8 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
                     .progress(true, 0)
                     .cancelable(false)
                     .build();
+            mLoadingDialog.setContent("游记发布中...");
         }
-        mLoadingDialog.setContent("游记发布中...");
         mLoadingDialog.show();
     }
     public void dismissLoadingDialog() {
@@ -813,14 +827,15 @@ public class SelectImageActivity extends BaseActivity implements View.OnClickLis
             mLoadingDialog.dismiss();
         }
     }
+     */
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // 图片选择结果回调
         if (requestCode == REQUEST_LIST_CODE && resultCode == RESULT_OK && data != null) {
-            ArrayList<String> pathList = data.getStringArrayListExtra("result");
-            mAdapter.refresh(pathList);
+            imagePaths = data.getStringArrayListExtra("result");
+            mAdapter.refresh(imagePaths);
             recordImagesDirty = true;
         }
     }
